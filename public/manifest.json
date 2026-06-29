@@ -1,0 +1,42 @@
+{
+  "name": "MICROWAT - Sistem Monitoring Degradasi Limbah",
+  "short_name": "MICROWAT",
+  "description": "Sistem monitoring real-time degradasi limbah berbasis spektrofotometer UV-Vis dengan antarmuka web progresif.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#003da5",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/ssdekstop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "MICROWAT Dashboard"
+    },
+    {
+      "src": "images/ssmobile.png",
+      "sizes": "320x320",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "MICROWAT Mobile View"
+    }
+  ],
+  "categories": ["productivity", "utilities"]
+}

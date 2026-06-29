@@ -1,0 +1,32 @@
+{
+  "name": "web-mqtt",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "aedes": "^1.0.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "date-fns": "^2.30.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.2",
+    "firebase": "^11.6.1",
+    "firebase-admin": "^13.0.2",
+    "mosca": "^2.8.3",
+    "mqtt": "^5.12.0",
+    "socket.io": "^4.8.1"
+  },
+  "engines": {
+    "node": ">=18.x"
+  },
+  "devDependencies": {
+    "@railway/cli": "^4.5.1"
+  }
+}

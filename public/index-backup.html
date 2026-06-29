@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#003da5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MICROWAT">
+    <meta name="description" content="MICROWAT - Wastewater Degradation Monitoring System">
+    
+    <title>MICROWAT - Monitoring Sistem</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <!-- Chart.js for visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <!-- Socket.io for real-time communication -->
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div id="app-root">
+        <!-- ============================================================================
+             AUTHENTICATION SCREEN (Default visible)
+             =========================================================================== -->
+        <div id="auth-container" class="auth-full-screen">
+            <div class="auth-wrapper">
+                <!-- Login Form -->
+                <div id="login-section" class="auth-section">
+                    <div class="auth-box">
+                        <div class="auth-header">
+                            <h1><i class="fas fa-droplet"></i> MICROWAT</h1>
+                            <p>Sistem Monitoring Degradasi Limbah</p>
+                        </div>
+                        <form id="login-form">
+                            <div class="form-group">
+                                <label for="login-email">Email</label>
+                                <input type="email" id="login-email" placeholder="Masukkan email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="login-password">Kata Sandi</label>
+                                <input type="password" id="login-password" placeholder="Masukkan kata sandi" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Login</button>
+                            <div id="login-error" class="error-message hidden"></div>
+                        </form>
+                        <div class="auth-links">
+                            <a href="#" id="forgot-password-link">Lupa Kata Sandi?</a>
+                            <span>•</span>
+                            <a href="#" id="register-link">Daftar Akun</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-section" class="auth-section hidden">
+                    <div class="auth-box">
+                        <div class="auth-header">
+                            <h1><i class="fas fa-droplet"></i> MICROWAT</h1>
+                            <p>Buat Akun Baru</p>
+                        </div>
+                        <form id="register-form">
+                            <div class="form-group">
+                                <label for="register-email">Email</label>
+                                <input type="email" id="register-email" placeholder="Masukkan email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-password">Kata Sandi</label>
+                                <input type="password" id="register-password" placeholder="Minimal 6 karakter" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-confirm">Konfirmasi</label>
+                                <input type="password" id="register-confirm" placeholder="Ulangi kata sandi" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Daftar</button>
+                            <div id="register-error" class="error-message hidden"></div>
+                        </form>
+                        <div class="auth-links">
+                            <a href="#" id="login-link">Kembali ke Login</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reset Password Form -->
+                <div id="reset-section" class="auth-section hidden">
+                    <div class="auth-box">
+                        <div class="auth-header">
+                            <h1><i class="fas fa-droplet"></i> MICROWAT</h1>
+                            <p>Reset Kata Sandi</p>
+                        </div>
+                        <form id="reset-form">
+                            <div class="form-group">
+                                <label for="reset-email">Email</label>
+                                <input type="email" id="reset-email" placeholder="Masukkan email terdaftar" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Kirim Email Reset</button>
+                            <div id="reset-error" class="error-message hidden"></div>
+                        </form>
+                        <div class="auth-links">
+                            <a href="#" id="back-to-login">Kembali ke Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================================
+             MAIN APPLICATION (Hidden by default)
+             =========================================================================== -->
+        <div id="main-app" class="main-app-container hidden">
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="logo-container">
+                        <i class="fas fa-droplet"></i>
+                    </div>
+                    <h2>MICROWAT</h2>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="#" data-page="dashboard" class="nav-link active">
+                        <i class="fas fa-gauge-high"></i> Dashboard
+                    </a>
+                    <a href="#" data-page="monitoring" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Monitoring
+                    </a>
+                    <a href="#" data-page="history" class="nav-link">
+                        <i class="fas fa-history"></i> Riwayat
+                    </a>
+                    <a href="#" data-page="controls" class="nav-link">
+                        <i class="fas fa-sliders"></i> Kontrol
+                    </a>
+                    <a href="#" data-page="settings" class="nav-link">
+                        <i class="fas fa-cog"></i> Pengaturan
+                    </a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="user-email-display">User</span>
+                    </div>
+                    <button id="logout-btn" class="btn btn-logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+                <!-- TOP BAR -->
+                <div class="top-bar">
+                    <h1 id="page-title">Dashboard</h1>
+                    <div class="top-bar-actions">
+                        <div class="status-indicator">
+                            <span id="system-status" class="status-dot status-offline"></span>
+                            <span id="system-status-text" class="status-text">Offline</span>
+                        </div>
+                        <div class="notifications">
+                            <button id="notification-btn" class="notification-button">
+                                <i class="fas fa-bell"></i>
+                                <span id="notification-badge" class="badge hidden">0</span>
+                            </button>
+                            <div id="notification-panel" class="notification-panel hidden">
+                                <div class="notification-header">
+                                    <h3>Notifikasi</h3>
+                                    <button id="clear-notifications" class="btn-clear">Hapus Semua</button>
+                                </div>
+                                <div id="notification-list" class="notification-list">
+                                    <p class="empty-state">Tidak ada notifikasi</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGE CONTENT -->
+                <div class="pages-container">
+                    <!-- DASHBOARD PAGE -->
+                    <div id="dashboard-page" class="page active">
+                        <div class="dashboard-grid">
+                            <!-- Primary Measurements Card -->
+                            <div class="card measurement-card large">
+                                <div class="card-header">
+                                    <h3>Parameter Utama</h3>
+                                    <span class="timestamp" id="measure-timestamp">-</span>
+                                </div>
+                                <div class="card-content">
+                                    <div class="measurement-group">
+                                        <div class="measurement-item">
+                                            <div class="measurement-label">Absorbansi (A)</div>
+                                            <div class="measurement-value" id="absorbance-value">0.000</div>
+                                            <div class="measurement-unit">pada λ 254 nm</div>
+                                        </div>
+                                        <div class="measurement-item">
+                                            <div class="measurement-label">Konsentrasi Limbah</div>
+                                            <div class="measurement-value" id="concentration-value">0.00</div>
+                                            <div class="measurement-unit">mg/L (ppm)</div>
+                                        </div>
+                                    </div>
+                                    <div class="measurement-group">
+                                        <div class="measurement-item">
+                                            <div class="measurement-label">Persentase Degradasi</div>
+                                            <div class="measurement-value degradation" id="degradation-value">0.0%</div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" id="degradation-progress" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="measurement-item">
+                                            <div class="measurement-label">Status Limbah</div>
+                                            <div class="status-badge" id="status-badge">IDLE</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- System Status Card -->
+                            <div class="card status-card">
+                                <div class="card-header">
+                                    <h3>Status Sistem</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div class="status-item">
+                                        <span class="status-label">Perangkat Keras</span>
+                                        <span id="hardware-status" class="status-indicator offline">Offline</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-label">Pengukuran Aktif</span>
+                                        <span id="measuring-status" class="status-indicator offline">Tidak Aktif</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-label">Koneksi MQTT</span>
+                                        <span id="mqtt-status" class="status-indicator offline">Terputus</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-label">Data Terbaru</span>
+                                        <span id="last-update-time" class="status-value">Belum ada</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions Card -->
+                            <div class="card actions-card">
+                                <div class="card-header">
+                                    <h3>Tindakan Cepat</h3>
+                                </div>
+                                <div class="card-content">
+                                    <button id="btn-start-measurement" class="btn btn-success btn-block">
+                                        <i class="fas fa-play"></i> Mulai Pengukuran
+                                    </button>
+                                    <button id="btn-stop-measurement" class="btn btn-danger btn-block">
+                                        <i class="fas fa-stop"></i> Henti Pengukuran
+                                    </button>
+                                    <button id="btn-refresh-data" class="btn btn-secondary btn-block">
+                                        <i class="fas fa-sync"></i> Muat Ulang Data
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Real-time Chart -->
+                            <div class="card chart-card full-width">
+                                <div class="card-header">
+                                    <h3>Grafik Real-Time: Konsentrasi vs Degradasi</h3>
+                                </div>
+                                <div class="card-content">
+                                    <canvas id="realtimeChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Alerts Card -->
+                            <div class="card alerts-card full-width">
+                                <div class="card-header">
+                                    <h3>Peringatan & Notifikasi</h3>
+                                </div>
+                                <div id="alerts-container" class="card-content">
+                                    <p class="empty-state">Semua sistem berjalan normal</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MONITORING PAGE -->
+                    <div id="monitoring-page" class="page hidden">
+                        <div class="monitoring-grid">
+                            <div class="card full-width">
+                                <div class="card-header">
+                                    <h3>Monitoring Parameter Pengukuran</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div class="chart-container">
+                                        <canvas id="monitoringChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Detail Pengukuran Terbaru</h3>
+                                </div>
+                                <div class="card-content">
+                                    <table class="data-table">
+                                        <tr>
+                                            <td class="label">Timestamp</td>
+                                            <td id="detail-timestamp" class="value">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Absorbansi (A)</td>
+                                            <td id="detail-absorbance" class="value">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Panjang Gelombang (nm)</td>
+                                            <td id="detail-wavelength" class="value">254</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Konsentrasi (ppm)</td>
+                                            <td id="detail-concentration" class="value">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Degradasi (%)</td>
+                                            <td id="detail-degradation" class="value">-</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HISTORY PAGE -->
+                    <div id="history-page" class="page hidden">
+                        <div class="history-container">
+                            <div class="card full-width">
+                                <div class="card-header">
+                                    <h3>Riwayat Data Pengukuran</h3>
+                                    <div class="filter-group">
+                                        <input type="date" id="history-date-from" class="form-control">
+                                        <span>hingga</span>
+                                        <input type="date" id="history-date-to" class="form-control">
+                                        <button id="btn-filter-history" class="btn btn-secondary">Filter</button>
+                                        <button id="btn-export-csv" class="btn btn-secondary">
+                                            <i class="fas fa-download"></i> Export CSV
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <div id="history-table-container" class="table-container">
+                                        <table class="data-table full-width">
+                                            <thead>
+                                                <tr>
+                                                    <th>Waktu</th>
+                                                    <th>Absorbansi</th>
+                                                    <th>Konsentrasi (ppm)</th>
+                                                    <th>Degradasi (%)</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="history-table-body">
+                                                <tr>
+                                                    <td colspan="5" class="empty-state">Tidak ada data</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONTROLS PAGE -->
+                    <div id="controls-page" class="page hidden">
+                        <div class="controls-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Kontrol Pengukuran</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div class="control-group">
+                                        <button id="btn-control-start" class="btn btn-success btn-block">
+                                            <i class="fas fa-play"></i> Mulai Pengukuran
+                                        </button>
+                                        <button id="btn-control-stop" class="btn btn-danger btn-block">
+                                            <i class="fas fa-stop"></i> Henti Pengukuran
+                                        </button>
+                                        <button id="btn-control-reset" class="btn btn-warning btn-block">
+                                            <i class="fas fa-redo"></i> Reset Sistem
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Parameter Pengukuran</h3>
+                                </div>
+                                <div class="card-content">
+                                    <form id="parameters-form">
+                                        <div class="form-group">
+                                            <label for="initial-concentration">Konsentrasi Awal (ppm)</label>
+                                            <input type="number" id="initial-concentration" placeholder="Masukkan nilai" step="0.01" min="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="wavelength">Panjang Gelombang (nm)</label>
+                                            <input type="number" id="wavelength" placeholder="254" step="1" value="254">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="extinction-coeff">Koefisien Ekstinsi Molar (L/mol·cm)</label>
+                                            <input type="number" id="extinction-coeff" placeholder="1000" step="1" value="1000">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="path-length">Panjang Sel (cm)</label>
+                                            <input type="number" id="path-length" placeholder="1" step="0.1" value="1">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-block">Simpan Parameter</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SETTINGS PAGE -->
+                    <div id="settings-page" class="page hidden">
+                        <div class="settings-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Pengaturan Umum</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div class="form-group">
+                                        <label>Email Pengguna</label>
+                                        <input type="email" id="settings-email" readonly class="form-control-readonly">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings-notifications">Aktifkan Notifikasi</label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="settings-notifications" checked>
+                                            <span>Terima pemberitahuan sistem</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Akun</h3>
+                                </div>
+                                <div class="card-content">
+                                    <button id="btn-change-password" class="btn btn-secondary btn-block">
+                                        Ubah Kata Sandi
+                                    </button>
+                                    <button id="btn-delete-account" class="btn btn-danger btn-block">
+                                        Hapus Akun
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Informasi Aplikasi</h3>
+                                </div>
+                                <div class="card-content">
+                                    <p><strong>Nama Aplikasi:</strong> MICROWAT</p>
+                                    <p><strong>Versi:</strong> 1.0.0</p>
+                                    <p><strong>Deskripsi:</strong> Sistem monitoring degradasi limbah berbasis spektrofotometer UV-Vis</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="app.js"></script>
+</body>
+</html>
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <img src="images/logo.png" alt="PomClear Logo" class="logo">
+                    <h2>PomClear</h2>
+                </div>
+                <ul class="sidebar-links">
+                    <li><a href="#" data-target="dashboard"><span class="material-symbols-outlined">dashboard</span><samp></samp>Dashboard</a></li>
+                    <li><a href="#" data-target="controlling"><span class="material-symbols-outlined">speed</span><samp></samp>Controlling</a></li>
+                    <li><a href="#" data-target="monitoring"><span class="material-symbols-outlined">monitoring</span><samp></samp>Monitoring</a></li>
+                    <li><a href="#" data-target="download"><span class="material-symbols-outlined">download</span><samp></samp>Download</a></li>
+                    <li><a href="#" data-target="info"><span class="material-symbols-outlined">info</span><samp></samp>Info</a></li>
+                    <li><a href="#" data-target="contact"><span class="material-symbols-outlined">phone</span><samp></samp>Contact</a></li>
+                    <li>
+                        <a href="#" id="logout-button" data-target="logout">
+                        <span class="material-symbols-outlined">logout</span><samp></samp>Logout
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+            <div class="main-content">
+                <div id="dashboard" class="content active">
+                    <div class="dashboard-header">
+                        <h2>Dashboard</h2>
+                        <div class="account-info">
+                            <p id="account-name" class="account-name">
+                                <i class="fa-solid fa-user"></i>
+                                <span id="user-email-dashboard">izuazu79@gmail.com</span>
+                            </p>
+                            <p id="system-status-display" class="system-status">Online | Stopped</p>
+                            <p id="uid-sync-status" class="system-status" style="color: orange; font-weight: bold;">Waiting for device sync...</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-info">
+                        <div class="info-item">
+                            <h4>pH</h4>
+                            <p id="ph">Loading...</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>Turbidity</h4>
+                            <p id="turbidity">Loading...</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>TDS</h4>
+                            <p id="tds">Loading...</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>Duration</h4>
+                            <p id="Durasi">Loading...</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>Degradation</h4>
+                            <p id="degradation">Loading...</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>Status</h4>
+                            <p id="status">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="chart-dashboard">
+                        <div class="chart-controls">
+                            <select id="chartSelector" onchange="updateChart(this.value)">
+                                <option value="ph">pH</option>
+                                <option value="turbidity">Turbidity</option>
+                                <option value="tds">TDS</option>
+                                <option value="degradation">Degradation</option>
+                            </select>
+                        </div>
+                        <br>
+                        <canvas id="dashboardChart"></canvas>
+                    </div>
+                </div>
+                <div id="controlling" class="content">
+                    <h1>Controlling</h1>
+                    <fieldset id="setpoint-fieldset">
+                        <legend><i class="fa-solid fa-square-check"></i> Setpoint</legend>
+                        <div class="setpoint-container">
+                            <div class="setpoint-group">
+                                <label for="minPH">Min pH</label>
+                                <input type="number" id="minPH" name="minPH" placeholder="e.g. 6.5">
+                            </div>
+                            <div class="setpoint-group">
+                                <label for="maxPH">Max pH</label>
+                                <input type="number" id="maxPH" name="maxPH" placeholder="e.g. 8.5">
+                            </div>
+                            <div class="setpoint-group">
+                                <label for="maxTDS">Max Turbidity (NTU)</label>
+                                <input type="number" id="maxTDS" name="maxTDS" placeholder="e.g. 200">
+                            </div>
+                            <div class="setpoint-group">
+                                <label for="maxPPM">Max PPM (PPM)</label>
+                                <input type="number" id="maxPPM" name="maxPPM" placeholder="e.g. 100">
+                            </div>
+                            <div class="setpoint-group">
+                                <label for="Time">Time (Minutes)</label>
+                                <input type="number" id="Time" name="Time" placeholder="180">
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset id="lights-fieldset">
+                        <legend><i class="fas fa-lightbulb"></i> Control Lights</legend>
+                        <div class="light-grid">
+                            <div class="control-item">
+                                <h4>Lampu 1</h4>
+                                <input type="checkbox" id="toggleButton1" class="checkbox" data-topic="iot/light1">
+                                <label for="toggleButton1" class="toggle"></label>
+                            </div>
+                            <div class="control-item">
+                                <h4>Lampu 2</h4>
+                                <input type="checkbox" id="toggleButton2" class="checkbox" data-topic="iot/light2">
+                                <label for="toggleButton2" class="toggle"></label>
+                            </div>
+                            <div class="control-item">
+                                <h4>Lampu 3</h4>
+                                <input type="checkbox" id="toggleButton3" class="checkbox" data-topic="iot/light3">
+                                <label for="toggleButton3" class="toggle"></label>
+                            </div>
+                            <div class="control-item">
+                                <h4>Lampu 4</h4>
+                                <input type="checkbox" id="toggleButton4" class="checkbox" data-topic="iot/light4">
+                                <label for="toggleButton4" class="toggle"></label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="action-buttons">
+                        <button type="button" id="saveButton">Save</button>
+                        <button type="reset" id="resetButton">Reset</button>
+                        <button type="button" id="startButton">Start</button>
+                        <button type="button" id="continueButton">Continue</button>
+                        <button type="button" id="stopButton">Stop</button>
+                    </div>
+                </div>
+                <script>
+                    const modalOverlay = document.getElementById('custom-modal-overlay');
+                    const modalTitle = document.getElementById('custom-modal-title');
+                    const modalMessage = document.getElementById('custom-modal-message');
+                    let modalOkButton = document.getElementById('custom-modal-ok');
+                    let modalCancelButton = document.getElementById('custom-modal-cancel');
+                    let currentConfirmResolve = null;
+                    function hideModal() {
+                        modalOverlay.classList.add('hidden');
+                        const okClone = modalOkButton.cloneNode(true);
+                        modalOkButton.parentNode.replaceChild(okClone, modalOkButton);
+                        modalOkButton = okClone;
+                        const cancelClone = modalCancelButton.cloneNode(true);
+                        modalCancelButton.parentNode.replaceChild(cancelClone, modalCancelButton);
+                        modalCancelButton = cancelClone;
+                        currentConfirmResolve = null;
+                    }
+                    function showModal(message, type = 'alert', title = 'Notification') {
+                        modalMessage.textContent = message;
+                        modalTitle.textContent = title;
+                        modalOverlay.classList.remove('hidden');
+                        modalOkButton.classList.add('hidden');
+                        modalCancelButton.classList.add('hidden');
+                        if (type === 'alert') {
+                            modalOkButton.classList.remove('hidden');
+                            modalOkButton.textContent = 'OK';
+                            modalOkButton.onclick = hideModal;
+                        } else {
+                            modalOkButton.classList.remove('hidden');
+                            modalCancelButton.classList.remove('hidden');
+                            modalCancelButton.textContent = 'Cancel';
+                            modalOkButton.textContent = 'OK';
+                            const resolve = currentConfirmResolve;
+                            modalOkButton.onclick = () => {
+                                hideModal();
+                                if (resolve) {
+                                    resolve(true);
+                                }
+                            };
+                            modalCancelButton.onclick = () => {
+                                hideModal();
+                                if (resolve) {
+                                    resolve(false);
+                                }
+                            };
+                        }
+                    }
+                    function customAlert(message, title = 'Alert') {
+                        showModal(message, 'alert', title);
+                    }
+                    function customConfirm(message, title = 'Confirmation') {
+                        if (currentConfirmResolve) {
+                            currentConfirmResolve(false);
+                        }
+                        return new Promise((resolve) => {
+                            currentConfirmResolve = resolve;
+                            showModal(message, 'confirm', title);
+                        });
+                    }
+                    const auth = firebase.auth();
+                    const loginForm = document.getElementById('login-form');
+                    const registerForm = document.getElementById('register-form');
+                    const forgotPasswordForm = document.getElementById('forgot-password-form');
+                    const registerLink = document.getElementById('register-link');
+                    const loginLink = document.getElementById('login-link');
+                    const forgotPasswordLink = document.getElementById('forgot-password-link');
+                    const backToLoginLink = document.getElementById('back-to-login');
+                    const authContainer = document.getElementById('auth-container');
+                    const mainApp = document.getElementById('main-app');
+                    const logoutButton = document.getElementById('logout-button');
+                    const userEmailDashboard = document.getElementById('user-email-dashboard');
+                    const uidSyncStatusElement = document.getElementById('uid-sync-status');
+                    let currentUserUid = null;
+                    let raspiUid = null;
+                    let isUidSynced = false;
+                    let uidSyncInterval = null;
+                    function showForm(formId) {
+                        const forms = document.querySelectorAll('.auth-form');
+                        forms.forEach(form => form.classList.add('hidden'));
+                        document.getElementById(formId).classList.remove('hidden');
+                    }
+                    registerLink.addEventListener('click', (e) => { e.preventDefault(); showForm('register-form'); });
+                    loginLink.addEventListener('click', (e) => { e.preventDefault(); showForm('login-form'); });
+                    forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showForm('forgot-password-form'); });
+                    backToLoginLink.addEventListener('click', (e) => { e.preventDefault(); showForm('login-form'); });
+                    loginForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const email = document.getElementById('login-email').value;
+                        const password = document.getElementById('login-password').value;
+                        document.getElementById('login-error').classList.add('hidden');
+                        auth.signInWithEmailAndPassword(email, password)
+                        .then((userCredential) => {})
+                        .catch((error) => {
+                            document.getElementById('login-error').textContent = error.message;
+                            document.getElementById('login-error').classList.remove('hidden');
+                        });
+                    });
+                    registerForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const email = document.getElementById('register-email').value;
+                        const password = document.getElementById('register-password').value;
+                        document.getElementById('register-error').classList.add('hidden');
+                        auth.createUserWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            customAlert("Registration successful! Please login.", "Success");
+                            showForm('login-form');
+                        })
+                        .catch((error) => {
+                            document.getElementById('register-error').textContent = error.message;
+                            document.getElementById('register-error').classList.remove('hidden');
+                        });
+                    });
+                    forgotPasswordForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const email = document.getElementById('reset-email').value;
+                        document.getElementById('reset-error').classList.add('hidden');
+                        auth.sendPasswordResetEmail(email)
+                        .then(() => {
+                            customAlert("Password reset email sent! Check your inbox.", "Password Reset");
+                            showForm('login-form');
+                        })
+                        .catch((error) => {
+                            document.getElementById('reset-error').textContent = error.message;
+                            document.getElementById('reset-error').classList.remove('hidden');
+                        });
+                    });
+                    logoutButton.addEventListener('click', () => {
+                        customConfirm("Are you sure you want to logout?", "Logout Confirmation")
+                        .then(confirmed => {
+                            if (confirmed) {
+                                auth.signOut()
+                                .then(() => {})
+                                .catch((error) => {});
+                            } else {}
+                        });
+                    });
+                    async function fetchAndDisplayFirebaseData(uid, isInitialLoad) {
+                        if (!uid) {
+                            console.error("UID is missing, cannot fetch data.");
+                            return;
+                        }
+                        const db = firebase.database();
+                        const sessionRef = db.ref(`/users/${uid}/session/current`);
+                        const dataRef = db.ref(`/users/${uid}/data`);
+                        const dataTableBodyDownload = document.getElementById('data-table-body');
+                        if (!dataTableBodyDownload) return;
+                        if (isInitialLoad) {
+                             dataTableBodyDownload.innerHTML = '';
+                         }
+                        try {
+                            const sessionSnapshot = await sessionRef.once('value');
+                            const sessionData = sessionSnapshot.val();
+                            const started_at = sessionData ? sessionData.started_at : null;
+                            if (!started_at) {
+                                 if(isInitialLoad && dataTableBodyDownload.innerHTML === ''){
+                                    dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;">Session start time not found. Cannot load historical data.</td></tr>';
+                                 }
+                                return;
+                            }
+                            let queryStartTime = started_at;
+                            let queryFunction = 'startAt';
+                            let queryLimit = 500;
+                            const query = dataRef.orderByChild('timestamp')[queryFunction](queryStartTime).limitToFirst(queryLimit);
+                            const dataSnapshot = await query.once('value');
+                            let newDataFound = false;
+                            let firebaseTimestamps = new Set();
+                            dataSnapshot.forEach(childSnapshot => {
+                                newDataFound = true;
+                                const dataItem = childSnapshot.val();
+                                if(dataItem && dataItem.timestamp) {
+                                     firebaseTimestamps.add(dataItem.timestamp);
+                                     addTableRow(dataItem, dataTableBodyDownload, dataItem.timestamp);
+                                } else {
+                                    addTableRow(dataItem, dataTableBodyDownload);
+                                }
+                            });
+                            if (!newDataFound && isInitialLoad && dataTableBodyDownload.innerHTML === '') {
+                                 dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;">No historical data found for this session yet.</td></tr>';
+                             }
+                             temporaryData.forEach(liveDataPoint => {
+                                 const liveTimestamp = liveDataPoint.timestamp;
+                                 if (!firebaseTimestamps.has(liveTimestamp)) {
+                                    const liveTimeStr = liveDataPoint.time || new Date(liveTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+                                    addTableRow({...liveDataPoint, time: liveTimeStr }, dataTableBodyDownload, liveTimestamp);
+                                 }
+                             });
+                             localStorage.setItem('last_loaded_at', new Date().toISOString());
+                        } catch (error) {
+                            console.error("Error fetching data from Firebase:", error);
+                             if (dataTableBodyDownload && dataTableBodyDownload.innerHTML === '') {
+                                 dataTableBodyDownload.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">Error loading historical data: ${error.message}</td></tr>`;
+                             } else {
+                                 console.warn("Error fetching Firebase data, showing only live data if available:", error.message);
+                                 temporaryData.forEach(liveDataPoint => {
+                                     addTableRow(liveDataPoint, dataTableBodyDownload);
+                                 });
+                             }
+                            customAlert(`Error fetching historical data: ${error.message}`, "Firebase Error");
+                        }
+                    }
+                    function checkUidSync() {
+                        const previousSyncState = isUidSynced;
+                        isUidSynced = !!(currentUserUid && raspiUid && currentUserUid === raspiUid);
+                        if (isUidSynced !== previousSyncState) {
+                            updateUiBasedOnSync();
+                            if(isUidSynced && document.getElementById('download')?.classList.contains('active')){
+                                fetchAndDisplayFirebaseData(currentUserUid, true);
+                            }
+                        }
+                        if (currentUserUid && !isUidSynced) {
+                            socket.emit('publish', {
+                                topic: 'iot/web',
+                                message: currentUserUid
+                            });
+                        }
+                    }
+                    function updateUiBasedOnSync() {
+                        const elementsToDisable = [
+                            saveButton, resetButton, startButton, stopButton, continueButton,
+                            ...document.querySelectorAll('#setpoint-fieldset input'),
+                            ...document.querySelectorAll('#lights-fieldset input'),
+                            ...document.querySelectorAll('#lights-fieldset label'),
+                            document.getElementById('downloadCsvButton'),
+                            document.getElementById('download-txt'),
+                            document.getElementById('download-excel'),
+                            document.getElementById('view-txt')
+                        ];
+                        const dashboardItems = document.querySelectorAll('.dashboard-info .info-item p');
+                        const chartControls = document.getElementById('chartSelector');
+                        if (isUidSynced) {
+                            uidSyncStatusElement.textContent = "Device Synced";
+                            uidSyncStatusElement.style.color = "green";
+                            elementsToDisable.forEach(el => {
+                                if (el) el.disabled = false;
+                            });
+                            if (chartControls) chartControls.disabled = false;
+                            document.getElementById('monitoring').style.opacity = 1;
+                            document.getElementById('download').style.opacity = 1;
+                            document.getElementById('controlling').style.opacity = 1;
+                            if (!chartUpdateInterval && isSystemRunning) {
+                                plotCollectedChartData();
+                            }
+                            if (!monitoringUpdateInterval && document.getElementById('monitoring')?.classList.contains('active')) {
+                                startMonitoringUpdates();
+                            }
+                        } else {
+                            uidSyncStatusElement.textContent = "Waiting for device sync...";
+                            uidSyncStatusElement.style.color = "orange";
+                            elementsToDisable.forEach(el => {
+                                if (el) el.disabled = true;
+                            });
+                            if (chartControls) chartControls.disabled = true;
+                            document.getElementById('monitoring').style.opacity = 0.5;
+                            document.getElementById('download').style.opacity = 0.5;
+                            document.getElementById('controlling').style.opacity = 0.5;
+                            dashboardItems.forEach(p => {
+                                if (p.id !== 'status' && p.id !== 'Durasi' && !isSystemRunning) {
+                                }
+                            });
+                            stopMonitoringUpdates();
+                        }
+                        updateDownloadTableDisplay();
+                    }
+                    function showMainApp(user) {
+                        authContainer.style.display = 'none';
+                        mainApp.style.display = 'block';
+                        userEmailDashboard.textContent = user.email;
+                        currentUserUid = user.uid;
+                        localStorage.setItem('currentUserUid', currentUserUid);
+                        activateContent('dashboard');
+                        localStorage.setItem('userEmail', user.email);
+                        loadSavedConfig();
+                        updateUIFromSavedConfig();
+                        initializeSystemState();
+                        checkUidSync();
+                        updateUiBasedOnSync();
+                        if (uidSyncInterval) clearInterval(uidSyncInterval);
+                        uidSyncInterval = setInterval(checkUidSync, 1000);
+                        const email_storage = user.email;
+                        isDeviceOnline = true;
+                        updateSystemStatusDisplay();
+                        if (!raspiUid) {
+                            const storedRaspiUid = localStorage.getItem('raspiUid');
+                            if (storedRaspiUid) {
+                                raspiUid = storedRaspiUid;
+                            }
+                        }
+                        checkUidSync();
+                        if (isUidSynced) {
+                            if(document.getElementById('download')?.classList.contains('active')){
+                                fetchAndDisplayFirebaseData(currentUserUid, true);
+                            }
+                        } else {
+                            updateDownloadTableDisplay();
+                        }
+                    }
+                    function showLoginScreen() {
+                        authContainer.style.display = 'flex';
+                        mainApp.style.display = 'none';
+                        localStorage.removeItem('userEmail');
+                        localStorage.removeItem('currentUserUid');
+                        localStorage.removeItem('raspiUid');
+                        currentUserUid = null;
+                        raspiUid = null;
+                        isUidSynced = false;
+                        clearInterval(uidSyncInterval);
+                        uidSyncInterval = null;
+                        resetSystem(true);
+                        showForm('login-form');
+                        isDeviceOnline = false;
+                        updateSystemStatusDisplay();
+                        updateUiBasedOnSync();
+                        const dataTableBodyDownload = document.getElementById('data-table-body');
+                        if (dataTableBodyDownload) {
+                            dataTableBodyDownload.innerHTML = '';
+                            dataTableBodyDownload.style.display = 'none';
+                        }
+                    }
+                    auth.onAuthStateChanged((user) => {
+                        if (user) {
+                            showMainApp(user);
+                        } else {
+                            showLoginScreen();
+                        }
+                    });
+                    const socket = io();
+                    let isSystemRunning = false;
+                    let isDeviceOnline = false;
+                    let durationInterval = null;
+                    let chartUpdateInterval = null;
+                    let dataCollectionInterval = null;
+                    let onlineHeartbeatTimeout = null;
+                    const phElement = document.getElementById('ph');
+                    const turbidityElement = document.getElementById('turbidity');
+                    const tdsElement = document.getElementById('tds');
+                    const DurasiElement = document.getElementById('Durasi');
+                    const degradationElement = document.getElementById('degradation');
+                    const statusElement = document.getElementById('status');
+                    const systemStatusDisplayElement = document.getElementById('system-status-display');
+                    const ctx = document.getElementById('dashboardChart').getContext('2d');
+                    const chartData = { ph: [], turbidity: [], tds: [], degradation: [] };
+                    const chartLabels = [];
+                    let currentDataset = 'ph';
+                    let tempDataForChart = {};
+                    let lastPlottedValue = {};
+                    function updateSystemStatusDisplay() {
+                        const onlineStatusText = isDeviceOnline ? "Online" : "Offline";
+                        let runningStatusText = "Idle";
+                        const savedStatus = localStorage.getItem('systemStatus');
+                        if (savedStatus === 'running') {
+                            runningStatusText = "Running";
+                        } else if (savedStatus === 'stopped') {
+                            runningStatusText = "Stopped";
+                        } else if (savedStatus === 'reset') {
+                            runningStatusText = "Idle";
+                        }
+                        if (systemStatusDisplayElement) {
+                            systemStatusDisplayElement.textContent = `${onlineStatusText} | ${runningStatusText}`;
+                        }
+                    }
+                    socket.on('connect', () => {
+                        isDeviceOnline = true;
+                        updateSystemStatusDisplay();
+                        const userEmail = localStorage.getItem('userEmail');
+                        currentUserUid = localStorage.getItem('currentUserUid');
+                        if(userEmail && currentUserUid){
+                            socket.emit('publish', { topic: 'iot/web', message: currentUserUid });
+                        }
+                        checkUidSync();
+                    });
+                    socket.on('disconnect', () => {
+                        isDeviceOnline = false;
+                        clearTimeout(onlineHeartbeatTimeout);
+                        onlineHeartbeatTimeout = null;
+                        updateSystemStatusDisplay();
+                        if (isSystemRunning) {
+                            customAlert("Connection lost. System stopped.", "System Alert");
+                            stopSystem();
+                        }
+                    });
+                    const dashboardChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: chartLabels,
+                            datasets: [{
+                                label: 'pH Over Time',
+                                data: chartData.ph,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                pointRadius: 0,
+                                fill: false,
+                                spanGaps: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    title: { display: true, text: 'Time' },
+                                    ticks: { maxRotation: 45, minRotation: 0, autoSkip: true, maxTicksLimit: 15 }
+                                },
+                                y: {
+                                    title: { display: true, text: 'Value' },
+                                    beginAtZero: true
+                                }
+                            },
+                            elements: { line: { tension: 0.2 } },
+                            animation: false,
+                            plugins: {
+                                tooltip: { mode: 'index', intersect: false },
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                    function loadChartDataFromStorage() {
+                        chartData.ph = JSON.parse(localStorage.getItem('chartData_ph')) || [];
+                        chartData.turbidity = JSON.parse(localStorage.getItem('chartData_turbidity')) || [];
+                        chartData.tds = JSON.parse(localStorage.getItem('chartData_tds')) || [];
+                        chartData.degradation = JSON.parse(localStorage.getItem('chartData_degradation')) || [];
+                        chartLabels.length = 0;
+                        const storedLabels = JSON.parse(localStorage.getItem('chartLabels')) || [];
+                        chartLabels.push(...storedLabels);
+                        lastPlottedValue = JSON.parse(localStorage.getItem('lastPlottedValue')) || {};
+                    }
+                    function updateChart(selectedDataset) {
+                        currentDataset = selectedDataset;
+                        const dataset = dashboardChart.data.datasets[0];
+                        if (!chartData[selectedDataset]) {
+                            currentDataset = 'ph';
+                        }
+                        dataset.data = chartData[currentDataset] || [];
+                        dataset.label = `${currentDataset.charAt(0).toUpperCase() + currentDataset.slice(1)} Over Time`;
+                        const colors = {
+                            ph: { border: 'rgba(75, 192, 192, 1)', bg: 'rgba(75, 192, 192, 0.2)', point: 'rgba(75, 192, 192, 1)' },
+                            turbidity: { border: 'rgba(255, 159, 64, 1)', bg: 'rgba(255, 159, 64, 0.2)', point: 'rgba(255, 159, 64, 1)' },
+                            tds: { border: 'rgba(153, 102, 255, 1)', bg: 'rgba(153, 102, 255, 0.2)', point: 'rgba(153, 102, 255, 1)' },
+                            degradation: { border: 'rgba(255, 99, 132, 1)', bg: 'rgba(255, 99, 132, 0.2)', point: 'rgba(255, 99, 132, 1)' }
+                        };
+                        if (colors[currentDataset]) {
+                            dataset.borderColor = colors[currentDataset].border;
+                            dataset.backgroundColor = colors[currentDataset].bg;
+                            dataset.pointBackgroundColor = colors[currentDataset].point;
+                        } else {
+                            dataset.borderColor = 'rgba(0, 0, 0, 1)';
+                            dataset.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+                            dataset.pointBackgroundColor = 'rgba(0, 0, 0, 1)';
+                        }
+                        dashboardChart.data.labels = chartLabels;
+                        dashboardChart.data.datasets[0].data = chartData[currentDataset] || [];
+                        dashboardChart.update('none');
+                    }
+                    function addChartData(dataset, value) {
+                        if (!isSystemRunning || !isUidSynced) return;
+                        tempDataForChart[dataset] = value;
+                    }
+                    function plotCollectedChartData() {
+                        if (!isSystemRunning || !isUidSynced) return;
+                        const startTime = parseInt(localStorage.getItem('startTime'), 10);
+                        if (!startTime) { return; }
+                        const currentTime = new Date().getTime();
+                        const durationInSeconds = Math.floor((currentTime - startTime) / 1000);
+                        let newDataReceived = Object.keys(tempDataForChart).length > 0;
+                        let isFirstPlot = chartLabels.length === 0;
+                        const minutes = Math.floor(durationInSeconds / 60);
+                        const seconds = durationInSeconds % 60;
+                        const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        if (newDataReceived || (isFirstPlot && durationInSeconds === 0)) {
+                            chartLabels.push(formattedDuration);
+                            Object.keys(chartData).forEach(datasetKey => {
+                                if (tempDataForChart.hasOwnProperty(datasetKey)) {
+                                    const newValue = tempDataForChart[datasetKey];
+                                    chartData[datasetKey].push(newValue);
+                                    lastPlottedValue[datasetKey] = newValue;
+                                } else {
+                                    chartData[datasetKey].push(lastPlottedValue.hasOwnProperty(datasetKey) ? lastPlottedValue[datasetKey] : null);
+                                }
+                            });
+                            tempDataForChart = {};
+                            dashboardChart.data.labels = chartLabels;
+                            dashboardChart.data.datasets[0].data = chartData[currentDataset] || [];
+                            dashboardChart.update();
+                            localStorage.setItem('chartData_ph', JSON.stringify(chartData.ph));
+                            localStorage.setItem('chartData_turbidity', JSON.stringify(chartData.turbidity));
+                            localStorage.setItem('chartData_tds', JSON.stringify(chartData.tds));
+                            localStorage.setItem('chartData_degradation', JSON.stringify(chartData.degradation));
+                            localStorage.setItem('chartLabels', JSON.stringify(chartLabels));
+                            localStorage.setItem('lastPlottedValue', JSON.stringify(lastPlottedValue));
+                        }
+                    }
+                    let Co = parseFloat(localStorage.getItem('initialConcentration')) || null;
+                    function resetOnlineHeartbeatTimer() {
+                        if (!isSystemRunning) return;
+                        clearTimeout(onlineHeartbeatTimeout);
+                        isDeviceOnline = true;
+                        updateSystemStatusDisplay();
+                        onlineHeartbeatTimeout = setTimeout(() => {
+                            isDeviceOnline = false;
+                            updateSystemStatusDisplay();
+                            if (isSystemRunning) {
+                                customAlert("Device offline or communication lost. Stopping system.", "System Alert");
+                                stopSystem();
+                            }
+                        }, 20000);
+                    }
+                    function startDurationAndDataIntervals(startTime) {
+                        clearInterval(durationInterval);
+                        clearInterval(chartUpdateInterval);
+                        clearInterval(dataCollectionInterval);
+                        const updateDuration = () => {
+                            if (!isSystemRunning) { clearInterval(durationInterval); return; }
+                            const now = new Date().getTime();
+                            const durationInSeconds = Math.max(0, Math.floor((now - startTime) / 1000));
+                            const minutes = Math.floor(durationInSeconds / 60);
+                            const seconds = durationInSeconds % 60;
+                            const targetDurationMinutes = parseInt(savedConfig[setpointTopics.Time], 10);
+                            if (!isNaN(targetDurationMinutes) && targetDurationMinutes > 0) {
+                                const targetDurationSeconds = targetDurationMinutes * 60;
+                                if (durationInSeconds >= targetDurationSeconds) {
+                                    customAlert(`Target duration of ${targetDurationMinutes} minutes reached. System stopping.`, "Duration Reached");
+                                    Object.entries(savedConfig).forEach(([topic, message]) => {
+                                        if (topic.startsWith('iot/light') && message === '1') {
+                                            socket.emit("publish", { topic: topic, message: "0" });
+                                        }
+                                    });
+                                    socket.emit("publish", { topic: "iot/control", message: "0" });
+                                    stopSystem();
+                                }
+                            }
+                        };
+                        updateDuration();
+                        durationInterval = setInterval(updateDuration, 1000);
+                        chartUpdateInterval = setInterval(plotCollectedChartData, 1000);
+                        dataCollectionInterval = setInterval(() => {
+                            if (!isSystemRunning || !isUidSynced) { clearInterval(dataCollectionInterval); return; }
+                            const currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+                            const effectiveStartTime = parseInt(localStorage.getItem('startTime'), 10);
+                            let durationText = DurasiElement.textContent || "00:00";
+                            const phVal = parseFloat(phElement.textContent) || 0;
+                            const turbidityVal = parseFloat(turbidityElement.textContent) || 0;
+                            const tdsVal = parseFloat(tdsElement.textContent) || 0;
+                            const degradationTextContent = degradationElement.textContent || "0";
+                            let degradationVal = 0;
+                            if (degradationTextContent !== "Waiting Co..." && degradationTextContent !== "Div by Zero" && degradationTextContent !== "N/A" ) {
+                                degradationVal = parseFloat(degradationTextContent) || 0;
+                            }
+                            collectData(currentTimeStr, durationText, turbidityVal.toFixed(2), phVal.toFixed(2), tdsVal.toFixed(2), degradationVal.toFixed(2));
+                        }, 1000);
+                    }
+                    function startSystem() {
+                        if (!isUidSynced) { customAlert("System not synced with device. Cannot Start.", "Sync Error"); return; }
+                        if (!isSystemRunning) {
+                            isSystemRunning = true;
+                            localStorage.setItem('systemStatus', 'running');
+                            sendSystemStatus('running');
+                            const startTime = new Date().getTime();
+                            localStorage.setItem('startTime', startTime);
+                            localStorage.removeItem('elapsedTime');
+                            localStorage.removeItem('last_loaded_at');
+                            Co = null;
+                            localStorage.removeItem('initialConcentration');
+                            Object.keys(chartData).forEach(key => { chartData[key] = []; });
+                            chartLabels.length = 0;
+                            lastPlottedValue = {};
+                            tempDataForChart = {};
+                            localStorage.removeItem('chartData_ph');
+                            localStorage.removeItem('chartData_turbidity');
+                            localStorage.removeItem('chartData_tds');
+                            localStorage.removeItem('chartData_degradation');
+                            localStorage.removeItem('chartLabels');
+                            localStorage.removeItem('lastPlottedValue');
+                            dashboardChart.data.labels = chartLabels;
+                            dashboardChart.data.datasets[0].data = chartData[currentDataset] || [];
+                            dashboardChart.update('none');
+                            resetTable();
+                            DurasiElement.textContent = "00:00";
+                            startDurationAndDataIntervals(startTime);
+                            updateSystemStatusDisplay();
+                            resetOnlineHeartbeatTimer();
+                            fetchAndDisplayFirebaseData(currentUserUid, true);
+                        } else {}
+                    }
+                    function resumeSystem() {
+                        if (!isUidSynced) { customAlert("System not synced with device. Cannot Continue.", "Sync Error"); return; }
+                        isSystemRunning = true;
+                        localStorage.setItem('systemStatus', 'running');
+                        sendSystemStatus('running');
+                        const now = new Date().getTime();
+                        const elapsedTimeSeconds = parseInt(localStorage.getItem('elapsedTime') || '0', 10);
+                        const elapsedTimeMs = elapsedTimeSeconds * 1000;
+                        const effectiveStartTime = now - elapsedTimeMs;
+                        localStorage.setItem('startTime', effectiveStartTime);
+                        localStorage.removeItem('elapsedTime');
+                        const storedCo = localStorage.getItem('initialConcentration');
+                        if (storedCo) {
+                            Co = parseFloat(storedCo);
+                        } else {
+                            Co = null;
+                        }
+                        loadChartDataFromStorage();
+                        temporaryData = JSON.parse(localStorage.getItem('temporaryData')) || [];
+                        updateDownloadTableDisplay();
+                        updateChart(currentDataset);
+                        startDurationAndDataIntervals(effectiveStartTime);
+                        updateSystemStatusDisplay();
+                        resetOnlineHeartbeatTimer();
+                        for (const [topic, message] of Object.entries(savedConfig)) {
+                            if(topic.startsWith('iot/setpoint/') || topic.startsWith('iot/light')) {
+                                socket.emit("publish", { topic, message });
+                            }
+                        }
+                    }
+                    function stopSystem() {
+                        clearTimeout(onlineHeartbeatTimeout);
+                        onlineHeartbeatTimeout = null;
+                        if (isSystemRunning) {
+                            isSystemRunning = false;
+                            localStorage.setItem('systemStatus', 'stopped');
+                            sendSystemStatus('stopped');
+                            localStorage.setItem('phValue', phElement.textContent);
+                            localStorage.setItem('turbidityValue', turbidityElement.textContent);
+                            localStorage.setItem('tdsValue', tdsElement.textContent);
+                            localStorage.setItem('degradationValue', degradationElement.textContent);
+                            if(Co !== null){
+                                localStorage.setItem('initialConcentration', Co.toString());
+                            }
+                            const startTime = parseInt(localStorage.getItem('startTime'), 10);
+                            if (startTime) {
+                                const stopTime = new Date().getTime();
+                                const elapsedTime = Math.floor((stopTime - startTime) / 1000);
+                                localStorage.setItem('elapsedTime', elapsedTime);
+                            }
+                            clearInterval(durationInterval);
+                            durationInterval = null;
+                            clearInterval(chartUpdateInterval);
+                            chartUpdateInterval = null;
+                            clearInterval(dataCollectionInterval);
+                            dataCollectionInterval = null;
+                            plotCollectedChartData();
+                            localStorage.setItem('chartData_ph', JSON.stringify(chartData.ph));
+                            localStorage.setItem('chartData_turbidity', JSON.stringify(chartData.turbidity));
+                            localStorage.setItem('chartData_tds', JSON.stringify(chartData.tds));
+                            localStorage.setItem('chartData_degradation', JSON.stringify(chartData.degradation));
+                            localStorage.setItem('chartLabels', JSON.stringify(chartLabels));
+                            localStorage.setItem('lastPlottedValue', JSON.stringify(lastPlottedValue));
+                            localStorage.setItem('temporaryData', JSON.stringify(temporaryData));
+                            updateSystemStatusDisplay();
+                        } else {}
+                    }
+                    function resetSystem(triggeredByMQTTOrLogout = false) {
+                        clearTimeout(onlineHeartbeatTimeout);
+                        onlineHeartbeatTimeout = null;
+                        if (isSystemRunning) {
+                            stopSystem();
+                        }
+                        isSystemRunning = false;
+                        localStorage.setItem('systemStatus', 'reset');
+                        if (!triggeredByMQTTOrLogout) {
+                            if (isUidSynced) {
+                                sendSystemStatus('reset');
+                            } else if(currentUserUid) {
+                                sendSystemStatus('reset');
+                            }
+                        }
+                        raspiUid = triggeredByMQTTOrLogout ? null : raspiUid;
+                        isUidSynced = triggeredByMQTTOrLogout ? false : isUidSynced;
+                        if (triggeredByMQTTOrLogout){
+                            localStorage.removeItem('raspiUid');
+                        }
+                        localStorage.removeItem('startTime');
+                        localStorage.removeItem('elapsedTime');
+                        localStorage.removeItem('chartData_ph');
+                        localStorage.removeItem('chartData_turbidity');
+                        localStorage.removeItem('chartData_tds');
+                        localStorage.removeItem('chartData_degradation');
+                        localStorage.removeItem('chartLabels');
+                        localStorage.removeItem('initialConcentration');
+                        localStorage.removeItem('lastPlottedValue');
+                        localStorage.removeItem('phValue');
+                        localStorage.removeItem('turbidityValue');
+                        localStorage.removeItem('tdsValue');
+                        localStorage.removeItem('degradationValue');
+                        localStorage.removeItem('savedControlConfig');
+                        localStorage.removeItem('temporaryData');
+                        localStorage.removeItem('last_loaded_at');
+                        localStorage.removeItem('durationValue');
+                        Co = null;
+                        DurasiElement.textContent = "N/A";
+                        phElement.textContent = "N/A";
+                        turbidityElement.textContent = "N/A";
+                        tdsElement.textContent = "N/A";
+                        degradationElement.textContent = "N/A";
+                        statusElement.textContent = "N/A";
+                        statusElement.style.color = "black";
+                        chartLabels.length = 0;
+                        chartData.ph.length = 0;
+                        chartData.turbidity.length = 0;
+                        chartData.tds.length = 0;
+                        chartData.degradation.length = 0;
+                        tempDataForChart = {};
+                        lastPlottedValue = {};
+                        dashboardChart.data.labels = chartLabels;
+                        dashboardChart.data.datasets[0].data = chartData[currentDataset] || [];
+                        dashboardChart.update('none');
+                        resetControllingUI();
+                        resetTable();
+                        const dataTableBodyDownload = document.getElementById('data-table-body');
+                        if(dataTableBodyDownload) {
+                            dataTableBodyDownload.innerHTML = '';
+                            dataTableBodyDownload.style.display = 'none';
+                        }
+                        clearInterval(durationInterval); durationInterval = null;
+                        clearInterval(chartUpdateInterval); chartUpdateInterval = null;
+                        clearInterval(dataCollectionInterval); dataCollectionInterval = null;
+                        updateSystemStatusDisplay();
+                        updateUiBasedOnSync();
+                        if (!triggeredByMQTTOrLogout && isUidSynced) {
+                            socket.emit("publish", { topic: "iot/reset", message: "1" });
+                            socket.emit("publish", { topic: "iot/control", message: "0" });
+                            lightCheckboxes.forEach(checkbox => {
+                                if (checkbox.checked) {
+                                    const topic = checkbox.getAttribute('data-topic');
+                                    socket.emit("publish", { topic: topic, message: '0' });
+                                }
+                                checkbox.checked = false;
+                            });
+                        } else {
+                            lightCheckboxes.forEach(checkbox => {
+                                checkbox.checked = false;
+                            });
+                        }
+                    }
+                    let savedConfig = {};
+                    const lightCheckboxes = document.querySelectorAll(".checkbox[data-topic^='iot/light']");
+                    const setpointInputs = {
+                        minPH: document.getElementById("minPH"),
+                        maxPH: document.getElementById("maxPH"),
+                        maxTDS: document.getElementById("maxTDS"),
+                        maxPPM: document.getElementById("maxPPM"),
+                        Time: document.getElementById("Time")
+                    };
+                    const saveButton = document.getElementById("saveButton");
+                    const resetButton = document.getElementById("resetButton");
+                    const startButton = document.getElementById("startButton");
+                    const stopButton = document.getElementById("stopButton");
+                    const continueButton = document.getElementById("continueButton");
+                    const setpointTopics = {
+                        minPH: "iot/setpoint/ph_min",
+                        maxPH: "iot/setpoint/ph_max",
+                        maxPPM: "iot/setpoint/turbidity_max",
+                        maxTDS: "iot/setpoint/tds_max",
+                        Time: "iot/setpoint/duration_minutes"
+                    };
+                    function loadSavedConfig() {
+                        const storedConfig = localStorage.getItem('savedControlConfig');
+                        if (storedConfig) {
+                            try {
+                                savedConfig = JSON.parse(storedConfig);
+                            } catch (e) {
+                                savedConfig = {};
+                            }
+                        } else {
+                            savedConfig = {};
+                        }
+                    }
+                    function updateUIFromSavedConfig() {
+                        Object.keys(setpointInputs).forEach(key => {
+                            const inputElement = setpointInputs[key];
+                            const topic = setpointTopics[key];
+                            if (inputElement && savedConfig.hasOwnProperty(topic)) {
+                                inputElement.value = savedConfig[topic];
+                            } else if (inputElement) {
+                                const defaults = { minPH: '6', maxPH: '9', maxPPM: '350', maxTDS: '250', Time: '180' };
+                                inputElement.value = defaults[key] || '';
+                            }
+                        });
+                        lightCheckboxes.forEach(checkbox => {
+                            const topic = checkbox.getAttribute("data-topic");
+                            if (savedConfig.hasOwnProperty(topic)) {
+                                checkbox.checked = savedConfig[topic] === '1';
+                            } else {
+                                checkbox.checked = false;
+                            }
+                        });
+                    }
+                    saveButton.addEventListener("click", () => {
+                        if (!isUidSynced) { customAlert("Cannot save configuration. System not synced with device.", "Sync Error"); return; }
+                        customConfirm("Save current settings as the active configuration? This will overwrite previous saved settings.", "Save Configuration")
+                        .then(confirmed => {
+                            if (confirmed) {
+                                savedConfig = {};
+                                Object.keys(setpointInputs).forEach(key => {
+                                    const inputElement = setpointInputs[key];
+                                    const topic = setpointTopics[key];
+                                    if (inputElement && topic) {
+                                        savedConfig[topic] = inputElement.value;
+                                    }
+                                });
+                                lightCheckboxes.forEach(checkbox => {
+                                    const topic = checkbox.getAttribute("data-topic");
+                                    const state = checkbox.checked ? '1' : '0';
+                                    savedConfig[topic] = state;
+                                });
+                                try {
+                                    localStorage.setItem('savedControlConfig', JSON.stringify(savedConfig));
+                                    customAlert("Configuration Saved! Press Start or Continue to apply.", "Success");
+                                } catch (e) {
+                                    customAlert("Error saving configuration.", "Error");
+                                }
+                            } else {}
+                        });
+                    });
+                    startButton.addEventListener("click", () => {
+                        if (!isUidSynced) { customAlert("System not synced with device. Cannot Start.", "Sync Error"); return; }
+                        if (Object.keys(savedConfig).length === 0) {
+                            customAlert("No configuration saved. Please set and Save Configuration before Starting.", "Configuration Needed");
+                            return;
+                        }
+                        if (isSystemRunning) {
+                            customAlert("System is already running.", "Information");
+                            return;
+                        }
+                        customConfirm("Start the system with the currently saved configuration?", "Start System")
+                        .then(confirmed => {
+                            if (confirmed) {
+                                socket.emit("publish", { topic: "iot/control", message: "1" });
+                                for (const [topic, message] of Object.entries(savedConfig)) {
+                                    socket.emit("publish", { topic, message });
+                                }
+                                setTimeout(startSystem, 1000);
+                            } else {}
+                        });
+                    });
+                    continueButton.addEventListener("click", () => {
+                        if (!isUidSynced) { customAlert("System not synced with device. Cannot Continue.", "Sync Error"); return; }
+                        if (isSystemRunning) {
+                            customAlert("System is already running.", "Information");
+                            return;
+                        }
+                        const status = localStorage.getItem('systemStatus');
+                        const elapsedTime = localStorage.getItem('elapsedTime');
+                        if(status !== 'stopped' || !elapsedTime) {
+                            customAlert("Cannot continue. The system was not previously stopped or state is missing.", "Continue Error");
+                            return;
+                        }
+                        if (Object.keys(savedConfig).length === 0) {
+                            customAlert("No saved configuration found. Cannot ensure consistent settings. Please save configuration if needed.", "Configuration Missing");
+                        }
+                        customConfirm("Continue the previously stopped session?", "Continue System")
+                        .then(confirmed => {
+                            if (confirmed) {
+                                socket.emit("publish", { topic: "iot/continue", message: "1" });
+                                resumeSystem();
+                            } else {}
+                        });
+                    });
+                    stopButton.addEventListener("click", () => {
+                        if (!isUidSynced) { customAlert("System not synced with device. Cannot Stop.", "Sync Error"); return; }
+                        if (!isSystemRunning) {
+                            customAlert("System is not currently running.", "Information");
+                            return;
+                        }
+                        customConfirm("Are you sure you want to stop the system?", "Stop System")
+                        .then(confirmed => {
+                            if (confirmed) {
+                                socket.emit("publish", { topic: "iot/control", message: "0" });
+                                lightCheckboxes.forEach(checkbox => {
+                                    const topic = checkbox.getAttribute('data-topic');
+                                    socket.emit("publish", { topic: topic, message: '0' });
+                                });
+                                stopSystem();
+                            } else {}
+                        });
+                    });
+                    function resetControllingUI() {
+                        savedConfig = {};
+                        localStorage.removeItem('savedControlConfig');
+                        updateUIFromSavedConfig();
+                    }
+                    resetButton.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        if (!isUidSynced && !currentUserUid) { customAlert("Cannot reset. Not logged in or synced.", "Error"); return;}
+                        else if (!isUidSynced && currentUserUid){customAlert("Cannot perform full reset while not synced. If device is offline, Logout instead. If device is online with a different user, logout and log back in with the correct user.", "Sync Error"); return;}
+                        customConfirm("This will STOP the system (if running), CLEAR all current data (dashboard, chart, table), RESET controls to default, and ERASE the saved configuration. Are you sure?", "Confirm Full System Reset")
+                        .then(confirmed => {
+                            if (confirmed) {
+                                resetSystem(false);
+                            } else {}
+                        });
+                    });
+                    function initializeSystemState() {
+                        currentUserUid = localStorage.getItem('currentUserUid');
+                        raspiUid = localStorage.getItem('raspiUid');
+                        loadSavedConfig();
+                        updateUIFromSavedConfig();
+                        loadChartDataFromStorage();
+                        updateChart(currentDataset);
+                        temporaryData = JSON.parse(localStorage.getItem('temporaryData')) || [];
+                        checkUidSync();
+                        if (currentUserUid && isUidSynced) {
+                             if(document.getElementById('download')?.classList.contains('active')){
+                                 fetchAndDisplayFirebaseData(currentUserUid, true);
+                             }
+                        } else {
+                             updateDownloadTableDisplay();
+                        }
+                        const savedStatus = localStorage.getItem('systemStatus');
+                        const savedStartTime = localStorage.getItem('startTime');
+                        const savedCo = localStorage.getItem('initialConcentration');
+                        statusElement.textContent = 'N/A';
+                        statusElement.style.color = 'black';
+                        phElement.textContent = localStorage.getItem('phValue') || "N/A";
+                        turbidityElement.textContent = localStorage.getItem('turbidityValue') || "N/A";
+                        tdsElement.textContent = localStorage.getItem('tdsValue') || "N/A";
+                        degradationElement.textContent = localStorage.getItem('degradationValue') || "N/A";
+                        if (savedCo) {
+                            Co = parseFloat(savedCo);
+                        }
+                        if (currentUserUid && uidSyncInterval == null) {
+                            if (uidSyncInterval) clearInterval(uidSyncInterval);
+                            uidSyncInterval = setInterval(checkUidSync, 1000);
+                        }
+                        updateUiBasedOnSync();
+                        if (isUidSynced && savedStatus === 'running' && savedStartTime) {
+                            const startTime = parseInt(savedStartTime, 10);
+                            isSystemRunning = true;
+                            startDurationAndDataIntervals(startTime);
+                            isDeviceOnline = true;
+                            updateSystemStatusDisplay();
+                            resetOnlineHeartbeatTimer();
+                        } else if (isUidSynced && savedStatus === 'stopped') {
+                            isSystemRunning = false;
+                            isDeviceOnline = true;
+                            DurasiElement.textContent = localStorage.getItem('durationValue') || "N/A";
+                            updateSystemStatusDisplay();
+                        } else {
+                            isSystemRunning = false;
+                            DurasiElement.textContent = "N/A";
+                            clearInterval(durationInterval); durationInterval = null;
+                            clearInterval(chartUpdateInterval); chartUpdateInterval = null;
+                            clearInterval(dataCollectionInterval); dataCollectionInterval = null;
+                            isDeviceOnline = false;
+                            localStorage.setItem('systemStatus','reset');
+                            updateSystemStatusDisplay();
+                        }
+                        updateUiBasedOnSync();
+                    }
+                    window.addEventListener('load', () => {
+                        initializeSystemState();
+                    });
+                    socket.on('mqttMessage', (data) => {
+                        const { topic, message } = data;
+                        if (topic === 'iot/raspi') {
+                            const previousRaspiUid = raspiUid;
+                            raspiUid = message.toString();
+                            localStorage.setItem('raspiUid', raspiUid);
+                            checkUidSync();
+                            return;
+                        }
+                        if (!isUidSynced && topic !== 'iot/online' && !topic.startsWith('iot/setpoint/') && topic !== 'iot/web') {
+                            return;
+                        }
+                        updateSystemStatusDisplay();
+                        const setpointKey = Object.keys(setpointTopics).find(key => setpointTopics[key] === topic);
+                        if (setpointKey && setpointInputs[setpointKey]) {
+                            setpointInputs[setpointKey].value = message;
+                            if(isUidSynced){
+                                savedConfig[topic] = message;
+                                localStorage.setItem('savedControlConfig', JSON.stringify(savedConfig));
+                            }
+                        }
+                        else if (topic.startsWith('iot/light')) {
+                            const lightCheckbox = document.querySelector(`.checkbox[data-topic='${topic}']`);
+                            if (lightCheckbox) {
+                                const targetState = message === '1';
+                                if (lightCheckbox.checked !== targetState) {
+                                    lightCheckbox.checked = targetState;
+                                }
+                                if(isUidSynced){
+                                    savedConfig[topic] = message;
+                                    localStorage.setItem('savedControlConfig', JSON.stringify(savedConfig));
+                                }
+                            }
+                        }
+                        else if (topic === 'iot/continue') {
+                            if (isUidSynced && message === '1' && !isSystemRunning && localStorage.getItem('systemStatus') === 'stopped') {
+                                resumeSystem();
+                            }
+                        }
+                        else if (topic === 'iot/control') {
+                            if (message === '1' && !isSystemRunning && isUidSynced) {
+                                if(localStorage.getItem('systemStatus') !== 'reset') {
+                                    customAlert("System externally started, clearing existing non-reset state and beginning new session.", "External Start");
+                                    resetSystem(true);
+                                }
+                                setTimeout(startSystem, 1000);
+                            } else if (message === '0' && isSystemRunning && isUidSynced) {
+                                stopSystem();
+                            }
+                            else if (message === '1' && isSystemRunning && isUidSynced) {}
+                            else if (message === '0' && !isSystemRunning && isUidSynced) {
+                                if(localStorage.getItem('systemStatus') === 'running'){
+                                    localStorage.setItem('systemStatus', 'stopped');
+                                    updateSystemStatusDisplay();
+                                }
+                            }
+                        }
+                        else if (topic === 'iot/reset') {
+                            if (message === '1') {
+                                if(!isSystemRunning && localStorage.getItem('systemStatus') === 'reset') {}
+                                else {
+                                    if(currentUserUid && isUidSynced){
+                                        resetSystem(true);
+                                    } else {
+                                    }
+                                }
+                            }
+                        }
+                        else if (topic === 'iot/online') {
+                            const deviceWasOffline = !isDeviceOnline;
+                            isDeviceOnline = message === '1';
+                            updateSystemStatusDisplay();
+                            if (isDeviceOnline && isSystemRunning && isUidSynced) {
+                                resetOnlineHeartbeatTimer();
+                            } else if (isDeviceOnline && !isSystemRunning && isUidSynced && deviceWasOffline) {
+                                const savedStatus = localStorage.getItem('systemStatus');
+                                if(savedStatus === 'stopped') {
+                                    DurasiElement.textContent = localStorage.getItem('durationValue') || '00:00';
+                                } else {
+                                    DurasiElement.textContent = 'N/A';
+                                    phElement.textContent = localStorage.getItem('phValue') || "N/A";
+                                    turbidityElement.textContent = localStorage.getItem('turbidityValue') || "N/A";
+                                    tdsElement.textContent = localStorage.getItem('tdsValue') || "N/A";
+                                    degradationElement.textContent = localStorage.getItem('degradationValue') || "N/A";
+                                }
+                            }
+                        }
+                        else if (topic === 'iot/duration') {
+                            const value = parseInt(message, 10);
+                            if (!isNaN(value)) {
+                                const minutes = Math.floor(value / 60);
+                                const seconds = value % 60;
+                                const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                                if(DurasiElement) DurasiElement.textContent = formattedDuration;
+                                if (!isSystemRunning) {
+                                    localStorage.setItem('durationValue', formattedDuration);
+                                }
+                            }
+                        } else if (topic === 'iot/degradation') {
+                            const value = parseFloat(message);
+                            if (!isNaN(value) && degradationElement) {
+                                const formattedValue = value.toFixed(2);
+                                degradationElement.textContent = formattedValue;
+                                if (isSystemRunning && isUidSynced) {
+                                    addChartData('degradation', value);
+                                    lastPlottedValue.degradation = value;
+                                    tempDataForChart.degradation = value;
+                                }
+                                localStorage.setItem('degradationValue', formattedValue);
+                            }
+                        }
+                        else if (isSystemRunning && isUidSynced) {
+                            const value = parseFloat(message);
+                            if (isNaN(value)) { return; }
+                            let dataUpdated = false;
+                            if (topic === 'iot/ph') {
+                                const formattedValue = value.toFixed(2);
+                                phElement.textContent = formattedValue;
+                                addChartData('ph', value);
+                                localStorage.setItem('phValue', formattedValue);
+                                dataUpdated = true;
+                            } else if (topic === 'iot/turbidity') {
+                                const formattedValue = value.toFixed(2);
+                                turbidityElement.textContent = formattedValue;
+                                addChartData('turbidity', value);
+                                localStorage.setItem('turbidityValue', formattedValue);
+                                dataUpdated = true;
+                            } else if (topic === 'iot/tds') {
+                                const formattedValue = value.toFixed(2);
+                                tdsElement.textContent = formattedValue;
+                                addChartData('tds', value);
+                                localStorage.setItem('tdsValue', formattedValue);
+                                dataUpdated = true;
+                            }
+                            if (dataUpdated) {
+                                const currentPH = parseFloat(phElement.textContent);
+                                const currentTurbidity = parseFloat(turbidityElement.textContent);
+                                const currentTDS = parseFloat(tdsElement.textContent);
+                                if (!isNaN(currentPH) && !isNaN(currentTurbidity) && !isNaN(currentTDS)) {
+                                    const phMinOk = 6.0;
+                                    const phMaxOk = 9.0;
+                                    const turbidityMaxOk = 5.0;
+                                    const tdsMaxOk = 500;
+                                    if (currentPH >= phMinOk && currentPH <= phMaxOk &&
+                                        currentTurbidity < turbidityMaxOk &&
+                                        currentTDS < tdsMaxOk)
+                                    {
+                                        statusElement.textContent = 'Safe';
+                                        statusElement.style.color = 'green';
+                                    } else {
+                                        statusElement.textContent = 'Not Safe';
+                                        statusElement.style.color = 'red';
+                                    }
+                                } else {
+                                    statusElement.textContent = 'N/A';
+                                    statusElement.style.color = 'black';
+                                }
+                            }
+                        } else {
+                            const value = parseFloat(message);
+                            if (!isNaN(value)) {
+                                const formattedValue = value.toFixed(2);
+                                if(localStorage.getItem('systemStatus') !== 'stopped' && localStorage.getItem('systemStatus') !== 'running') {
+                                    if (topic === 'iot/ph') {
+                                        phElement.textContent = formattedValue;
+                                        localStorage.setItem('phValue', formattedValue);
+                                    } else if (topic === 'iot/turbidity') {
+                                        turbidityElement.textContent = formattedValue;
+                                        localStorage.setItem('turbidityValue', formattedValue);
+                                    } else if (topic === 'iot/tds') {
+                                        tdsElement.textContent = formattedValue;
+                                        localStorage.setItem('tdsValue', formattedValue);
+                                        if (!topicHasBeenReceived('iot/degradation') && (degradationElement.textContent === "Loading..." || degradationElement.textContent === "N/A")) {
+                                            degradationElement.textContent = "Waiting Co...";
+                                            localStorage.setItem('degradationValue', "Waiting Co...");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    let receivedTopics = new Set();
+                    function topicHasBeenReceived(topic) {
+                        return receivedTopics.has(topic);
+                    }
+                    socket.on('mqttMessage', (data) => {
+                        receivedTopics.add(data.topic);
+                    });
+                    function sendDataToServer(data) {
+                        const userEmail = localStorage.getItem('userEmail');
+                        if (!userEmail || !currentUserUid) {
+                            return;
+                        }
+                        const timestamp = new Date().toISOString();
+                        const dataToSend = { ...data, timestamp: timestamp, userEmail: userEmail, uid: currentUserUid };
+                        fetch('/save-data', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(dataToSend)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => {
+                                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+                                });
+                            }
+                            return response.text();
+                        })
+                        .then(text => {
+                            try {
+                                const responseData = JSON.parse(text);
+                            } catch (e) {}
+                        })
+                        .catch(error => {});
+                    }
+                    function sendSystemStatus(status) {
+                        const userEmail = localStorage.getItem('userEmail');
+                        if(userEmail && currentUserUid) {
+                            sendDataToServer({ systemStatus: status });
+                        } else {}
+                    }
+                    let temporaryData = JSON.parse(localStorage.getItem('temporaryData')) || [];
+                    function collectData(time, duration, turbidity, ph, tds, degradation) {
+                        if (!isSystemRunning || !isUidSynced) return;
+                        const dataPoint = { time, duration, turbidity, ph, tds, degradation, timestamp: new Date().toISOString() };
+                        temporaryData.push(dataPoint);
+                        try {
+                            localStorage.setItem('temporaryData', JSON.stringify(temporaryData));
+                        } catch(e) {
+                            console.warn("LocalStorage full, removing oldest temporary data point.");
+                            temporaryData.shift();
+                            localStorage.setItem('temporaryData', JSON.stringify(temporaryData));
+                        }
+                        const dataTableBodyDownload = document.getElementById('data-table-body');
+                        if (dataTableBodyDownload && document.getElementById('download')?.classList.contains('active') && dataTableBodyDownload.style.display !== 'none') {
+                            addTableRow(dataPoint, dataTableBodyDownload, dataPoint.timestamp);
+                        }
+                        sendDataToServer(dataPoint);
+                    }
+                    function addTableRow(dataItem, tableBodyElement, timestamp = null) {
+                        if (!tableBodyElement || !dataItem) return;
+                        const row = document.createElement('tr');
+                        if(timestamp) row.dataset.timestamp = timestamp;
+                         let formattedDuration = 'N/A';
+                                if (dataItem.duration !== undefined && dataItem.duration !== null) {
+                                     if (typeof dataItem.duration === 'number') {
+                                        const totalSeconds = dataItem.duration;
+                                        const minutes = Math.floor(totalSeconds / 60);
+                                        const seconds = totalSeconds % 60;
+                                        formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                                    } else if (typeof dataItem.duration === 'string' && /^\d+$/.test(dataItem.duration)){
+                                        const totalSeconds = parseInt(dataItem.duration, 10);
+                                         if(!isNaN(totalSeconds)){
+                                            const minutes = Math.floor(totalSeconds / 60);
+                                            const seconds = totalSeconds % 60;
+                                            formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                                        } else {
+                                             formattedDuration = dataItem.duration;
+                                        }
+                                    }
+                                     else {
+                                        formattedDuration = dataItem.duration;
+                                    }
+                                }
+                         const displayTime = dataItem.time || (timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : 'N/A');
+                        row.innerHTML = `
+                            <td>${displayTime}</td>
+                            <td>${formattedDuration}</td>
+                            <td>${dataItem.turbidity !== undefined ? dataItem.turbidity : 'N/A'}</td>
+                            <td>${dataItem.ph !== undefined ? dataItem.ph : 'N/A'}</td>
+                            <td>${dataItem.tds !== undefined ? dataItem.tds : 'N/A'}</td>
+                            <td>${dataItem.degradation !== undefined ? dataItem.degradation : 'N/A'}</td>
+                        `;
+                            if (tableBodyElement.firstChild) {
+                                tableBodyElement.insertBefore(row, tableBodyElement.firstChild);
+                            } else {
+                                tableBodyElement.appendChild(row);
+                            }
+                        const MAX_DISPLAY_ROWS = 100;
+                        while(tableBodyElement.rows.length > MAX_DISPLAY_ROWS) {
+                            tableBodyElement.deleteRow(tableBodyElement.rows.length - 1);
+                        }
+                    }
+                    function resetTable() {
+                        temporaryData = [];
+                        localStorage.removeItem('temporaryData');
+                        const dataTableBodyDownload = document.getElementById('data-table-body');
+                        if (dataTableBodyDownload) {
+                            dataTableBodyDownload.innerHTML = '';
+                            dataTableBodyDownload.style.display = 'none';
+                        }
+                    }
+                    document.getElementById('downloadCsvButton')?.addEventListener('click', () => {
+                        if (!isUidSynced) { customAlert("Cannot download. System not synced with device.", "Sync Error"); return; }
+                        if (temporaryData.length === 0) {
+                            customAlert("No data has been collected to download.", "Download Error");
+                            return;
+                        }
+                        customConfirm(`Download ${temporaryData.length} data rows as CSV?`, "Confirm Download")
+                        .then(confirmed => {
+                            if(confirmed) {
+                                let csvContent = "data:text/csv;charset=utf-8,";
+                                csvContent += "Time,Time Duration,Turbidity (NTU),pH,TDS (ppm),Degradation (%)\r\n";
+                                temporaryData.forEach(row => {
+                                    const csvRow = [
+                                        `"${row.time}"`,
+                                        `"${row.duration}"`,
+                                        row.turbidity,
+                                        row.ph,
+                                        row.tds,
+                                        row.degradation
+                                    ].join(",");
+                                    csvContent += csvRow + "\r\n";
+                                });
+                                const encodedUri = encodeURI(csvContent);
+                                const link = document.createElement("a");
+                                link.setAttribute("href", encodedUri);
+                                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                                link.setAttribute("download", `photodegradation_data_${timestamp}.csv`);
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            } else {}
+                        });
+                    });
+                    function activateContent(targetId) {
+                        const contents = document.querySelectorAll('.content');
+                        contents.forEach(content => content.classList.remove('active'));
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                            targetElement.classList.add('active');
+                            const dataTableBodyDownload = document.getElementById('data-table-body');
+                            document.querySelectorAll('.sidebar-links a').forEach(link => {
+                                link.classList.remove('active-link');
+                                if (link.getAttribute('data-target') === targetId) {
+                                    link.classList.add('active-link');
+                                }
+                            });
+                            if (targetId === 'monitoring' && isUidSynced) {
+                                startMonitoringUpdates();
+                            } else {
+                                stopMonitoringUpdates();
+                            }
+                            if (targetId === 'download') {
+                                updateDownloadTableDisplay();
+                                if (isUidSynced && (!dataTableBodyDownload.hasChildNodes() || dataTableBodyDownload.innerHTML.includes('Loading') || dataTableBodyDownload.innerHTML.includes('Waiting') || dataTableBodyDownload.innerHTML.includes('No data') )) {
+                                    fetchAndDisplayFirebaseData(currentUserUid, true);
+                                }
+                            }
+                        } else {}
+                    }
+                    document.querySelectorAll('.sidebar-links a[data-target]').forEach(item => {
+                        item.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            const targetId = this.getAttribute('data-target');
+                            if (targetId !== 'logout') {
+                                activateContent(targetId);
+                            }
+                        });
+                    });
+                    document.getElementById('chartSelector').addEventListener('change', function() {
+                        if (!this.disabled) {
+                            updateChart(this.value);
+                        }
+                    });
+                </script>
+                <div id="monitoring" class="content">
+                    <h1>Monitoring</h1>
+                    <div class="chart-grid">
+                        <div class="chart-monitoring">
+                            <canvas id="phChart"></canvas>
+                        </div>
+                        <div class="chart-monitoring">
+                            <canvas id="turbidityChart"></canvas>
+                        </div>
+                        <div class="chart-monitoring">
+                            <canvas id="tdsChart"></canvas>
+                        </div>
+                        <div class="chart-monitoring">
+                            <canvas id="degradationChart"></canvas>
+                        </div>
+                    </div>
+                    <script>
+                        const charts = [{
+                                id: 'phChart',
+                                label: 'pH Over Time',
+                                dataset: 'ph',
+                                color: 'rgba(75, 192, 192, 1)'
+                            },
+                            {
+                                id: 'turbidityChart',
+                                label: 'Turbidity Over Time',
+                                dataset: 'turbidity',
+                                color: 'rgba(255, 159, 64, 1)'
+                            },
+                            {
+                                id: 'tdsChart',
+                                label: 'TDS Over Time',
+                                dataset: 'tds',
+                                color: 'rgba(153, 102, 255, 1)'
+                            },
+                            {
+                                id: 'degradationChart',
+                                label: 'Degradation Over Time',
+                                dataset: 'degradation',
+                                color: 'rgba(255, 99, 132, 1)'
+                            }
+                        ];
+                        const monitoringCharts = {};
+                        charts.forEach(chart => {
+                            const ctx = document.getElementById(chart.id)?.getContext('2d');
+                            if (ctx) {
+                                monitoringCharts[chart.dataset] = new Chart(ctx, {
+                                    type: 'line',
+                                    data: {
+                                        labels: chartLabels,
+                                        datasets: [{
+                                            label: chart.label,
+                                            data: chartData[chart.dataset] || [],
+                                            backgroundColor: chart.color.replace('1)', '0.2)'),
+                                            borderColor: chart.color,
+                                            borderWidth: 2,
+                                            tension: 0.4,
+                                            pointRadius: 0,
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        animation: false,
+                                        responsiveAnimationDuration: 0,
+                                        scales: {
+                                            x: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Time'
+                                                },
+                                                ticks: {
+                                                    autoSkip: true,
+                                                    maxTicksLimit: 10
+                                                }
+                                            },
+                                            y: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Value'
+                                                }
+                                            }
+                                        },
+                                        elements: {
+                                            line: {
+                                                tension: 0.2
+                                            },
+                                            point: {
+                                                radius: 3
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {}
+                        });
+                        function updateMonitoringCharts() {
+                            if (!document.getElementById('monitoring')?.classList.contains('active') || !isUidSynced) {
+                                return;
+                            }
+                            charts.forEach(chart => {
+                                const dataset = chart.dataset;
+                                const chartInstance = monitoringCharts[dataset];
+                                if (chartInstance) {
+                                    chartInstance.data.labels = chartLabels;
+                                    chartInstance.data.datasets[0].data = chartData[dataset] || [];
+                                    chartInstance.update('none');
+                                }
+                            });
+                        }
+                        let monitoringUpdateInterval = null;
+                        function startMonitoringUpdates() {
+                            if (!monitoringUpdateInterval && isUidSynced) {
+                                updateMonitoringCharts();
+                                monitoringUpdateInterval = setInterval(updateMonitoringCharts, 1000);
+                            }
+                        }
+                        function stopMonitoringUpdates() {
+                            clearInterval(monitoringUpdateInterval);
+                            monitoringUpdateInterval = null;
+                            charts.forEach(chart => {
+                                const chartInstance = monitoringCharts[chart.dataset];
+                                if (chartInstance && (!isUidSynced || !isSystemRunning)) {
+                                }
+                            });
+                        }
+                    </script>
+                </div>
+                <div id="download" class="content">
+                    <h1>Download</h1>
+                    <div class="table-wrapper">
+                        <table class="excel-style-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Time Duration</th>
+                                    <th>Turbidity (NTU)</th>
+                                    <th>pH</th>
+                                    <th>TDS (ppm)</th>
+                                    <th>Degradation (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-table-body" style="display: none;">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="download-buttons">
+                        <button id="download-txt" class="btn">Download as TXT</button>
+                        <button id="download-excel" class="btn">Download as Excel</button>
+                        <button id="view-txt" class="btn">View/Hide Data</button>
+                    </div>
+                    <script>
+                        const dataTableBodyDownload = document.getElementById('data-table-body');
+                        function updateDownloadTableDisplay() {
+                            if (!dataTableBodyDownload) return;
+                            const isActiveTab = document.getElementById('download')?.classList.contains('active');
+                            const isTableVisible = dataTableBodyDownload.style.display !== 'none';
+                            if (!currentUserUid) {
+                                 if (isActiveTab || isTableVisible) {
+                                    dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;">Login to view data.</td></tr>';
+                                    dataTableBodyDownload.style.display = 'table-row-group';
+                                 }
+                                 return;
+                            }
+                            if (!isUidSynced) {
+                                if (isActiveTab || isTableVisible) {
+                                    dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;color:orange;">Waiting for device sync or UID mismatch...</td></tr>';
+                                    dataTableBodyDownload.style.display = 'table-row-group';
+                                }
+                                return;
+                            }
+                            const systemStatus = localStorage.getItem('systemStatus');
+                            if(systemStatus === 'reset') {
+                                 if (isActiveTab || isTableVisible) {
+                                     dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;">System was reset. No data for current session.</td></tr>';
+                                     dataTableBodyDownload.style.display = 'table-row-group';
+                                 }
+                                 return;
+                            }
+                            if (isTableVisible && dataTableBodyDownload.rows.length === 0 && !localStorage.getItem('last_loaded_at')) {
+                                 dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading historical data...</td></tr>';
+                            } else if (isTableVisible && dataTableBodyDownload.rows.length === 0 && localStorage.getItem('last_loaded_at')) {
+                                 dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;">No data found for this session yet.</td></tr>';
+                            }
+                        }
+                        document.getElementById('view-txt').addEventListener('click', () => {
+                            if (!currentUserUid) { customAlert("Login to view data.", "Info"); return;}
+                            if (!isUidSynced) { customAlert("Cannot view data. System not synced with device.", "Sync Error"); return; }
+                            if (!dataTableBodyDownload) return;
+                            if (dataTableBodyDownload.style.display === 'none') {
+                                if (!dataTableBodyDownload.hasChildNodes() || dataTableBodyDownload.rows.length === 0 || (dataTableBodyDownload.rows.length > 0 && dataTableBodyDownload.rows[0].cells.length < 6) || dataTableBodyDownload.innerHTML.includes('Loading') || dataTableBodyDownload.innerHTML.includes('No data') || dataTableBodyDownload.innerHTML.includes('Waiting') ) {
+                                     dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading data...</td></tr>';
+                                     dataTableBodyDownload.style.display = 'table-row-group';
+                                     fetchAndDisplayFirebaseData(currentUserUid, true).then(() => {
+                                          if(!dataTableBodyDownload.hasChildNodes() || dataTableBodyDownload.rows.length === 0 || (dataTableBodyDownload.rows.length > 0 && dataTableBodyDownload.rows[0].cells.length < 6)) {
+                                             dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;">No data available to view for this session.</td></tr>';
+                                          } else if(dataTableBodyDownload.rows.length === 1 && dataTableBodyDownload.textContent.includes("Loading data")) {
+                                             dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center;">No data available to view for this session.</td></tr>';
+                                          }
+                                      }).catch(err => {
+                                            dataTableBodyDownload.innerHTML = '<tr><td colspan="6" style="text-align:center; color: red;">Error loading data.</td></tr>';
+                                      });
+                                 } else {
+                                      dataTableBodyDownload.style.display = 'table-row-group';
+                                 }
+                            } else {
+                                dataTableBodyDownload.style.display = 'none';
+                            }
+                        });
+                        document.getElementById('download-txt').addEventListener('click', () => {
+                            if (!isUidSynced) { customAlert("Cannot download. System not synced with device.", "Sync Error"); return; }
+                            if (temporaryData.length === 0) {
+                                customAlert("No live data available to download. Historical data not included in this format.", "Download Error");
+                                return;
+                            }
+                            customConfirm(`Download ${temporaryData.length} live data rows as TXT?`, "Confirm Download")
+                            .then(confirmed => {
+                                if(confirmed){
+                                    let txtContent = 'Time\tTime Duration\tTurbidity (NTU)\tpH\tTDS (ppm)\tDegradation (%)\n';
+                                    temporaryData.forEach(data => {
+                                        txtContent += `${data.time}\t${data.duration}\t${data.turbidity}\t${data.ph}\t${data.tds}\t${data.degradation}\n`;
+                                    });
+                                    const blob = new Blob([txtContent], {
+                                        type: 'text/plain'
+                                    });
+                                    const link = document.createElement('a');
+                                    link.href = URL.createObjectURL(blob);
+                                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                                    link.download = `pomclear_sensor_data_${timestamp}.txt`;
+                                    link.click();
+                                    URL.revokeObjectURL(link.href);
+                                }
+                            });
+                        });
+                        document.getElementById('download-excel').addEventListener('click', () => {
+                            if (!isUidSynced) { customAlert("Cannot download. System not synced with device.", "Sync Error"); return; }
+                            if (temporaryData.length === 0) {
+                                customAlert("No live data available to download. Historical data not included in this format.", "Download Error");
+                                return;
+                            }
+                            customConfirm(`Download ${temporaryData.length} live data rows as Excel (XLS)?`, "Confirm Download")
+                            .then(confirmed => {
+                                if(confirmed) {
+                                    let excelContent = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>SensorData</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml></head><body>';
+                                    excelContent += '<table border="1"><thead><tr><th>Time</th><th>Time Duration</th><th>Turbidity (NTU)</th><th>pH</th><th>TDS (ppm)</th><th>Degradation (%)</th></tr></thead><tbody>';
+                                    temporaryData.forEach(data => {
+                                        excelContent += `<tr><td>${data.time || ''}</td><td>${data.duration || ''}</td><td>${data.turbidity || ''}</td><td>${data.ph || ''}</td><td>${data.tds || ''}</td><td>${data.degradation || ''}</td></tr>`;
+                                    });
+                                    excelContent += '</tbody></table></body></html>';
+                                    const blob = new Blob([excelContent], {
+                                        type: 'application/vnd.ms-excel;charset=utf-8;'
+                                    });
+                                    const link = document.createElement('a');
+                                    link.href = URL.createObjectURL(blob);
+                                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                                    link.download = `pomclear_sensor_data_${timestamp}.xls`;
+                                    link.click();
+                                    URL.revokeObjectURL(link.href);
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+                <div id="info" class="content">
+                    <section class="hero">
+                        <h1>PomClear</h1>
+                        <p class="tagline">Photocatalytic Degradation of Palm Oil Mill Secondary Effluent (POMSE) using TiO<sub>2</sub> Nanoparticles with Real-Time Monitoring.</p>
+                    </section>
+                    <section class="features">
+                        <h2>Kenapa Memilih PomClear?</h2>
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <h3>Teknologi Fotokatalitik</h3>
+                                <p>Menggunakan TiO₂ dan cahaya UV untuk mendegradasi limbah secara efektif.</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-wifi"></i>
+                                <h3>Monitoring Real-Time</h3>
+                                <p>Pantau setiap proses dari mana saja melalui dashboard online.</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-cogs"></i>
+                                <h3>Kontrol Otomatis</h3>
+                                <p>Atur durasi reaksi dan kondisi eksperimen secara fleksibel dan otomatis.</p>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="how-it-works">
+                        <h2>Bagaimana PomClear Bekerja?</h2>
+                        <ol class="steps">
+                            <li>POMSE ditempatkan dalam gelas beaker di dalam reaktor UV.</li>
+                            <li>TiO<sub>2</sub> ditambahkan untuk memulai reaksi fotokatalitik.</li>
+                            <li>Empat lampu UV mempercepat reaksi degradasi limbah.</li>
+                            <li>Sensor memantau perubahan pH, TDS, dan Turbidity secara real-time.</li>
+                            <li>Data ditransmisikan ke software untuk pemantauan dan kontrol jarak jauh.</li>
+                        </ol>
+                    </section>
+                    <section class="team-section">
+                        <h2>Tim Pengembang</h2>
+                        <div class="team-grid-simple">
+                            <div class="team-card">
+                                <img src="images/fauzi.png" alt="Muhamad Fauzi">
+                                <h3>Muhamad Fauzi</h3>
+                                <p>Subsistem Material</p>
+                            </div>
+                            <div class="team-card">
+                                <img src="images/argya.png" alt="M. Argya Putra Laksono">
+                                <h3>M. Argya Putra Laksono</h3>
+                                <p>Subsistem Instrumentasi</p>
+                            </div>
+                            <div class="team-card">
+                                <img src="images/jose.png" alt="Josevein Hutagalung">
+                                <h3>Josevein Hutagalung</h3>
+                                <p>Subsistem Internet of Things</p>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="team-section">
+                        <h2>Dosen Pembimbing</h2>
+                        <div class="team-grid-simple">
+                            <div class="team-card">
+                                <img src="images/suratun.png" alt="Dr. Suratun Nafisah, S.Si., M.Sc.">
+                                <h3>Dr. Suratun Nafisah, S.Si., M.Sc.</h3>
+                                <p>Dosen Pembimbing 1</p>
+                            </div>
+                            <div class="team-card">
+                                <img src="images/hadi.png" alt="Hadi Teguh Yudistira, S.T., Ph.D.">
+                                <h3>Hadi Teguh Yudistira, S.T., Ph.D.</h3>
+                                <p>Dosen Pembimbing 2</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <div id="contact" class="content">
+                    <h1>Contact Us</h1>
+                    <form id="contactForm" action="https://formspree.io/f/mblolqzq" method="POST">
+                        <div class="contact-name">
+                            <input type="text" name="Nama" placeholder="Name" required>
+                        </div>
+                        <div class="contact-email">
+                            <input type="email" name="Email" placeholder="Email" required>
+                        </div>
+                        <div class="contact-subject">
+                            <input type="text" name="Subject" placeholder="Subject" required>
+                        </div>
+                        <div class="contact-message">
+                            <textarea name="Pesan" placeholder="Message" required></textarea>
+                        </div>
+                        <div class="action-btn">
+                            <button type="submit" class="btn btn-submit">Send</button>
+                        </div>
+                    </form>
+                    <div id="notification" class="notification" style="display: none;"></div>
+                </div>
+                <script>
+                    const form = document.getElementById('contactForm');
+                    const notification = document.getElementById('notification');
+                    form.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(form);
+                        try {
+                            const response = await fetch(form.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            });
+                            if (response.ok) {
+                                showNotification("Your message was sent successfully! ✅", "success");
+                                form.reset();
+                            } else {
+                                showNotification("Failed to send message. Please try again. ❌", "error");
+                            }
+                        } catch (error) {
+                            showNotification("An error occurred. Check your internet connection. ❌", "error");
+                        }
+                    });
+                    function showNotification(message, type) {
+                        notification.textContent = message;
+                        notification.className = `notification ${type}`;
+                        notification.style.display = "block";
+                        setTimeout(() => { notification.style.display = "none"; }, 5000);
+                    }
+                </script>
+                <script>
+                    const links = document.querySelectorAll('.sidebar-links a[data-target]');
+                    const contents = document.querySelectorAll('.main-content .content');
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const initialTarget = 'dashboard';
+                        activateContent(initialTarget);
+                    });
+                </script>
+            </div>
+        </div>
+
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(registration => {
+                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        })
+                        .catch(err => {
+                            console.log('ServiceWorker registration failed: ', err);
+                        });
+                });
+            }
+        </script>
+    </body>
+</html>

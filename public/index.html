@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0e1a">
+  <meta name="description" content="MICROWAT - Sistem Monitoring Degradasi Limbah">
+  <title>MICROWAT - Precision Lab Monitor</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Apply saved theme before render to prevent flash -->
+  <script>if(localStorage.getItem('theme')==='light')document.documentElement.classList.remove('dark');</script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <!-- Socket.io -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background":                  "rgb(var(--background) / <alpha-value>)",
+            "surface":                     "rgb(var(--surface) / <alpha-value>)",
+            "surface-dim":                 "rgb(var(--surface-dim) / <alpha-value>)",
+            "surface-bright":              "rgb(var(--surface-bright) / <alpha-value>)",
+            "surface-container-lowest":    "rgb(var(--surface-container-lowest) / <alpha-value>)",
+            "surface-container-low":       "rgb(var(--surface-container-low) / <alpha-value>)",
+            "surface-container":           "rgb(var(--surface-container) / <alpha-value>)",
+            "surface-container-high":      "rgb(var(--surface-container-high) / <alpha-value>)",
+            "surface-container-highest":   "rgb(var(--surface-container-highest) / <alpha-value>)",
+            "on-surface":                  "rgb(var(--on-surface) / <alpha-value>)",
+            "on-surface-variant":          "rgb(var(--on-surface-variant) / <alpha-value>)",
+            "on-background":               "rgb(var(--on-background) / <alpha-value>)",
+            "surface-variant":             "rgb(var(--surface-variant) / <alpha-value>)",
+            "inverse-surface":             "rgb(var(--inverse-surface) / <alpha-value>)",
+            "inverse-on-surface":          "rgb(var(--inverse-on-surface) / <alpha-value>)",
+            "primary":                     "rgb(var(--primary) / <alpha-value>)",
+            "on-primary":                  "rgb(var(--on-primary) / <alpha-value>)",
+            "primary-container":           "rgb(var(--primary-container) / <alpha-value>)",
+            "on-primary-container":        "rgb(var(--on-primary-container) / <alpha-value>)",
+            "primary-fixed":               "rgb(var(--primary-fixed) / <alpha-value>)",
+            "primary-fixed-dim":           "rgb(var(--primary-fixed-dim) / <alpha-value>)",
+            "on-primary-fixed":            "rgb(var(--on-primary-fixed) / <alpha-value>)",
+            "on-primary-fixed-variant":    "rgb(var(--on-primary-fixed-variant) / <alpha-value>)",
+            "inverse-primary":             "rgb(var(--inverse-primary) / <alpha-value>)",
+            "surface-tint":                "rgb(var(--surface-tint) / <alpha-value>)",
+            "secondary":                   "rgb(var(--secondary) / <alpha-value>)",
+            "on-secondary":                "rgb(var(--on-secondary) / <alpha-value>)",
+            "secondary-container":         "rgb(var(--secondary-container) / <alpha-value>)",
+            "on-secondary-container":      "rgb(var(--on-secondary-container) / <alpha-value>)",
+            "secondary-fixed":             "rgb(var(--secondary-fixed) / <alpha-value>)",
+            "secondary-fixed-dim":         "rgb(var(--secondary-fixed-dim) / <alpha-value>)",
+            "on-secondary-fixed":          "rgb(var(--on-secondary-fixed) / <alpha-value>)",
+            "on-secondary-fixed-variant":  "rgb(var(--on-secondary-fixed-variant) / <alpha-value>)",
+            "tertiary":                    "rgb(var(--tertiary) / <alpha-value>)",
+            "on-tertiary":                 "rgb(var(--on-tertiary) / <alpha-value>)",
+            "tertiary-container":          "rgb(var(--tertiary-container) / <alpha-value>)",
+            "on-tertiary-container":       "rgb(var(--on-tertiary-container) / <alpha-value>)",
+            "tertiary-fixed":              "rgb(var(--tertiary-fixed) / <alpha-value>)",
+            "tertiary-fixed-dim":          "rgb(var(--tertiary-fixed-dim) / <alpha-value>)",
+            "on-tertiary-fixed":           "rgb(var(--on-tertiary-fixed) / <alpha-value>)",
+            "on-tertiary-fixed-variant":   "rgb(var(--on-tertiary-fixed-variant) / <alpha-value>)",
+            "error":                       "rgb(var(--error) / <alpha-value>)",
+            "on-error":                    "rgb(var(--on-error) / <alpha-value>)",
+            "error-container":             "rgb(var(--error-container) / <alpha-value>)",
+            "on-error-container":          "rgb(var(--on-error-container) / <alpha-value>)",
+            "outline":                     "rgb(var(--outline) / <alpha-value>)",
+            "outline-variant":             "rgb(var(--outline-variant) / <alpha-value>)"
+          },
+          borderRadius: {
+            DEFAULT: "0.5rem",
+            lg: "1rem",
+            xl: "1.5rem",
+            full: "9999px"
+          },
+          spacing: {
+            "margin-desktop": "32px",
+            gutter: "16px",
+            "margin-mobile": "16px",
+            xs: "4px",
+            xl: "32px",
+            sm: "8px",
+            md: "16px",
+            base: "4px",
+            lg: "24px"
+          },
+          fontFamily: {
+            "display-lg": ["Sora"],
+            "headline-lg": ["Sora"],
+            "headline-md": ["Sora"],
+            "body-lg": ["DM Sans"],
+            "body-md": ["DM Sans"],
+            "label-caps": ["DM Sans"],
+            "data-lg": ["Space Mono"],
+            "data-md": ["Space Mono"]
+          },
+          fontSize: {
+            "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }],
+            "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "700" }],
+            "data-lg": ["18px", { lineHeight: "24px", fontWeight: "700" }],
+            "data-md": ["14px", { lineHeight: "20px", fontWeight: "400" }]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* ── Light mode (default) ── */
+    :root {
+      --background:                  240 246 255;
+      --surface:                     255 255 255;
+      --surface-dim:                 232 240 252;
+      --surface-bright:              255 255 255;
+      --surface-container-lowest:    248 251 255;
+      --surface-container-low:       238 244 252;
+      --surface-container:           229 237 248;
+      --surface-container-high:      218 228 242;
+      --surface-container-highest:   204 216 238;
+      --on-surface:                  13 27 42;
+      --on-surface-variant:          74 96 112;
+      --on-background:               13 27 42;
+      --surface-variant:             205 216 232;
+      --inverse-surface:             10 14 26;
+      --inverse-on-surface:          224 232 240;
+      --primary:                     0 102 143;
+      --on-primary:                  255 255 255;
+      --primary-container:           184 232 255;
+      --on-primary-container:        0 31 46;
+      --primary-fixed:               184 232 255;
+      --primary-fixed-dim:           0 102 143;
+      --on-primary-fixed:            0 31 46;
+      --on-primary-fixed-variant:    0 77 115;
+      --inverse-primary:             125 211 252;
+      --surface-tint:                0 102 143;
+      --secondary:                   26 82 112;
+      --on-secondary:                255 255 255;
+      --secondary-container:         192 220 232;
+      --on-secondary-container:      0 21 32;
+      --secondary-fixed:             192 220 232;
+      --secondary-fixed-dim:         26 82 112;
+      --on-secondary-fixed:          13 31 43;
+      --on-secondary-fixed-variant:  42 74 94;
+      --tertiary:                    96 48 160;
+      --on-tertiary:                 255 255 255;
+      --tertiary-container:          224 200 255;
+      --on-tertiary-container:       26 0 46;
+      --tertiary-fixed:              224 200 255;
+      --tertiary-fixed-dim:          96 48 160;
+      --on-tertiary-fixed:           26 0 46;
+      --on-tertiary-fixed-variant:   77 42 115;
+      --error:                       192 0 0;
+      --on-error:                    255 255 255;
+      --error-container:             255 218 218;
+      --on-error-container:          68 0 0;
+      --outline:                     106 128 144;
+      --outline-variant:             192 208 220;
+      --glass-bg:                    255 255 255;
+      --glass-border:                192 208 220;
+      --glass-border-hover:          160 180 200;
+      --auth-dot:                    192 208 220;
+    }
+
+    /* ── Dark mode ── */
+    html.dark {
+      --background:                  10 14 26;
+      --surface:                     15 21 36;
+      --surface-dim:                 15 21 36;
+      --surface-bright:              26 36 56;
+      --surface-container-lowest:    10 14 26;
+      --surface-container-low:       17 24 40;
+      --surface-container:           20 28 46;
+      --surface-container-high:      26 36 56;
+      --surface-container-highest:   32 44 66;
+      --on-surface:                  224 232 240;
+      --on-surface-variant:          160 180 196;
+      --on-background:               224 232 240;
+      --surface-variant:             26 36 56;
+      --inverse-surface:             224 232 240;
+      --inverse-on-surface:          10 14 26;
+      --primary:                     125 211 252;
+      --on-primary:                  0 31 46;
+      --primary-container:           14 77 110;
+      --on-primary-container:        200 234 255;
+      --primary-fixed:               200 234 255;
+      --primary-fixed-dim:           125 211 252;
+      --on-primary-fixed:            0 31 46;
+      --on-primary-fixed-variant:    0 77 115;
+      --inverse-primary:             10 76 110;
+      --surface-tint:                125 211 252;
+      --secondary:                   136 180 204;
+      --on-secondary:                0 31 46;
+      --secondary-container:         26 58 78;
+      --on-secondary-container:      192 216 232;
+      --secondary-fixed:             192 216 232;
+      --secondary-fixed-dim:         136 180 204;
+      --on-secondary-fixed:          13 31 43;
+      --on-secondary-fixed-variant:  42 74 94;
+      --tertiary:                    200 160 240;
+      --on-tertiary:                 26 0 46;
+      --tertiary-container:          61 32 96;
+      --on-tertiary-container:       232 208 255;
+      --tertiary-fixed:              232 208 255;
+      --tertiary-fixed-dim:          200 160 240;
+      --on-tertiary-fixed:           26 0 46;
+      --on-tertiary-fixed-variant:   77 42 115;
+      --error:                       255 107 107;
+      --on-error:                    26 0 0;
+      --error-container:             61 20 20;
+      --on-error-container:          255 179 179;
+      --outline:                     74 96 112;
+      --outline-variant:             42 58 72;
+      --glass-bg:                    17 24 39;
+      --glass-border:                31 41 55;
+      --glass-border-hover:          55 65 81;
+      --auth-dot:                    31 41 55;
+    }
+
+    body {
+      background-color: rgb(var(--background));
+      -webkit-font-smoothing: antialiased;
+    }
+    .glass-panel {
+      background: rgb(var(--glass-bg) / 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgb(var(--glass-border));
+    }
+    .glass-panel:hover {
+      border-color: rgb(var(--glass-border-hover));
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .auth-bg {
+      background-color: rgb(var(--background));
+      background-image: radial-gradient(circle at 2px 2px, rgb(var(--auth-dot)) 1px, transparent 0);
+      background-size: 32px 32px;
+    }
+    .technical-glow:focus-within {
+      box-shadow: 0 0 0 1px rgb(var(--primary) / 0.3), inset 0 0 8px rgb(var(--primary) / 0.1);
+      border-color: rgb(var(--primary)) !important;
+    }
+    .status-pulse {
+      animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0px rgb(var(--primary) / 0.4); }
+      50% { opacity: .7; box-shadow: 0 0 0 4px rgb(var(--primary) / 0); }
+    }
+    .pulse-glow { animation: device-pulse 2s infinite; }
+    @keyframes device-pulse {
+      0%   { box-shadow: 0 0 0 0   rgb(var(--tertiary) / 0.4); }
+      70%  { box-shadow: 0 0 0 6px rgb(var(--tertiary) / 0); }
+      100% { box-shadow: 0 0 0 0   rgb(var(--tertiary) / 0); }
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgb(var(--background)); }
+    ::-webkit-scrollbar-thumb { background: rgb(var(--outline-variant)); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgb(var(--outline)); }
+    .nav-link.active {
+      color: rgb(var(--primary));
+      font-weight: 700;
+      background-color: rgb(var(--surface-container-highest) / 0.5);
+    }
+    .nav-link.active .nav-icon { color: rgb(var(--primary)); }
+    .badge-dot {
+      width: 8px; height: 8px;
+      background: rgb(var(--error));
+      border-radius: 50%;
+      position: absolute; top: 4px; right: 4px;
+    }
+    /* Theme transition */
+    *, *::before, *::after {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+    }
+    /* Mobile drawer slide animation */
+    #mobile-drawer {
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+    }
+    #mobile-drawer.flex {
+      transform: translateX(0);
+    }
+    /* Mobile bottom nav icon fill on active */
+    .mobile-bottom-btn.text-primary .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 600;
+    }
+    /* Card device hover glow */
+    .device-card-clickable:hover {
+      box-shadow: 0 0 0 1px rgb(var(--primary) / 0.3), 0 8px 24px rgb(var(--primary) / 0.1);
+    }
+  </style>
+</head>
+<body class="text-on-surface font-body-md min-h-screen">
+
+  <!-- ============================================================ -->
+  <!-- AUTH SCREEN -->
+  <!-- ============================================================ -->
+  <div id="auth-container" class="auth-bg flex items-center justify-center min-h-screen p-md">
+    <div class="w-full max-w-[440px] flex flex-col gap-lg">
+
+      <!-- Login Section -->
+      <div id="login-section" class="auth-section flex flex-col gap-lg">
+        <!-- Brand -->
+        <div class="text-center flex flex-col items-center gap-sm">
+          <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-primary-container/10 border border-primary/30 mb-sm">
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">biotech</span>
+          </div>
+          <h1 class="font-display-lg text-headline-lg text-on-surface tracking-tighter">MICROWAT</h1>
+          <p class="font-body-lg text-on-surface-variant">Precision Lab Monitor</p>
+        </div>
+        <!-- Card -->
+        <div class="glass-panel p-xl rounded-xl flex flex-col gap-lg">
+          <div class="flex flex-col gap-xs">
+            <h2 class="font-headline-md text-on-surface">Secure Authentication</h2>
+            <p class="font-body-md text-on-surface-variant">Authorized personnel only.</p>
+          </div>
+          <form id="login-form" class="flex flex-col gap-md">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Scientific Identifier</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">alternate_email</span>
+                <input id="login-email" type="email" placeholder="email@lab.institution.edu" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Access Key</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">lock</span>
+                <input id="login-password" type="password" placeholder="••••••••••••" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-12 font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+                <button type="button" id="toggle-login-pw" class="absolute right-md text-outline hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+            </div>
+            <div id="login-error" class="hidden text-error text-body-md bg-error-container/30 border border-error/30 rounded-lg px-md py-sm"></div>
+            <button type="submit" class="mt-sm w-full py-md bg-primary hover:opacity-90 active:scale-[0.98] transition-all rounded-lg font-headline-md text-on-primary flex items-center justify-center gap-sm">
+              <span>Sign In</span>
+              <span class="material-symbols-outlined text-[20px]">login</span>
+            </button>
+          </form>
+          <div class="flex flex-col gap-md pt-md border-t border-outline-variant">
+            <div class="flex justify-between items-center">
+              <a id="forgot-password-link" href="#" class="font-body-md text-on-surface-variant hover:text-primary transition-colors">Forgot Password?</a>
+              <a id="register-link" href="#" class="font-body-md text-on-surface-variant hover:text-primary transition-colors">Request Access</a>
+            </div>
+          </div>
+        </div>
+        <!-- Status bar -->
+        <div class="glass-panel px-md py-sm rounded-full flex items-center justify-between border-primary/20">
+          <div class="flex items-center gap-sm">
+            <div class="w-2 h-2 rounded-full bg-tertiary status-pulse"></div>
+            <span class="font-label-caps text-label-caps text-tertiary uppercase">System Online</span>
+          </div>
+          <div class="flex items-center gap-md">
+            <div class="flex items-center gap-xs">
+              <span class="font-data-md text-on-surface-variant">Uptime:</span>
+              <span class="font-data-md text-primary">99.98%</span>
+            </div>
+            <div class="h-4 w-[1px] bg-outline-variant"></div>
+            <span class="font-data-md text-on-surface-variant">V1.0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Register Section -->
+      <div id="register-section" class="auth-section hidden flex flex-col gap-lg">
+        <div class="text-center flex flex-col items-center gap-sm">
+          <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-primary-container/10 border border-primary/30 mb-sm">
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">biotech</span>
+          </div>
+          <h1 class="font-display-lg text-headline-lg text-on-surface tracking-tighter">MICROWAT</h1>
+          <p class="font-body-lg text-on-surface-variant">Buat Akun Baru</p>
+        </div>
+        <div class="glass-panel p-xl rounded-xl flex flex-col gap-lg">
+          <h2 class="font-headline-md text-on-surface">Request Access</h2>
+          <form id="register-form" class="flex flex-col gap-md">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Email</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">alternate_email</span>
+                <input id="register-email" type="email" placeholder="email@example.com" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Kata Sandi</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">lock</span>
+                <input id="register-password" type="password" placeholder="minimal 6 karakter" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Konfirmasi Sandi</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">lock_reset</span>
+                <input id="register-confirm" type="password" placeholder="ulangi kata sandi" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div id="register-error" class="hidden text-error text-body-md bg-error-container/30 border border-error/30 rounded-lg px-md py-sm"></div>
+            <button type="submit" class="w-full py-md bg-primary hover:opacity-90 active:scale-[0.98] transition-all rounded-lg font-headline-md text-on-primary flex items-center justify-center gap-sm">
+              <span>Daftar</span>
+              <span class="material-symbols-outlined text-[20px]">person_add</span>
+            </button>
+          </form>
+          <div class="pt-md border-t border-outline-variant text-center">
+            <a id="login-link" href="#" class="font-body-md text-on-surface-variant hover:text-primary transition-colors">
+              <span class="material-symbols-outlined text-[16px]">arrow_back</span> Kembali ke Login
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reset Section -->
+      <div id="reset-section" class="auth-section hidden flex flex-col gap-lg">
+        <div class="text-center flex flex-col items-center gap-sm">
+          <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-primary-container/10 border border-primary/30 mb-sm">
+            <span class="material-symbols-outlined text-primary">key</span>
+          </div>
+          <h1 class="font-display-lg text-headline-lg text-on-surface tracking-tighter">MICROWAT</h1>
+          <p class="font-body-lg text-on-surface-variant">Reset Kata Sandi</p>
+        </div>
+        <div class="glass-panel p-xl rounded-xl flex flex-col gap-lg">
+          <h2 class="font-headline-md text-on-surface">Password Recovery</h2>
+          <form id="reset-form" class="flex flex-col gap-md">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Email Terdaftar</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">alternate_email</span>
+                <input id="reset-email" type="email" placeholder="email terdaftar" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div id="reset-error" class="hidden text-error text-body-md bg-error-container/30 border border-error/30 rounded-lg px-md py-sm"></div>
+            <button type="submit" class="w-full py-md bg-primary hover:opacity-90 active:scale-[0.98] transition-all rounded-lg font-headline-md text-on-primary flex items-center justify-center gap-sm">
+              <span>Kirim Email Reset</span>
+              <span class="material-symbols-outlined text-[20px]">send</span>
+            </button>
+          </form>
+          <div class="pt-md border-t border-outline-variant text-center">
+            <a id="back-to-login" href="#" class="font-body-md text-on-surface-variant hover:text-primary transition-colors">
+              <span class="material-symbols-outlined text-[16px]">arrow_back</span> Kembali ke Login
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MAIN APP -->
+  <!-- ============================================================ -->
+  <div id="main-app" class="hidden flex min-h-screen bg-background">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="hidden md:flex flex-col h-screen fixed left-0 top-0 py-lg px-md gap-lg bg-surface-container/90 backdrop-blur-lg border-r border-outline-variant w-64 z-40">
+      <!-- Logo + Title -->
+      <div class="px-md pt-sm">
+        <div class="font-headline-md text-headline-md font-bold text-primary mb-lg">MICROWAT</div>
+        <!-- User info -->
+        <div class="flex items-center px-sm py-sm mb-md">
+          <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center mr-sm shrink-0">
+            <span class="material-symbols-outlined text-primary">lab_profile</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-body-md font-bold text-on-surface truncate" id="user-email-display">User</div>
+            <div class="flex items-center gap-xs mt-[2px]">
+              <span class="text-xs text-on-surface-variant">MICROWAT Lab</span>
+              <span id="role-badge" class="font-label-caps text-[10px] px-xs py-[2px] rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant">USER</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex flex-col gap-xs flex-1">
+        <a href="#" class="nav-link active flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="dashboard">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">dashboard</span>
+          <span class="font-body-md">Dashboard</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="analytics">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">query_stats</span>
+          <span class="font-body-md">Analytics</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="device-status">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">science</span>
+          <span class="font-body-md">Device Status</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="history">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">database</span>
+          <span class="font-body-md">History</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="settings">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">settings</span>
+          <span class="font-body-md">Settings</span>
+        </a>
+
+        <!-- ADMIN SECTION -->
+        <div id="admin-nav-section" class="hidden flex flex-col gap-xs pt-sm">
+          <div class="px-md pb-xs">
+            <div class="h-[1px] bg-outline-variant mb-sm"></div>
+            <span class="font-label-caps text-[10px] text-secondary/70 uppercase tracking-widest">Admin Panel</span>
+          </div>
+          <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="user-management">
+            <span class="material-symbols-outlined nav-icon group-hover:text-secondary transition-colors">group</span>
+            <span class="font-body-md">User Management</span>
+          </a>
+          <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="log-detail">
+            <span class="material-symbols-outlined nav-icon group-hover:text-secondary transition-colors">receipt_long</span>
+            <span class="font-body-md">Log Detail</span>
+          </a>
+          <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="instrument-config">
+            <span class="material-symbols-outlined nav-icon group-hover:text-secondary transition-colors">tune</span>
+            <span class="font-body-md">Instrument Config</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Footer -->
+      <div class="flex flex-col gap-xs border-t border-outline-variant pt-lg">
+        <button id="export-data-btn" class="bg-primary text-on-primary font-bold py-sm px-md rounded-lg flex items-center justify-center gap-sm hover:opacity-90 transition-opacity mb-sm">
+          <span class="material-symbols-outlined text-[20px]">download</span>
+          <span>Export Data</span>
+        </button>
+        <button id="help-btn" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg w-full text-left">
+          <span class="material-symbols-outlined">help</span>
+          <span class="font-body-md">Help</span>
+        </button>
+        <button id="logout-btn" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg w-full text-left">
+          <span class="material-symbols-outlined">logout</span>
+          <span class="font-body-md">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="flex-1 flex flex-col md:ml-64">
+
+      <!-- TOP HEADER -->
+      <header class="flex justify-between items-center px-md md:px-lg py-md w-full sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant">
+        <div class="flex items-center gap-sm md:gap-md">
+          <!-- Mobile: hamburger to open sidebar drawer -->
+          <button id="mobile-menu-btn" class="md:hidden p-xs rounded-full hover:bg-surface-container-high transition-colors" aria-label="Menu">
+            <span class="material-symbols-outlined text-on-surface-variant">menu</span>
+          </button>
+          <h1 id="page-title" class="font-headline-md text-headline-md text-on-surface">Dashboard</h1>
+        </div>
+        <div class="flex items-center gap-sm">
+          <!-- System Status -->
+          <div class="flex items-center gap-sm glass-panel px-md py-xs rounded-full">
+            <span id="system-status" class="w-2 h-2 rounded-full bg-outline"></span>
+            <span id="system-status-text" class="font-label-caps text-label-caps text-on-surface-variant">Offline</span>
+          </div>
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="p-xs rounded-full hover:bg-surface-container-high transition-colors" title="Toggle light/dark mode">
+            <span class="material-symbols-outlined text-on-surface-variant" id="theme-icon">dark_mode</span>
+          </button>
+          <!-- Notification Bell -->
+          <div class="relative">
+            <button id="notification-btn" class="p-xs rounded-full hover:bg-surface-container-high transition-colors relative">
+              <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+              <span id="notification-badge" class="hidden badge-dot"></span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT (dynamic) -->
+      <main id="page-content" class="flex-1 p-md md:p-lg overflow-auto pb-20 md:pb-lg">
+        <!-- Page content is loaded dynamically here -->
+        <div class="flex items-center justify-center h-64">
+          <div class="flex flex-col items-center gap-md text-on-surface-variant">
+            <span class="material-symbols-outlined text-[48px] animate-spin">refresh</span>
+            <span class="font-body-md">Memuat halaman...</span>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MOBILE SIDEBAR DRAWER OVERLAY -->
+    <div id="mobile-drawer-overlay" class="hidden fixed inset-0 z-[100] bg-background/70 backdrop-blur-sm md:hidden" onclick="closeMobileDrawer()"></div>
+    <aside id="mobile-drawer" class="hidden fixed left-0 top-0 h-full z-[110] w-64 bg-surface-container/95 backdrop-blur-xl border-r border-outline-variant flex flex-col py-lg px-md gap-lg md:hidden overflow-y-auto">
+      <div class="flex items-center justify-between px-md">
+        <div class="font-headline-md text-headline-md font-bold text-primary">MICROWAT</div>
+        <button onclick="closeMobileDrawer()" class="p-xs rounded-full hover:bg-surface-container-high transition-colors">
+          <span class="material-symbols-outlined text-on-surface-variant">close</span>
+        </button>
+      </div>
+      <!-- User info -->
+      <div class="flex items-center px-sm py-sm bg-surface-container-high/30 rounded-xl">
+        <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center mr-sm shrink-0">
+          <span class="material-symbols-outlined text-primary">lab_profile</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="font-body-md font-bold text-on-surface truncate" id="mobile-user-display">User</div>
+          <div class="flex items-center gap-xs mt-[2px]">
+            <span class="text-xs text-on-surface-variant">MICROWAT Lab</span>
+          </div>
+        </div>
+      </div>
+      <nav class="flex flex-col gap-xs flex-1">
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="dashboard">
+          <span class="material-symbols-outlined">dashboard</span><span class="font-body-md">Dashboard</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="analytics">
+          <span class="material-symbols-outlined">query_stats</span><span class="font-body-md">Analytics</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="device-status">
+          <span class="material-symbols-outlined">science</span><span class="font-body-md">Device Status</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="history">
+          <span class="material-symbols-outlined">database</span><span class="font-body-md">History</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="settings">
+          <span class="material-symbols-outlined">settings</span><span class="font-body-md">Settings</span>
+        </a>
+      </nav>
+      <div class="flex flex-col gap-xs border-t border-outline-variant pt-lg">
+        <button id="mobile-export-btn" class="bg-primary text-on-primary font-bold py-sm px-md rounded-lg flex items-center justify-center gap-sm hover:opacity-90 transition-opacity">
+          <span class="material-symbols-outlined text-[20px]">download</span><span>Export Data</span>
+        </button>
+        <button id="mobile-logout-btn" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg w-full text-left">
+          <span class="material-symbols-outlined">logout</span><span class="font-body-md">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MOBILE BOTTOM NAV BAR -->
+    <nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 bg-surface-container-low/90 backdrop-blur-xl border-t border-outline-variant md:hidden z-50 flex justify-around items-center py-sm px-xs">
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="dashboard">
+        <span class="material-symbols-outlined text-[22px]">dashboard</span>
+        <span class="font-label-caps text-[9px] uppercase">Dashboard</span>
+      </button>
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="analytics">
+        <span class="material-symbols-outlined text-[22px]">query_stats</span>
+        <span class="font-label-caps text-[9px] uppercase">Analytics</span>
+      </button>
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="device-status">
+        <span class="material-symbols-outlined text-[22px]">science</span>
+        <span class="font-label-caps text-[9px] uppercase">Devices</span>
+      </button>
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="history">
+        <span class="material-symbols-outlined text-[22px]">database</span>
+        <span class="font-label-caps text-[9px] uppercase">History</span>
+      </button>
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="settings">
+        <span class="material-symbols-outlined text-[22px]">settings</span>
+        <span class="font-label-caps text-[9px] uppercase">Settings</span>
+      </button>
+    </nav>
+
+    <!-- HELP MODAL -->
+    <div id="help-modal" class="hidden fixed inset-0 z-[300] flex bg-background/90 backdrop-blur-md">
+      <!-- Modal container -->
+      <div class="flex w-full h-full max-w-6xl mx-auto my-0 md:my-8 md:rounded-2xl overflow-hidden glass-panel shadow-2xl border border-outline-variant md:max-h-[calc(100vh-64px)]">
+
+        <!-- Left TOC sidebar -->
+        <aside class="hidden md:flex flex-col w-64 shrink-0 bg-surface-container-low/90 border-r border-outline-variant overflow-y-auto">
+          <div class="px-lg py-lg border-b border-outline-variant">
+            <div class="flex items-center gap-sm">
+              <span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings:'FILL' 1;">help</span>
+              <span class="font-headline-md text-headline-md text-primary font-bold">Bantuan</span>
+            </div>
+            <p class="text-on-surface-variant text-body-md mt-xs">Panduan lengkap MICROWAT</p>
+          </div>
+          <nav class="flex flex-col py-md" id="help-toc">
+            <!-- TOC items injected by JS -->
+          </nav>
+        </aside>
+
+        <!-- Right scrollable content -->
+        <div class="flex-1 flex flex-col min-w-0">
+          <!-- Header bar -->
+          <div class="flex items-center justify-between px-lg py-md border-b border-outline-variant bg-surface-container/50 shrink-0">
+            <div class="flex items-center gap-sm">
+              <span class="material-symbols-outlined text-on-surface-variant text-[20px]">menu_book</span>
+              <span class="font-body-md text-on-surface font-bold">Dokumentasi & Tutorial MICROWAT</span>
+            </div>
+            <button id="help-close" class="p-xs rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-on-surface">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 overflow-y-auto p-lg md:p-xl space-y-xl" id="help-content">
+
+            <!-- ── 1. Pengenalan ── -->
+            <section id="help-intro" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-primary">info</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Pengenalan MICROWAT</h2>
+                  <p class="text-on-surface-variant text-body-md">Apa itu dan bagaimana cara kerjanya</p>
+                </div>
+              </div>
+              <div class="glass-panel rounded-xl p-lg space-y-md">
+                <p class="text-on-surface font-body-lg leading-relaxed">
+                  <strong class="text-primary">MICROWAT</strong> adalah sistem monitoring real-time degradasi limbah zat warna menggunakan teknologi UV-Vis Spektrometri. Sistem ini mengintegrasikan hardware fisik (Raspberry Pi + Avantes Spectrometer + ESP32) dengan dashboard web untuk memantau efisiensi degradasi fotokatalitik.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-md pt-md border-t border-outline-variant/30">
+                  <div class="text-center p-md rounded-lg bg-primary/5 border border-primary/20">
+                    <span class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+                    <p class="font-bold text-on-surface mt-sm">Hukum Beer-Lambert</p>
+                    <p class="text-on-surface-variant text-body-md mt-xs">Konsentrasi dihitung dari absorbansi menggunakan A = εbc</p>
+                  </div>
+                  <div class="text-center p-md rounded-lg bg-tertiary/5 border border-tertiary/20">
+                    <span class="material-symbols-outlined text-tertiary text-[32px]" style="font-variation-settings:'FILL' 1;">wifi</span>
+                    <p class="font-bold text-on-surface mt-sm">Real-time WebSocket</p>
+                    <p class="text-on-surface-variant text-body-md mt-xs">Data sensor dikirim via Socket.io setiap ada update baru</p>
+                  </div>
+                  <div class="text-center p-md rounded-lg bg-secondary/5 border border-secondary/20">
+                    <span class="material-symbols-outlined text-secondary text-[32px]" style="font-variation-settings:'FILL' 1;">devices</span>
+                    <p class="font-bold text-on-surface mt-sm">Multi-Device</p>
+                    <p class="text-on-surface-variant text-body-md mt-xs">RPi, Spectrometer, ESP32 dipantau dalam satu dashboard</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 2. Login & Akun ── -->
+            <section id="help-auth" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-secondary">login</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Login & Akun</h2>
+                  <p class="text-on-surface-variant text-body-md">Cara masuk, daftar, dan reset password</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-primary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">key</span> Login</h3>
+                  <ol class="space-y-sm text-on-surface-variant list-decimal list-inside">
+                    <li>Masukkan <strong class="text-on-surface">email</strong> dan <strong class="text-on-surface">password</strong> pada form login</li>
+                    <li>Klik tombol <span class="font-bold text-primary">Sign In</span></li>
+                    <li>Jika berhasil, Anda akan langsung masuk ke halaman Dashboard</li>
+                    <li>Gunakan ikon 👁️ untuk melihat/menyembunyikan password</li>
+                  </ol>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-tertiary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">person_add</span> Daftar Akun Baru</h3>
+                  <ol class="space-y-sm text-on-surface-variant list-decimal list-inside">
+                    <li>Klik <strong class="text-on-surface">Request Access</strong> di bawah form login</li>
+                    <li>Isi email, password (min. 6 karakter), dan konfirmasi password</li>
+                    <li>Klik <span class="font-bold text-primary">Daftar</span></li>
+                    <li>Setelah berhasil, login menggunakan akun yang baru dibuat</li>
+                  </ol>
+                  <div class="mt-md p-sm rounded-lg bg-secondary/10 border border-secondary/30">
+                    <p class="text-body-md text-secondary font-bold">🔑 Tip Admin:</p>
+                    <p class="text-on-surface-variant text-body-md">Daftarkan akun dengan email mengandung kata <code class="text-primary bg-primary/10 px-xs rounded">admin</code> (contoh: <code class="text-primary">admin@lab.com</code>) untuk mendapatkan akses panel admin secara otomatis.</p>
+                  </div>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-error mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">lock_reset</span> Lupa Password</h3>
+                  <ol class="space-y-sm text-on-surface-variant list-decimal list-inside">
+                    <li>Klik <strong class="text-on-surface">Forgot Password?</strong> di form login</li>
+                    <li>Masukkan email yang terdaftar</li>
+                    <li>Klik <span class="font-bold text-primary">Kirim Email Reset</span></li>
+                    <li>Cek inbox email Anda untuk link reset password</li>
+                  </ol>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 3. Dashboard ── -->
+            <section id="help-dashboard" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-primary">dashboard</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Dashboard</h2>
+                  <p class="text-on-surface-variant text-body-md">Halaman utama monitoring real-time</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📊 Kartu KPI (4 Metrik Utama)</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Degradasi (%)</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Persentase degradasi zat warna: <code class="text-primary">((C₀ - Cₜ) / C₀) × 100</code>. Semakin tinggi = semakin baik. Ditampilkan dengan lingkaran SVG animasi.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Absorbansi (a.u.)</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Nilai absorbansi dari spektrometer Avantes. Semakin rendah = larutan semakin bening.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Konsentrasi (ppm)</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Dihitung via Hukum Beer-Lambert: <code class="text-primary">C = A / (ε × b)</code>. ε = koef. extinc., b = panjang jalur.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Status Sistem</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Indikator koneksi Hardware (Spectrometer), MQTT (ESP32), dan status pengukuran (Active/Idle/Complete).</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">⚙️ Quick Actions</h3>
+                  <div class="space-y-sm">
+                    <div class="flex items-start gap-md p-sm rounded-lg hover:bg-surface-container/50 transition-colors">
+                      <span class="material-symbols-outlined text-tertiary shrink-0">play_circle</span>
+                      <div><p class="font-bold text-on-surface">Start Pengukuran</p><p class="text-on-surface-variant text-body-md">Memulai sesi pengukuran baru. Sistem mulai menerima dan memproses data dari spektrometer secara real-time.</p></div>
+                    </div>
+                    <div class="flex items-start gap-md p-sm rounded-lg hover:bg-surface-container/50 transition-colors">
+                      <span class="material-symbols-outlined text-error shrink-0">stop_circle</span>
+                      <div><p class="font-bold text-on-surface">Stop Pengukuran</p><p class="text-on-surface-variant text-body-md">Menghentikan sesi yang sedang berjalan. Data yang sudah masuk tetap tersimpan di history.</p></div>
+                    </div>
+                    <div class="flex items-start gap-md p-sm rounded-lg hover:bg-surface-container/50 transition-colors">
+                      <span class="material-symbols-outlined text-outline shrink-0">restart_alt</span>
+                      <div><p class="font-bold text-on-surface">Reset Data</p><p class="text-on-surface-variant text-body-md">Menghapus data sesi saat ini. Data di server tetap aman, hanya tampilan yang direset.</p></div>
+                    </div>
+                    <div class="flex items-start gap-md p-sm rounded-lg hover:bg-surface-container/50 transition-colors">
+                      <span class="material-symbols-outlined text-secondary shrink-0">science</span>
+                      <div><p class="font-bold text-on-surface">Mode Simulasi</p><p class="text-on-surface-variant text-body-md">Menghasilkan data simulasi secara otomatis untuk testing tanpa hardware fisik.</p></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📈 Grafik Dashboard</h3>
+                  <p class="text-on-surface-variant">Grafik garis dual-axis menampilkan <strong class="text-primary">Absorbansi</strong> (sumbu kiri, biru) dan <strong class="text-tertiary">Degradasi (%)</strong> (sumbu kanan, ungu) dari 20 pengukuran terakhir secara real-time.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 4. Analytics ── -->
+            <section id="help-analytics" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-tertiary">query_stats</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Analytics</h2>
+                  <p class="text-on-surface-variant text-body-md">Monitoring mendalam & analisis data historis</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔍 Filter Data</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">calendar_today</span><span>Pilih <strong class="text-on-surface">tanggal dari – sampai</strong> pada filter bar di atas, lalu klik <span class="text-primary font-bold">Filter</span></span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">bar_chart</span><span>Grafik monitoring besar menampilkan semua data dalam rentang yang dipilih dengan dua sumbu (Absorbansi + Degradasi)</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">table_chart</span><span>Tabel Spectral Log di bawah menampilkan detail setiap pengukuran dengan waktu, nilai, dan status</span></li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📋 Session Summary</h3>
+                  <p class="text-on-surface-variant">Panel kanan menampilkan ringkasan sesi: <strong class="text-on-surface">A₀</strong> (absorbansi awal), <strong class="text-on-surface">Af</strong> (absorbansi akhir), degradasi total, dan update terakhir. Progress bar menunjukkan perkembangan degradasi secara visual.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 5. Device Status ── -->
+            <section id="help-device" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-secondary">science</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Device Status</h2>
+                  <p class="text-on-surface-variant text-body-md">Status hardware & simulasi ESP32</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🖥️ Hardware yang Dipantau</h3>
+                  <div class="space-y-sm">
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Raspberry Pi</p>
+                      <p class="text-on-surface-variant text-body-md">CPU usage, RAM usage, network latency, dan status koneksi server. Data diperbarui otomatis via WebSocket.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Avantes Spectrometer</p>
+                      <p class="text-on-surface-variant text-body-md">Status online/offline, nilai absorbansi terakhir, dan status pengukuran. Terhubung ke RPi via USB.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">ESP32 (Real Sensor)</p>
+                      <p class="text-on-surface-variant text-body-md">Sensor jarak ultrasonik dan sensor hujan. Data dikirim via MQTT dari ESP32 ke server. Klik <strong>Refresh</strong> untuk update manual.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-panel rounded-xl p-lg border-l-4 border-secondary">
+                  <h3 class="font-body-lg font-bold text-secondary mb-md">🔧 ESP32 Simulator</h3>
+                  <p class="text-on-surface-variant mb-md">Fitur untuk testing tanpa hardware fisik ESP32:</p>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-secondary text-[16px] mt-[2px]">straighten</span><span><strong class="text-on-surface">Slider Jarak</strong> – Atur nilai sensor ultrasonik (5–200 cm). Geser slider, nilai JSON preview otomatis update.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-secondary text-[16px] mt-[2px]">water_drop</span><span><strong class="text-on-surface">Sensor Hujan</strong> – Toggle antara BASAH / KERING untuk simulasi kondisi lingkungan.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-secondary text-[16px] mt-[2px]">send</span><span><strong class="text-on-surface">Send Data</strong> – Kirim data simulator ke server sekali via WebSocket.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-secondary text-[16px] mt-[2px]">play_circle</span><span><strong class="text-on-surface">Auto Simulate</strong> – Kirim data secara otomatis setiap 1 detik dengan variasi acak. Klik lagi untuk stop.</span></li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 6. Data History ── -->
+            <section id="help-history" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-primary">database</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Data History</h2>
+                  <p class="text-on-surface-variant text-body-md">Riwayat semua pengukuran & export data</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📁 Tabel Data</h3>
+                  <p class="text-on-surface-variant mb-md">Menampilkan semua pengukuran historis dengan kolom: <strong class="text-on-surface">Waktu, Absorbansi, Konsentrasi, Degradasi (%),</strong> dan <strong class="text-on-surface">Status</strong> (SAFE jika degradasi ≥70%, NOT SAFE jika &lt;70%).</p>
+                  <p class="text-on-surface-variant">Tampil <strong class="text-on-surface">20 baris per halaman</strong>. Gunakan tombol ← → di bawah untuk navigasi antar halaman.</p>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔽 Filter & Export</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">filter_alt</span><span><strong class="text-on-surface">Filter Tanggal</strong> – Pilih dari dan sampai tanggal, klik Filter untuk menyaring data</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">label</span><span><strong class="text-on-surface">Filter Jenis Zat Warna</strong> – Tombol ALL / RC (Rhodamine C) / MG (Malachite Green) / MB (Methylene Blue) di header halaman</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">download</span><span><strong class="text-on-surface">Export CSV</strong> – Unduh seluruh data (yang sudah difilter) sebagai file CSV. Juga bisa klik CSV di kolom Aksi untuk export satu baris.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">download</span><span><strong class="text-on-surface">Export Data (Sidebar)</strong> – Tombol di sidebar bawah akan langsung mengunduh semua data history sebagai CSV.</span></li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 7. Settings ── -->
+            <section id="help-settings" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-outline/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-on-surface-variant">settings</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Settings (User)</h2>
+                  <p class="text-on-surface-variant text-body-md">Profil akun & parameter sistem</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">👤 Tab Profile</h3>
+                  <p class="text-on-surface-variant mb-sm">Update nama, organisasi, dan lokasi Anda. Email tidak bisa diubah (readonly). Klik <strong class="text-primary">Save Profile</strong> untuk menyimpan.</p>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">⚗️ Tab Parameters</h3>
+                  <p class="text-on-surface-variant mb-md">Konfigurasi parameter kalkulasi Beer-Lambert:</p>
+                  <div class="grid grid-cols-2 gap-sm">
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">C₀ Awal (ppm)</strong><br><span class="text-on-surface-variant">Konsentrasi larutan awal sebelum proses degradasi dimulai</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Wavelength (nm)</strong><br><span class="text-on-surface-variant">Panjang gelombang pengukuran spektrometer (default: 254 nm)</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Koef. Extinc.</strong><br><span class="text-on-surface-variant">Molar extinction coefficient zat warna (L/mol·cm)</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Path Length (cm)</strong><br><span class="text-on-surface-variant">Panjang jalur optik kuvet spektrometer</span></div>
+                  </div>
+                  <p class="text-on-surface-variant text-body-md mt-md">Klik <strong class="text-primary">Simpan Parameter</strong> — parameter langsung diterapkan ke semua kalkulasi baru.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 8. Admin ── -->
+            <section id="help-admin" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-secondary">admin_panel_settings</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Fitur Admin</h2>
+                  <p class="text-on-surface-variant text-body-md">Akses eksklusif administrator sistem</p>
+                </div>
+              </div>
+              <div class="p-md rounded-xl bg-secondary/10 border border-secondary/30 mb-md">
+                <p class="text-secondary font-bold text-body-md">⚠️ Panel admin hanya muncul jika email mengandung kata <code class="bg-secondary/20 px-xs rounded">admin</code> (misal: admin@lab.com)</p>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-secondary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[20px]">group</span> User Management</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li><strong class="text-on-surface">Lihat semua user</strong> — tabel dengan nama, email, institusi, role, status, tanggal bergabung</li>
+                    <li><strong class="text-on-surface">Search & Filter</strong> — cari berdasarkan nama/email, filter berdasarkan role (Admin/User) atau status (Active/Pending/Blocked)</li>
+                    <li><strong class="text-on-surface">Edit Role</strong> — klik ikon ✏️ untuk mengubah role user (User → Admin atau sebaliknya)</li>
+                    <li><strong class="text-on-surface">Block/Unblock</strong> — klik ikon 🚫 untuk memblokir atau mengaktifkan kembali user</li>
+                    <li><strong class="text-on-surface">Hapus User</strong> — klik ikon 🗑️ untuk menghapus akun (akan minta konfirmasi)</li>
+                    <li><strong class="text-on-surface">Review Pending</strong> — banner di atas menampilkan jumlah user menunggu approval. Klik REVIEW ALL untuk mengaktifkan semua sekaligus</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-secondary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[20px]">receipt_long</span> Log Detail</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li><strong class="text-on-surface">Event Log Table</strong> — semua event sistem: Measurement, System Event, Calibration, Error dengan timestamp dan status (NOMINAL/WARNING/ANOMALY)</li>
+                    <li><strong class="text-on-surface">Filter Log</strong> — filter berdasarkan tanggal dan tipe event</li>
+                    <li><strong class="text-on-surface">Detail Drawer</strong> — klik baris mana saja untuk membuka panel detail di kanan: nilai absorbansi, konsentrasi, degradasi, dan kolom catatan admin</li>
+                    <li><strong class="text-on-surface">Flag Anomaly</strong> — tandai entry sebagai anomali dari panel detail</li>
+                    <li><strong class="text-on-surface">Export CSV</strong> — unduh seluruh log event sebagai file CSV</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-secondary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[20px]">tune</span> Instrument Config</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li><strong class="text-on-surface">Microwave Emitter</strong> — atur rentang daya (W), intensitas saat ini via slider, toggle auto power control</li>
+                    <li><strong class="text-on-surface">UV Lamp Assembly</strong> — atur flux density (μW/cm²), wavelength, lihat estimasi sisa umur lampu</li>
+                    <li><strong class="text-on-surface">Spectrometer Calibration</strong> — set C₀, path length, extinction coefficient, dan wavelength pengukuran</li>
+                    <li><strong class="text-on-surface">Safety Thresholds</strong> — batas emisi partikel max (ppm) dan batas minimum degradasi sebelum alarm</li>
+                    <li><strong class="text-on-surface">Save Config</strong> — simpan semua perubahan ke server sekaligus</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-secondary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[20px]">manage_accounts</span> Admin Settings</h3>
+                  <p class="text-on-surface-variant mb-md">Versi Settings yang diperluas khusus admin, dengan tab:</p>
+                  <div class="grid grid-cols-2 gap-sm">
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Profile</strong><br><span class="text-on-surface-variant">Update nama, organisasi, lokasi admin</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Security</strong><br><span class="text-on-surface-variant">Ganti password, aktifkan 2FA</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Notifications</strong><br><span class="text-on-surface-variant">Atur alert error, efisiensi, user baru, dan daftar penerima</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">System Config</strong><br><span class="text-on-surface-variant">Parameter kalkulasi global (sama seperti Settings user)</span></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 9. Tips & Navigasi ── -->
+            <section id="help-tips" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-tertiary">tips_and_updates</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Tips & Navigasi</h2>
+                  <p class="text-on-surface-variant text-body-md">Cara penggunaan yang efisien</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🧭 Navigasi Sidebar</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>Klik menu di sidebar kiri untuk berpindah halaman. Halaman aktif ditandai warna biru dengan font tebal.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>Tombol <strong>Export Data</strong> di sidebar selalu tersedia untuk mengunduh data history kapan saja.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>Status koneksi (Online/Offline) terlihat di header kanan atas — hijau = terhubung ke server.</span></li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔔 Notifikasi</h3>
+                  <p class="text-on-surface-variant mb-md">Klik ikon lonceng 🔔 di header untuk membuka panel notifikasi. Notifikasi muncul otomatis saat:</p>
+                  <ul class="space-y-xs text-on-surface-variant list-disc list-inside">
+                    <li>Data baru masuk dari spektrometer</li>
+                    <li>Koneksi ke server terputus atau terhubung kembali</li>
+                    <li>Pengukuran dimulai, dihentikan, atau direset</li>
+                    <li>Data berhasil disimpan atau terjadi error</li>
+                    <li>Data simulator berhasil dikirim</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🌓 Mode Tampilan</h3>
+                  <p class="text-on-surface-variant">Klik ikon <span class="material-symbols-outlined text-[16px] align-middle">light_mode</span> / <span class="material-symbols-outlined text-[16px] align-middle">dark_mode</span> di header kanan atas untuk beralih antara <strong class="text-on-surface">Dark Mode</strong> (gelap, cocok di lab redup) dan <strong class="text-on-surface">Light Mode</strong> (terang, cocok di lingkungan cerah). Pilihan tersimpan otomatis.</p>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📱 Progressive Web App (PWA)</h3>
+                  <p class="text-on-surface-variant">MICROWAT bisa di-install sebagai aplikasi di perangkat Anda:</p>
+                  <ul class="space-y-xs text-on-surface-variant list-disc list-inside mt-sm">
+                    <li><strong>Chrome/Edge Desktop</strong> — klik ikon install (⊞) di address bar</li>
+                    <li><strong>Android Chrome</strong> — ketuk "Add to Home Screen" di menu browser</li>
+                    <li><strong>iOS Safari</strong> — ketuk Share → Add to Home Screen</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg border-l-4 border-primary">
+                  <h3 class="font-body-lg font-bold text-primary mb-md">💡 Tips Pengukuran Optimal</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">1.</span><span>Set <strong class="text-on-surface">C₀ (konsentrasi awal)</strong> di Settings sebelum memulai pengukuran pertama</span></li>
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">2.</span><span>Gunakan <strong class="text-on-surface">mode simulasi</strong> di Dashboard untuk memahami alur data sebelum koneksi hardware</span></li>
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">3.</span><span>Export data ke CSV secara berkala sebagai backup, terutama setelah sesi panjang</span></li>
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">4.</span><span>Gunakan filter tanggal di History untuk membandingkan sesi berbeda hari</span></li>
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">5.</span><span>Status <span class="text-tertiary font-bold">SAFE</span> (degradasi ≥70%) menandakan proses degradasi berhasil. Target minimal 70%.</span></li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <!-- Footer -->
+            <div class="glass-panel rounded-xl p-lg text-center border border-primary/20">
+              <span class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+              <p class="font-headline-md text-headline-md text-primary font-bold mt-sm">MICROWAT</p>
+              <p class="text-on-surface-variant text-body-md">Precision Lab Monitor — Real-time Wastewater Degradation Monitoring</p>
+              <p class="text-on-surface-variant text-body-md mt-sm">LABTEK 4 • ITERA | <span class="text-primary">V1.0.0</span></p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATION PANEL (floating) -->
+    <div id="notification-panel" class="hidden fixed right-0 top-16 w-80 max-h-[calc(100vh-64px)] z-50 flex flex-col glass-panel border-outline-variant rounded-l-xl overflow-hidden shadow-2xl">
+      <div class="px-lg py-md border-b border-outline-variant flex items-center justify-between">
+        <h3 class="font-headline-md text-body-md font-bold text-on-surface">Notifikasi</h3>
+        <button id="close-notification-panel" class="text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div id="notification-list" class="flex-1 overflow-y-auto p-md flex flex-col gap-sm">
+        <p class="text-on-surface-variant text-body-md text-center py-lg">Tidak ada notifikasi</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SCRIPTS (ordered by dependency) -->
+  <!-- ============================================================ -->
+  <script src="/js/utils.js?v=1"></script>
+  <script src="/js/notifications.js?v=1"></script>
+  <script src="/js/socket.js?v=1"></script>
+  <script src="/js/auth.js?v=1"></script>
+  <script src="/js/dashboard.js?v=1"></script>
+  <script src="/js/analytics.js?v=1"></script>
+  <script src="/js/simulator.js?v=1"></script>
+  <script src="/js/device-status.js?v=1"></script>
+  <script src="/js/history.js?v=1"></script>
+  <script src="/js/settings.js?v=1"></script>
+  <script src="/js/admin.js?v=1"></script>
+  <script src="/js/navigation.js?v=1"></script>
+  <script src="/js/app.js?v=1"></script>
+</body>
+</html>
