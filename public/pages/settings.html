@@ -1,13 +1,9 @@
 <!-- SETTINGS PAGE -->
 <div class="max-w-4xl mx-auto flex flex-col gap-lg">
 
-  <!-- Page Header with Tabs -->
+  <!-- Page Header -->
   <div>
     <h2 class="font-headline-lg text-headline-lg text-on-surface mb-md">Account Management</h2>
-    <div class="flex gap-lg border-b border-outline-variant">
-      <button id="tab-profile" class="pb-sm border-b-2 border-primary text-primary font-bold text-body-md transition-colors">Profile</button>
-      <button id="tab-parameters" class="pb-sm border-b-2 border-transparent text-on-surface-variant font-body-md hover:text-primary transition-colors">Parameters</button>
-    </div>
   </div>
 
   <!-- Profile Tab -->
@@ -96,46 +92,5 @@
     </div>
   </div>
 
-  <!-- Parameters Tab (hidden by default) -->
-  <div id="panel-parameters" class="hidden">
-    <div class="glass-panel rounded-xl p-lg">
-      <div class="mb-xl">
-        <h3 class="font-headline-md text-headline-md text-on-surface">Parameter Sistem</h3>
-        <p class="font-body-md text-on-surface-variant mt-xs">Konfigurasi parameter pengukuran spektrofotometer.</p>
-      </div>
-      <form id="parameters-form" class="space-y-lg">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
-          <div class="space-y-sm">
-            <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Konsentrasi Awal (ppm)</label>
-            <input type="number" id="initial-concentration" placeholder="100" step="0.1"
-              class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
-          </div>
-          <div class="space-y-sm">
-            <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Panjang Gelombang (nm)</label>
-            <input type="number" id="wavelength" placeholder="254" step="1"
-              class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
-          <div class="space-y-sm">
-            <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Koef. Ekstinsi Molar (L/mol·cm)</label>
-            <input type="number" id="extinction-coeff" placeholder="1000" step="0.1"
-              class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
-          </div>
-          <div class="space-y-sm">
-            <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Panjang Path (cm)</label>
-            <input type="number" id="path-length" placeholder="1" step="0.01"
-              class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
-          </div>
-        </div>
-        <div class="flex justify-end pt-md">
-          <button type="submit"
-            class="bg-primary-container text-on-primary-container hover:opacity-90 active:scale-95 transition-all px-xl py-md rounded-lg font-bold flex items-center gap-sm shadow-lg">
-            <span class="material-symbols-outlined">save</span> Simpan Parameter
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
 
 </div>

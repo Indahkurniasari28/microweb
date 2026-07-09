@@ -1,31 +1,30 @@
 <!-- ANALYTICS PAGE -->
 <div class="flex flex-col gap-lg max-w-[1440px]">
 
+  <!-- Simulation mode banner -->
+  <div id="sim-mode-banner" class="hidden flex items-center gap-sm px-lg py-sm bg-secondary/10 border border-secondary/40 rounded-xl text-secondary font-label-caps text-label-caps">
+    <span class="material-symbols-outlined text-[18px]">science</span>
+    MODE SIMULASI AKTIF — Data yang ditampilkan adalah data simulasi, bukan pengukuran riil.
+  </div>
+
   <!-- Filter Bar -->
   <section class="flex flex-wrap items-center justify-between gap-md p-md bg-surface-container/50 backdrop-blur-md border border-outline-variant rounded-xl">
     <div class="flex flex-wrap items-center gap-md">
       <div class="flex flex-col">
-        <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-xs">Dari Tanggal</label>
+        <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-xs">Tanggal</label>
         <input id="history-date-from" type="date"
           class="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg px-md py-sm font-body-md focus:border-primary outline-none">
       </div>
       <div class="flex flex-col">
-        <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-xs">Hingga Tanggal</label>
-        <input id="history-date-to" type="date"
-          class="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg px-md py-sm font-body-md focus:border-primary outline-none">
+        <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-xs">Session</label>
+        <select id="analytics-session-filter"
+          class="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg px-md py-sm font-body-md focus:border-primary outline-none appearance-none min-w-[130px]">
+          <option value="all">Semua Session</option>
+        </select>
       </div>
-      <div class="flex items-end self-end gap-sm">
+      <div class="flex items-end self-end">
         <button id="btn-filter-history" class="bg-surface-container-highest/50 border border-outline-variant text-on-surface px-md py-sm rounded-lg hover:bg-surface-container-high transition-colors flex items-center gap-sm font-body-md">
           <span class="material-symbols-outlined text-[20px]">filter_list</span> Filter
-        </button>
-        <button id="btn-control-start" class="bg-primary-container text-on-primary-container px-md py-sm rounded-lg hover:opacity-90 transition-opacity flex items-center gap-sm font-body-md font-bold">
-          <span class="material-symbols-outlined text-[20px]">play_arrow</span> Start
-        </button>
-        <button id="btn-control-stop" class="bg-error/10 border border-error text-error px-md py-sm rounded-lg hover:bg-error/20 transition-colors flex items-center gap-sm font-body-md font-bold">
-          <span class="material-symbols-outlined text-[20px]">stop</span> Stop
-        </button>
-        <button id="btn-control-reset" class="bg-surface-container-highest/50 border border-outline-variant text-on-surface-variant px-md py-sm rounded-lg hover:bg-surface-container-high transition-colors flex items-center gap-sm font-body-md">
-          <span class="material-symbols-outlined text-[20px]">refresh</span> Reset
         </button>
       </div>
     </div>
@@ -34,89 +33,114 @@
     </span>
   </section>
 
-  <!-- Main Monitoring Area -->
+  <!-- Main Area: Chart + Session Summary -->
   <section class="grid grid-cols-1 lg:grid-cols-4 gap-lg">
+
     <!-- Large Chart -->
     <div class="lg:col-span-3 bg-surface-container/50 backdrop-blur-md border border-outline-variant rounded-xl p-lg flex flex-col gap-lg min-h-[460px]">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
         <div class="flex flex-col">
-          <h2 class="font-headline-md text-headline-md text-on-surface">Absorbance Process</h2>
-          <p class="font-body-md text-on-surface-variant">Monitoring spektrofotometrik real-time.</p>
+          <h2 class="font-headline-md text-headline-md text-on-surface">Degradation Process</h2>
+          <p class="font-body-md text-on-surface-variant">Monitoring spektrofotometrik per session.</p>
         </div>
-        <div class="flex gap-sm">
-          <button class="px-sm py-xs bg-surface-container-highest rounded border border-outline-variant text-on-surface-variant text-[10px] font-bold uppercase tracking-widest">1H</button>
-          <span class="px-sm py-xs bg-primary-container text-on-primary-container rounded border border-primary-container text-[10px] font-bold uppercase tracking-widest">LIVE</span>
+        <!-- Color legend -->
+        <div class="flex flex-wrap items-center gap-sm">
+          <span class="flex items-center gap-xs text-[11px] font-bold" style="color:#515151"><span class="w-3 h-[2px] inline-block rounded" style="background:#515151"></span>0 min</span>
+          <span class="flex items-center gap-xs text-[11px] font-bold" style="color:#B177DE"><span class="w-3 h-[2px] inline-block rounded" style="background:#B177DE"></span>15 min</span>
+          <span class="flex items-center gap-xs text-[11px] font-bold" style="color:#CC9900"><span class="w-3 h-[2px] inline-block rounded" style="background:#CC9900"></span>30 min</span>
+          <span class="flex items-center gap-xs text-[11px] font-bold" style="color:#00CBCC"><span class="w-3 h-[2px] inline-block rounded" style="background:#00CBCC"></span>45 min</span>
+          <span class="flex items-center gap-xs text-[11px] font-bold" style="color:#7D4E4E"><span class="w-3 h-[2px] inline-block rounded" style="background:#7D4E4E"></span>60 min</span>
         </div>
       </div>
       <div class="flex-grow relative" style="min-height: 320px;">
         <canvas id="monitoring-chart"></canvas>
       </div>
+
+      <!-- Phase Indicator Bar -->
+      <div class="flex items-center gap-md px-md py-sm bg-surface-container-lowest/40 rounded-xl border border-outline-variant/30">
+        <span class="material-symbols-outlined text-[15px] text-on-surface-variant">stacked_line_chart</span>
+        <span id="analytics-phase-text" class="text-on-surface-variant font-label-caps text-label-caps text-[11px]">Menunggu data…</span>
+        <div class="flex items-center gap-[5px] ml-auto" id="analytics-phase-dots">
+          <span class="w-2.5 h-2.5 rounded-full transition-all duration-300 opacity-20" style="background:#515151" title="0 min"></span>
+          <span class="w-2.5 h-2.5 rounded-full transition-all duration-300 opacity-20" style="background:#B177DE" title="15 min"></span>
+          <span class="w-2.5 h-2.5 rounded-full transition-all duration-300 opacity-20" style="background:#CC9900" title="30 min"></span>
+          <span class="w-2.5 h-2.5 rounded-full transition-all duration-300 opacity-20" style="background:#00CBCC" title="45 min"></span>
+          <span class="w-2.5 h-2.5 rounded-full transition-all duration-300 opacity-20" style="background:#7D4E4E" title="60 min"></span>
+        </div>
+        <button id="btn-analytics-next-phase" style="display:none"></button>
+      </div>
+
+      <!-- WASTEWATER TYPE -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-md pt-md border-t border-outline-variant/40">
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase shrink-0">Wastewater Type:</span>
+        <div class="flex flex-wrap gap-sm" id="analytics-wt-selector">
+          <button class="analytics-wt-btn active-wt px-md py-xs rounded-lg text-[12px] font-bold border"
+            data-wt="rc" style="color:#f87171; border-color:#f87171; background:rgba(248,113,113,0.1)">Congo Red (CR)</button>
+          <button class="analytics-wt-btn px-md py-xs rounded-lg text-[12px] font-bold border"
+            data-wt="mg" style="color:#34d399; border-color:rgba(52,211,153,0.3); background:transparent">Malachite Green (MG)</button>
+          <button class="analytics-wt-btn px-md py-xs rounded-lg text-[12px] font-bold border"
+            data-wt="mb" style="color:#60a5fa; border-color:rgba(96,165,250,0.3); background:transparent">Methylene Blue (MB)</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Side Panel -->
+    <!-- Session Summary -->
     <div class="lg:col-span-1 flex flex-col gap-lg">
-      <div class="bg-surface-container border border-outline-variant rounded-xl p-lg flex flex-col gap-lg">
+      <div class="bg-surface-container border border-outline-variant rounded-xl p-lg flex flex-col gap-md h-full">
         <h3 class="font-body-md font-bold text-primary flex items-center gap-sm">
           <span class="material-symbols-outlined">summarize</span> Session Summary
         </h3>
-        <div class="flex flex-col gap-md">
-          <div class="flex items-center justify-between p-md bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
-            <span class="text-[10px] font-bold text-on-surface-variant tracking-wider uppercase">Absorbance A₀</span>
-            <span id="analytics-a0" class="font-data-md text-on-surface">-</span>
-          </div>
-          <div class="flex items-center justify-between p-md bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
-            <span class="text-[10px] font-bold text-on-surface-variant tracking-wider uppercase">Absorbance A</span>
-            <span id="analytics-af" class="font-data-md text-primary">-</span>
-          </div>
-        </div>
-        <div class="p-lg bg-surface-container-highest/20 rounded-xl border border-primary/20 flex flex-col items-center gap-sm relative overflow-hidden">
+
+        <!-- Degradation % big display -->
+        <div class="p-lg bg-surface-container-highest/20 rounded-xl border border-primary/20 flex flex-col items-center gap-sm">
           <span class="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Degradation %</span>
           <span id="analytics-degradation" class="font-data-lg text-[38px] leading-tight text-on-surface font-bold">0%</span>
-          <div class="w-full bg-surface-container-lowest h-1.5 rounded-full mt-md">
-            <div id="analytics-degradation-bar" class="bg-primary h-full rounded-full" style="width:0%;transition:width 0.5s ease;shadow: 0 0 8px rgba(125,211,252,0.5);"></div>
+          <div class="w-full bg-surface-container-lowest h-1.5 rounded-full">
+            <div id="analytics-degradation-bar" class="bg-primary h-full rounded-full" style="width:0%;transition:width 0.5s ease;"></div>
           </div>
         </div>
-        <div class="flex items-center justify-between px-md py-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+
+        <!-- Hover-combined metrics -->
+        <div class="group relative flex flex-col gap-sm cursor-default">
+          <div class="glass-panel rounded-xl p-md flex flex-col gap-sm transition-all group-hover:border-primary/40">
+
+            <div class="flex items-center justify-between p-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase">Concentration</span>
+              <span id="analytics-concentration" class="font-data-md text-on-surface text-sm">- ppm</span>
+            </div>
+
+            <div class="flex items-center justify-between p-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase">Safety Status</span>
+              <span id="analytics-safety-badge" class="inline-flex items-center gap-xs px-xs py-[2px] bg-green-500/10 border border-green-500/30 text-green-400 rounded font-label-caps text-[10px]">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> SAFE
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between p-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase">Reaction Time</span>
+              <span id="analytics-reaction-time" class="font-data-md text-on-surface text-sm">-</span>
+            </div>
+
+            <div class="flex items-center justify-between p-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase">Absorbance A₀</span>
+              <span id="analytics-a0" class="font-data-md text-on-surface">-</span>
+            </div>
+            <div class="flex items-center justify-between p-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase">Absorbance A</span>
+              <span id="analytics-af" class="font-data-md text-primary">-</span>
+            </div>
+
+          </div>
+          <!-- Hover hint -->
+          <p class="text-[10px] text-on-surface-variant text-center opacity-50 group-hover:opacity-80 transition-opacity">Arahkan kursor untuk detail</p>
+        </div>
+
+        <div class="flex items-center justify-between px-md py-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30 mt-auto">
           <div class="flex items-center gap-sm text-on-surface-variant">
             <span class="material-symbols-outlined text-[18px]">timer</span>
-            <span class="text-xs font-bold">Update Terakhir</span>
+            <span class="text-xs font-bold">Update</span>
           </div>
           <span id="analytics-last-update" class="font-data-md text-on-surface text-xs">-</span>
-        </div>
-      </div>
-
-      <!-- Instrument Readings -->
-      <div class="bg-surface-container/50 border border-outline-variant rounded-xl p-lg flex flex-col gap-md">
-        <h3 class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Instrument Readings</h3>
-        <div class="flex flex-col gap-sm">
-          <div class="flex items-center justify-between p-xs border-b border-outline-variant/20">
-            <div class="flex items-center gap-sm">
-              <span class="w-2 h-2 rounded-full bg-tertiary"></span>
-              <span class="text-xs text-on-surface-variant">Avantes</span>
-            </div>
-            <span class="text-xs font-bold text-on-surface">Absorbance</span>
-          </div>
-          <div class="flex items-center justify-between p-xs border-b border-outline-variant/20">
-            <div class="flex items-center gap-sm">
-              <span class="w-2 h-2 rounded-full bg-tertiary"></span>
-              <span class="text-xs text-on-surface-variant">Microwave</span>
-            </div>
-            <span class="text-xs font-bold text-on-surface">100W</span>
-          </div>
-          <div class="flex items-center justify-between p-xs border-b border-outline-variant/20">
-            <div class="flex items-center gap-sm">
-              <span class="w-2 h-2 rounded-full bg-tertiary"></span>
-              <span class="text-xs text-on-surface-variant">UV Lamp</span>
-            </div>
-            <span class="text-xs font-bold text-on-surface">50W</span>
-          </div>
-          <div class="flex items-center justify-between p-xs">
-            <div class="flex items-center gap-sm">
-              <span id="rpi-status-dot" class="w-2 h-2 rounded-full bg-outline"></span>
-              <span class="text-xs text-on-surface-variant">Raspberry Pi 5</span>
-            </div>
-            <span id="rpi-status-text" class="text-xs font-bold text-on-surface-variant">OFFLINE</span>
-          </div>
         </div>
       </div>
     </div>
@@ -130,9 +154,6 @@
         <button id="btn-export-csv" class="bg-primary text-on-primary font-bold py-xs px-md rounded-lg flex items-center gap-xs hover:opacity-90 transition-opacity text-body-md">
           <span class="material-symbols-outlined text-[18px]">download</span> Export CSV
         </button>
-        <button class="p-xs text-on-surface-variant hover:text-primary transition-colors">
-          <span class="material-symbols-outlined">more_vert</span>
-        </button>
       </div>
     </div>
     <div class="overflow-x-auto">
@@ -140,7 +161,8 @@
         <thead>
           <tr class="bg-surface-container-lowest/50 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
             <th class="px-lg py-md">Waktu</th>
-            <th class="px-lg py-md">Absorbansi</th>
+            <th class="px-lg py-md">Session</th>
+            <th class="px-lg py-md">Wastewater Type</th>
             <th class="px-lg py-md">Konsentrasi (ppm)</th>
             <th class="px-lg py-md">Degradasi (%)</th>
             <th class="px-lg py-md">Status</th>
@@ -148,7 +170,7 @@
         </thead>
         <tbody id="history-table-body" class="text-body-md text-on-surface divide-y divide-outline-variant/30">
           <tr>
-            <td colspan="5" class="px-lg py-lg text-center text-on-surface-variant">Tidak ada data</td>
+            <td colspan="6" class="px-lg py-lg text-center text-on-surface-variant">Tidak ada data</td>
           </tr>
         </tbody>
       </table>

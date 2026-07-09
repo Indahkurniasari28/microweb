@@ -18,7 +18,7 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
   <!-- Chart.js -->
@@ -98,14 +98,14 @@
             lg: "24px"
           },
           fontFamily: {
-            "display-lg": ["Sora"],
-            "headline-lg": ["Sora"],
-            "headline-md": ["Sora"],
-            "body-lg": ["DM Sans"],
-            "body-md": ["DM Sans"],
-            "label-caps": ["DM Sans"],
-            "data-lg": ["Space Mono"],
-            "data-md": ["Space Mono"]
+            "display-lg": ["Poppins", "sans-serif"],
+            "headline-lg": ["Poppins", "sans-serif"],
+            "headline-md": ["Poppins", "sans-serif"],
+            "body-lg": ["Poppins", "sans-serif"],
+            "body-md": ["Poppins", "sans-serif"],
+            "label-caps": ["Poppins", "sans-serif"],
+            "data-lg": ["Poppins", "sans-serif"],
+            "data-md": ["Poppins", "sans-serif"]
           },
           fontSize: {
             "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
@@ -236,6 +236,7 @@
     body {
       background-color: rgb(var(--background));
       -webkit-font-smoothing: antialiased;
+      font-family: 'Poppins', sans-serif;
     }
     .glass-panel {
       background: rgb(var(--glass-bg) / 0.75);
@@ -314,13 +315,111 @@
   <!-- ============================================================ -->
   <!-- AUTH SCREEN -->
   <!-- ============================================================ -->
-  <div id="auth-container" class="auth-bg flex items-center justify-center min-h-screen p-md">
-    <div class="w-full max-w-[440px] flex flex-col gap-lg">
+  <div id="auth-container" class="flex min-h-screen">
+
+    <!-- Left: Decorative slideshow panel -->
+    <div id="auth-left-panel" class="hidden lg:flex flex-1 flex-col relative overflow-hidden bg-gradient-to-br from-[rgb(var(--background))] to-[rgb(var(--surface-container))] border-r border-outline-variant">
+
+      <!-- Background image layer (diisi JS jika ada latarbelakang1/2/dst) -->
+      <div id="auth-bg-img" class="absolute inset-0 bg-cover bg-center" style="opacity:0; transition:opacity 0.8s ease;"></div>
+      <!-- Overlay gelap 20% supaya teks tetap terbaca -->
+      <div id="auth-bg-overlay" class="absolute inset-0 hidden" style="background:rgba(0,0,0,0.6)"></div>
+
+      <!-- Slides -->
+      <div id="auth-slides" class="absolute inset-0 flex">
+        <!-- Slide 1 -->
+        <div class="auth-slide active absolute inset-0 flex flex-col items-center justify-center p-xl gap-xl transition-opacity duration-700">
+          <div class="relative">
+            <div class="w-24 h-24 rounded-3xl bg-primary/10 border border-primary/30 flex items-center justify-center mb-lg">
+              <span class="material-symbols-outlined text-primary text-[56px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+            </div>
+            <div class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-tertiary animate-ping opacity-40"></div>
+          </div>
+          <div class="text-center max-w-md">
+            <h2 class="font-display-lg text-headline-lg text-on-surface font-bold">MICROWAT</h2>
+            <p class="text-on-surface font-body-lg font-semibold mt-sm">Microwave-Assisted Photocatalytic Reactor</p>
+            <p class="text-on-surface-variant font-body-md mt-md leading-relaxed">Monitoring real-time degradasi limbah pewarna sintetik dengan teknologi UV-Vis Spektrometri dan nanomaterial ZnO-Ag.</p>
+          </div>
+          <div class="grid grid-cols-3 gap-md w-full max-w-sm mt-md">
+            <div class="glass-panel rounded-xl p-md text-center border border-primary/20">
+              <p class="text-primary font-bold text-lg">60 min</p>
+              <p class="text-on-surface-variant text-xs">Siklus Ukur</p>
+            </div>
+            <div class="glass-panel rounded-xl p-md text-center border border-tertiary/20">
+              <p class="text-tertiary font-bold text-lg">200–800</p>
+              <p class="text-on-surface-variant text-xs">nm Spektrum</p>
+            </div>
+            <div class="glass-panel rounded-xl p-md text-center border border-secondary/20">
+              <p class="text-secondary font-bold text-lg">PWA</p>
+              <p class="text-on-surface-variant text-xs">Monitoring</p>
+            </div>
+          </div>
+        </div>
+        <!-- Slide 2 -->
+        <div class="auth-slide absolute inset-0 flex flex-col items-center justify-center p-xl gap-xl opacity-0 transition-opacity duration-700">
+          <div class="w-24 h-24 rounded-3xl bg-tertiary/10 border border-tertiary/30 flex items-center justify-center mb-lg">
+            <span class="material-symbols-outlined text-tertiary text-[56px]">query_stats</span>
+          </div>
+          <div class="text-center max-w-md">
+            <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">Analitik Real-Time</h2>
+            <p class="text-on-surface-variant font-body-lg mt-md leading-relaxed">Pantau degradasi limbah secara langsung dengan grafik spektral per siklus 15 menit. Tiap siklus diberi kode warna berbeda untuk perbandingan visual yang jelas.</p>
+          </div>
+          <div class="flex flex-wrap justify-center gap-sm mt-md">
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#515151; border-color:rgba(81,81,81,0.4); background:rgba(81,81,81,0.08)">● 0 min</span>
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#B177DE; border-color:rgba(177,119,222,0.4); background:rgba(177,119,222,0.08)">● 15 min</span>
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#CC9900; border-color:rgba(204,153,0,0.4); background:rgba(204,153,0,0.08)">● 30 min</span>
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#00CBCC; border-color:rgba(0,203,204,0.4); background:rgba(0,203,204,0.08)">● 45 min</span>
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#7D4E4E; border-color:rgba(125,78,78,0.4); background:rgba(125,78,78,0.08)">● 60 min</span>
+          </div>
+        </div>
+        <!-- Slide 3 -->
+        <div class="auth-slide absolute inset-0 flex flex-col items-center justify-center p-xl gap-xl opacity-0 transition-opacity duration-700">
+          <div class="w-24 h-24 rounded-3xl bg-secondary/10 border border-secondary/30 flex items-center justify-center mb-lg">
+            <span class="material-symbols-outlined text-secondary text-[56px]">science</span>
+          </div>
+          <div class="text-center max-w-md">
+            <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">Limbah Pewarna Sintetik</h2>
+            <p class="text-on-surface-variant font-body-lg mt-md leading-relaxed">MICROWAT mendukung monitoring 3 jenis limbah pewarna untuk analisis degradasi fotokatalitik yang komprehensif.</p>
+          </div>
+          <div class="flex flex-col gap-sm w-full max-w-xs mt-md">
+            <div class="glass-panel rounded-xl p-md flex items-center gap-md border-l-4" style="border-color:#f87171">
+              <span class="w-3 h-3 rounded-full bg-red-400 shrink-0"></span>
+              <div><p class="font-bold text-on-surface text-sm">Congo Red (CR)</p><p class="text-xs text-on-surface-variant">λ puncak: ~495 nm</p></div>
+            </div>
+            <div class="glass-panel rounded-xl p-md flex items-center gap-md border-l-4" style="border-color:#34d399">
+              <span class="w-3 h-3 rounded-full bg-emerald-400 shrink-0"></span>
+              <div><p class="font-bold text-on-surface text-sm">Malachite Green (MG)</p><p class="text-xs text-on-surface-variant">λ puncak: ~621 nm</p></div>
+            </div>
+            <div class="glass-panel rounded-xl p-md flex items-center gap-md border-l-4" style="border-color:#60a5fa">
+              <span class="w-3 h-3 rounded-full bg-blue-400 shrink-0"></span>
+              <div><p class="font-bold text-on-surface text-sm">Methylene Blue (MB)</p><p class="text-xs text-on-surface-variant">λ puncak: ~665 nm</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Slide controls -->
+      <div class="absolute bottom-lg left-0 right-0 flex justify-center gap-sm">
+        <button class="auth-dot w-2 h-2 rounded-full bg-primary transition-all" data-slide="0"></button>
+        <button class="auth-dot w-2 h-2 rounded-full bg-outline-variant transition-all" data-slide="1"></button>
+        <button class="auth-dot w-2 h-2 rounded-full bg-outline-variant transition-all" data-slide="2"></button>
+      </div>
+      <!-- Prev/Next -->
+      <button id="auth-prev" class="absolute left-md top-1/2 -translate-y-1/2 p-xs rounded-full glass-panel border border-outline-variant text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <button id="auth-next" class="absolute right-md top-1/2 -translate-y-1/2 p-xs rounded-full glass-panel border border-outline-variant text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- Right: Login Form Panel -->
+    <div class="w-full lg:w-[480px] lg:shrink-0 flex items-center justify-center min-h-screen p-md bg-surface/50 backdrop-blur-sm overflow-y-auto">
+      <div class="w-full max-w-[440px] flex flex-col gap-lg py-xl">
 
       <!-- Login Section -->
       <div id="login-section" class="auth-section flex flex-col gap-lg">
-        <!-- Brand -->
-        <div class="text-center flex flex-col items-center gap-sm">
+        <!-- Brand (shown on mobile, hidden on desktop where left panel shows) -->
+        <div class="text-center flex flex-col items-center gap-sm lg:hidden">
           <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-primary-container/10 border border-primary/30 mb-sm">
             <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">biotech</span>
           </div>
@@ -330,8 +429,8 @@
         <!-- Card -->
         <div class="glass-panel p-xl rounded-xl flex flex-col gap-lg">
           <div class="flex flex-col gap-xs">
-            <h2 class="font-headline-md text-on-surface">Secure Authentication</h2>
-            <p class="font-body-md text-on-surface-variant">Authorized personnel only.</p>
+            <h2 class="font-headline-md text-on-surface font-bold text-xl">MICROWAT</h2>
+            <p class="font-body-md text-on-surface-variant">Silakan masuk untuk melanjutkan.</p>
           </div>
           <form id="login-form" class="flex flex-col gap-md">
             <div class="flex flex-col gap-sm">
@@ -467,8 +566,80 @@
         </div>
       </div>
 
-    </div>
-  </div>
+      </div><!-- end max-w-[440px] py-xl -->
+    </div><!-- end right panel -->
+  </div><!-- end auth-container -->
+
+  <!-- Auth slideshow + background image loader -->
+  <script>
+    (function() {
+      // ── Slideshow ──
+      let authSlideIdx = 0;
+      const slides = document.querySelectorAll('.auth-slide');
+      const dots   = document.querySelectorAll('.auth-dot');
+
+      function goSlide(n) {
+        if (slides[authSlideIdx]) slides[authSlideIdx].style.opacity = '0';
+        if (dots[authSlideIdx])   dots[authSlideIdx].style.background = 'rgb(var(--outline-variant))';
+        authSlideIdx = (n + slides.length) % slides.length;
+        if (slides[authSlideIdx]) slides[authSlideIdx].style.opacity = '1';
+        if (dots[authSlideIdx])   dots[authSlideIdx].style.background = 'rgb(var(--primary))';
+      }
+
+      document.getElementById('auth-next')?.addEventListener('click', () => goSlide(authSlideIdx + 1));
+      document.getElementById('auth-prev')?.addEventListener('click', () => goSlide(authSlideIdx - 1));
+      dots.forEach(d => d.addEventListener('click', () => goSlide(parseInt(d.dataset.slide))));
+
+      setInterval(() => {
+        const ac = document.getElementById('auth-container');
+        if (ac && !ac.classList.contains('hidden')) goSlide(authSlideIdx + 1);
+      }, 5000);
+
+      // ── Background image loader ──
+      // Coba load latarbelakang1 → latarbelakang2 → ... (jpg, png, webp, jpeg)
+      // Foto ditaruh di /uploads/backgrounds/
+      const BG_DIR  = '/uploads/backgrounds/';
+      const EXTS    = ['jpg', 'jpeg', 'png', 'webp'];
+      const MAX_BG  = 10; // cek sampai latarbelakang10
+
+      const bgLayer   = document.getElementById('auth-bg-img');
+      const bgOverlay = document.getElementById('auth-bg-overlay');
+      const bgList    = []; // semua URL yang berhasil ditemukan
+      let   bgCurrent = 0;
+
+      function tryLoad(name, ext) {
+        return new Promise(resolve => {
+          const img = new Image();
+          const url = BG_DIR + name + '.' + ext;
+          img.onload  = () => resolve(url);
+          img.onerror = () => resolve(null);
+          img.src = url;
+        });
+      }
+
+      async function scanBackgrounds() {
+        for (let i = 1; i <= MAX_BG; i++) {
+          for (const ext of EXTS) {
+            const url = await tryLoad('latarbelakang' + i, ext);
+            if (url) { bgList.push(url); break; } // ambil ekstensi pertama yang berhasil
+          }
+        }
+        if (bgList.length > 0) applyBackground(0);
+      }
+
+      function applyBackground(idx) {
+        if (!bgLayer || bgList.length === 0) return;
+        bgLayer.style.backgroundImage = `url('${bgList[idx]}')`;
+        bgLayer.style.opacity = '0.8';          // kecerahan 80%
+        bgLayer.style.filter  = 'brightness(0.8)';
+        if (bgOverlay) bgOverlay.classList.remove('hidden');
+        bgCurrent = idx;
+      }
+
+      // Ganti background tiap kali slide berganti (opsional — pakai gambar pertama saja)
+      scanBackgrounds();
+    })();
+  </script>
 
   <!-- ============================================================ -->
   <!-- MAIN APP -->
@@ -507,7 +678,7 @@
         </a>
         <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="device-status">
           <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">science</span>
-          <span class="font-body-md">Device Status</span>
+          <span class="font-body-md">Device</span>
         </a>
         <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="history">
           <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">database</span>
@@ -516,6 +687,10 @@
         <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="settings">
           <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">settings</span>
           <span class="font-body-md">Settings</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="info">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">info</span>
+          <span class="font-body-md">Info</span>
         </a>
 
         <!-- ADMIN SECTION -->
@@ -532,10 +707,6 @@
             <span class="material-symbols-outlined nav-icon group-hover:text-secondary transition-colors">receipt_long</span>
             <span class="font-body-md">Log Detail</span>
           </a>
-          <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="instrument-config">
-            <span class="material-symbols-outlined nav-icon group-hover:text-secondary transition-colors">tune</span>
-            <span class="font-body-md">Instrument Config</span>
-          </a>
         </div>
       </nav>
 
@@ -545,7 +716,7 @@
           <span class="material-symbols-outlined text-[20px]">download</span>
           <span>Export Data</span>
         </button>
-        <button id="help-btn" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg w-full text-left">
+        <button id="help-btn" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg w-full text-left" data-page="info" onclick="navigateToPage('info')">
           <span class="material-symbols-outlined">help</span>
           <span class="font-body-md">Help</span>
         </button>
@@ -629,13 +800,16 @@
           <span class="material-symbols-outlined">query_stats</span><span class="font-body-md">Analytics</span>
         </a>
         <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="device-status">
-          <span class="material-symbols-outlined">science</span><span class="font-body-md">Device Status</span>
+          <span class="material-symbols-outlined">science</span><span class="font-body-md">Device</span>
         </a>
         <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="history">
           <span class="material-symbols-outlined">database</span><span class="font-body-md">History</span>
         </a>
         <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="settings">
           <span class="material-symbols-outlined">settings</span><span class="font-body-md">Settings</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="info">
+          <span class="material-symbols-outlined">info</span><span class="font-body-md">Info</span>
         </a>
       </nav>
       <div class="flex flex-col gap-xs border-t border-outline-variant pt-lg">
@@ -672,8 +846,8 @@
       </button>
     </nav>
 
-    <!-- HELP MODAL -->
-    <div id="help-modal" class="hidden fixed inset-0 z-[300] flex bg-background/90 backdrop-blur-md">
+    <!-- Help modal removed: Help button now navigates to the Info page -->
+    <div id="help-modal" class="hidden">
       <!-- Modal container -->
       <div class="flex w-full h-full max-w-6xl mx-auto my-0 md:my-8 md:rounded-2xl overflow-hidden glass-panel shadow-2xl border border-outline-variant md:max-h-[calc(100vh-64px)]">
 
@@ -876,45 +1050,113 @@
               </div>
             </section>
 
-            <!-- ── 5. Device Status ── -->
+            <!-- ── 5. Device ── -->
             <section id="help-device" class="help-section">
               <div class="flex items-center gap-md mb-lg">
                 <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
                   <span class="material-symbols-outlined text-secondary">science</span>
                 </div>
                 <div>
-                  <h2 class="font-headline-md text-headline-md text-on-surface">Device Status</h2>
-                  <p class="text-on-surface-variant text-body-md">Status hardware & simulasi ESP32</p>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Device</h2>
+                  <p class="text-on-surface-variant text-body-md">Status hardware &amp; kontrol pengukuran kuvet</p>
                 </div>
               </div>
               <div class="space-y-md">
+
+                <!-- KPI Bar -->
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📊 KPI Bar (4 Metrik Atas)</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Active Devices</p>
+                      <p class="text-on-surface-variant text-body-md">Jumlah perangkat yang terhubung dari total 2 perangkat (Raspberry Pi 5 + Avantes UV Spektrofotometer).</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Monitoring Time</p>
+                      <p class="text-on-surface-variant text-body-md">Jam:Menit:Detik yang telah berjalan sejak halaman Device dibuka. Timer berjalan terus selama sesi aktif.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Konsentrasi (ppm)</p>
+                      <p class="text-on-surface-variant text-body-md">Konsentrasi limbah terkini dari pengukuran terakhir spektrofotometer, dihitung via Hukum Beer-Lambert.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Degradasi (%)</p>
+                      <p class="text-on-surface-variant text-body-md">Persentase degradasi limbah dari pengukuran terakhir. Formula: ((C₀ − Cₜ) / C₀) × 100.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hardware Cards -->
                 <div class="glass-panel rounded-xl p-lg">
                   <h3 class="font-body-lg font-bold text-on-surface mb-md">🖥️ Hardware yang Dipantau</h3>
                   <div class="space-y-sm">
                     <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
-                      <p class="font-bold text-primary">Raspberry Pi</p>
-                      <p class="text-on-surface-variant text-body-md">CPU usage, RAM usage, network latency, dan status koneksi server. Data diperbarui otomatis via WebSocket.</p>
+                      <p class="font-bold text-primary">Raspberry Pi 5</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Controller utama sistem. Menampilkan CPU usage, RAM usage, latency jaringan, dan system load. Status ONLINE/OFFLINE diperbarui otomatis via WebSocket. Klik kartu untuk melihat detail lengkap (Device Detail).</p>
+                      <div class="mt-sm grid grid-cols-2 gap-xs text-[11px] font-data-md text-on-surface-variant">
+                        <span>• CPU: Cortex-A76 Quad-core</span>
+                        <span>• RAM: 8 GB LPDDR4X</span>
+                        <span>• OS: Raspberry Pi OS Bookworm</span>
+                        <span>• Koneksi: Server via Socket.io</span>
+                      </div>
                     </div>
                     <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
-                      <p class="font-bold text-primary">Avantes Spectrometer</p>
-                      <p class="text-on-surface-variant text-body-md">Status online/offline, nilai absorbansi terakhir, dan status pengukuran. Terhubung ke RPi via USB.</p>
-                    </div>
-                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
-                      <p class="font-bold text-primary">ESP32 (Real Sensor)</p>
-                      <p class="text-on-surface-variant text-body-md">Sensor jarak ultrasonik dan sensor hujan. Data dikirim via MQTT dari ESP32 ke server. Klik <strong>Refresh</strong> untuk update manual.</p>
+                      <p class="font-bold text-primary">Avantes UV Spektrofotometer</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Instrumen pengukuran absorbansi UV-Vis. Menampilkan Peak λ, nilai absorbansi terakhir, status USB, dan capture progress. Terhubung ke RPi via USB. Status CAPTURING saat pengukuran berjalan.</p>
+                      <div class="mt-sm grid grid-cols-2 gap-xs text-[11px] font-data-md text-on-surface-variant">
+                        <span>• Rentang: 360–2500 nm</span>
+                        <span>• Koneksi: USB ke RPi 5</span>
+                        <span>• Peak λ: 664 nm (Methylene Blue)</span>
+                        <span>• Status: CAPTURING / STANDBY</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="glass-panel rounded-xl p-lg border-l-4 border-secondary">
-                  <h3 class="font-body-lg font-bold text-secondary mb-md">🔧 ESP32 Simulator</h3>
-                  <p class="text-on-surface-variant mb-md">Fitur untuk testing tanpa hardware fisik ESP32:</p>
+
+                <!-- Control Section -->
+                <div class="glass-panel rounded-xl p-lg border-l-4 border-primary">
+                  <h3 class="font-body-lg font-bold text-primary mb-md flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-[20px]">water_pump</span> Kontrol Pengukuran
+                  </h3>
+                  <p class="text-on-surface-variant mb-md">Tiga tombol kontrol manual untuk aliran limbah dan proses pengukuran spektrofotometrik. Sistem juga berjalan otomatis setiap <strong class="text-on-surface">15 menit</strong>.</p>
+                  <div class="space-y-sm">
+                    <div class="p-md rounded-lg bg-primary/5 border border-primary/20">
+                      <div class="flex items-center gap-sm mb-xs">
+                        <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1;">water_pump</span>
+                        <p class="font-bold text-primary">Isi (Fill)</p>
+                      </div>
+                      <p class="text-on-surface-variant text-body-md">Mengaktifkan water pump untuk memompa limbah dari <strong class="text-on-surface">gelas beaker</strong> ke dalam <strong class="text-on-surface">kuvet</strong> spektrofotometer. Tekan saat siap memulai siklus pengukuran.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-secondary/5 border border-secondary/20">
+                      <div class="flex items-center gap-sm mb-xs">
+                        <span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+                        <p class="font-bold text-secondary">Ukur (Measure)</p>
+                      </div>
+                      <p class="text-on-surface-variant text-body-md">Memicu Avantes UV Spektrofotometer untuk mengukur <strong class="text-on-surface">panjang gelombang</strong> dan absorbansi sampel di dalam kuvet. Tekan setelah proses Isi selesai. Hasil langsung tampil di Dashboard dan Analytics.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-tertiary/5 border border-tertiary/20">
+                      <div class="flex items-center gap-sm mb-xs">
+                        <span class="material-symbols-outlined text-tertiary text-[18px]" style="font-variation-settings:'FILL' 1;">output_circle</span>
+                        <p class="font-bold text-tertiary">Kosong (Empty)</p>
+                      </div>
+                      <p class="text-on-surface-variant text-body-md">Membuang limbah yang sudah diukur dari kuvet. Kuvet dikosongkan agar siap untuk siklus pengukuran berikutnya. Tekan setelah proses Ukur selesai.</p>
+                    </div>
+                  </div>
+                  <div class="mt-md p-sm rounded-lg bg-surface-container border border-outline-variant/30">
+                    <p class="text-on-surface-variant text-[12px] font-data-md"><strong class="text-on-surface">Alur kerja:</strong> Isi → Ukur → Kosong → ulangi setiap 15 menit. Setiap siklus menghasilkan satu titik data absorbansi/konsentrasi/degradasi.</p>
+                  </div>
+                </div>
+
+                <!-- Live Refresh & Export -->
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔄 Live Refresh &amp; Export Report</h3>
                   <ul class="space-y-sm text-on-surface-variant">
-                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-secondary text-[16px] mt-[2px]">straighten</span><span><strong class="text-on-surface">Slider Jarak</strong> – Atur nilai sensor ultrasonik (5–200 cm). Geser slider, nilai JSON preview otomatis update.</span></li>
-                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-secondary text-[16px] mt-[2px]">water_drop</span><span><strong class="text-on-surface">Sensor Hujan</strong> – Toggle antara BASAH / KERING untuk simulasi kondisi lingkungan.</span></li>
-                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-secondary text-[16px] mt-[2px]">send</span><span><strong class="text-on-surface">Send Data</strong> – Kirim data simulator ke server sekali via WebSocket.</span></li>
-                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-secondary text-[16px] mt-[2px]">play_circle</span><span><strong class="text-on-surface">Auto Simulate</strong> – Kirim data secara otomatis setiap 1 detik dengan variasi acak. Klik lagi untuk stop.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">toggle_on</span><span><strong class="text-on-surface">Live Refresh</strong> – Toggle di pojok kanan atas halaman. Saat aktif (biru), KPI bar dan status kartu diperbarui otomatis setiap kali ada data baru.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">download</span><span><strong class="text-on-surface">Export Report</strong> – Tombol di pojok kanan atas mengunduh seluruh data history sebagai file CSV.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">open_in_new</span><span><strong class="text-on-surface">Tap untuk detail</strong> – Setiap kartu perangkat (RPi / Avantes) bisa diklik untuk membuka halaman Device Detail dengan telemetri dan log lengkap.</span></li>
                   </ul>
                 </div>
+
               </div>
             </section>
 

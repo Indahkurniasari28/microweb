@@ -5,10 +5,11 @@
 const PAGE_TITLES = {
   dashboard:          'Dashboard',
   analytics:          'Analytics',
-  'device-status':    'Device Status',
+  'device-status':    'Device',
   'device-detail':    'Device Detail',
   history:            'History',
   settings:           'Settings',
+  info:               'Info',
   'user-management':  'User Management',
   'log-detail':       'Log Detail',
   'instrument-config':'Instrument Config',
@@ -78,6 +79,7 @@ function initPage(pageName) {
     case 'device-detail':       initDeviceDetailPage(); break;
     case 'history':             initHistoryPage(); break;
     case 'settings':            initSettingsPage(); break;
+    case 'info':                /* static page, no init needed */ break;
     case 'admin-settings':      initAdminSettingsPage(); break;
     case 'user-management':     initUserManagementPage(); break;
     case 'log-detail':          initLogDetailPage(); break;

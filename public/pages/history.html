@@ -18,14 +18,17 @@
   <!-- Filter Bar -->
   <section class="flex flex-wrap items-center gap-md p-md bg-surface-container/50 backdrop-blur-md border border-outline-variant rounded-xl">
     <div class="flex flex-col">
-      <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-xs">Dari Tanggal</label>
+      <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-xs">Tanggal</label>
       <input id="hist-date-from" type="date"
         class="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg px-md py-sm font-body-md focus:border-primary outline-none">
     </div>
     <div class="flex flex-col">
-      <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-xs">Hingga Tanggal</label>
-      <input id="hist-date-to" type="date"
-        class="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg px-md py-sm font-body-md focus:border-primary outline-none">
+      <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-xs">Session</label>
+      <select id="hist-session-filter"
+        class="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg px-md py-sm font-body-md focus:border-primary outline-none appearance-none min-w-[120px]">
+        <option value="all">Semua Session</option>
+        <!-- Options populated dynamically from DB -->
+      </select>
     </div>
     <div class="flex items-end self-end gap-sm">
       <button id="btn-hist-filter" class="bg-surface-container-highest/50 border border-outline-variant text-on-surface px-md py-sm rounded-lg hover:bg-surface-container-high transition-colors flex items-center gap-sm font-body-md">
@@ -44,7 +47,8 @@
         <thead>
           <tr class="bg-surface-container-low/50">
             <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant uppercase">Waktu</th>
-            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant uppercase">Absorbansi</th>
+            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant uppercase">Session</th>
+            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant uppercase">Jenis Limbah</th>
             <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant uppercase">Konsentrasi (ppm)</th>
             <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant uppercase">Degradasi (%)</th>
             <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant uppercase">Status</th>
@@ -53,7 +57,7 @@
         </thead>
         <tbody id="history-table-body" class="divide-y divide-outline-variant/30">
           <tr>
-            <td colspan="6" class="px-lg py-lg text-center text-on-surface-variant font-body-md">
+            <td colspan="7" class="px-lg py-lg text-center text-on-surface-variant font-body-md">
               <div class="flex flex-col items-center gap-sm">
                 <span class="material-symbols-outlined text-[40px] text-outline">database</span>
                 <span>Tidak ada data</span>

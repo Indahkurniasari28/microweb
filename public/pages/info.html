@@ -1,0 +1,221 @@
+<!-- INFO PAGE -->
+<div class="max-w-4xl mx-auto flex flex-col gap-xl pb-xl">
+
+  <!-- Hero / Logo -->
+  <div class="glass-panel rounded-2xl p-xl flex flex-col md:flex-row items-center gap-lg border border-primary/20 bg-gradient-to-br from-primary/5 to-tertiary/5">
+    <div class="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0">
+      <span class="material-symbols-outlined text-primary text-[52px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+    </div>
+    <div>
+      <h1 class="font-display-lg text-headline-lg text-primary font-bold">MICROWAT</h1>
+      <p class="text-on-surface font-body-lg font-bold mt-xs">Microwave-Assisted Photocatalytic Reactor with Ag-Doped ZnO for Synthetic Waste Treatment with Monitoring System</p>
+      <p class="text-on-surface-variant font-body-md mt-sm">Teknik Elektro · Institut Teknologi Sumatera (ITERA)</p>
+    </div>
+  </div>
+
+  <!-- About MICROWAT -->
+  <section class="flex flex-col gap-md">
+    <div class="flex items-center gap-md">
+      <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-primary">info</span>
+      </div>
+      <h2 class="font-headline-md text-headline-md text-on-surface">Tentang MICROWAT</h2>
+    </div>
+    <div class="glass-panel rounded-xl p-lg">
+      <p class="text-on-surface font-body-lg leading-relaxed">
+        <strong class="text-primary">MICROWAT</strong> adalah reaktor yang dikembangkan oleh Teknik Elektro ITERA untuk meningkatkan efektivitas pengolahan limbah cair pewarna sintetik melalui degradasi fotokatalitik berbantukan gelombang mikro. Alat ini memanfaatkan nanomaterial <strong>ZnO-Ag</strong> sebagai fotokatalis yang dipadukan dengan sistem gelombang mikro untuk mempercepat proses degradasi senyawa pencemar, serta dilengkapi dengan sistem monitoring yang memungkinkan proses pemantauan berlangsung secara lebih mudah dan efisien.
+      </p>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section class="flex flex-col gap-md">
+    <div class="flex items-center gap-md">
+      <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-tertiary">play_circle</span>
+      </div>
+      <h2 class="font-headline-md text-headline-md text-on-surface">Bagaimana MICROWAT Bekerja?</h2>
+    </div>
+    <div class="glass-panel rounded-xl p-lg">
+      <ol class="space-y-md">
+        <li class="flex items-start gap-md">
+          <span class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary text-sm font-bold shrink-0 mt-[2px]">1</span>
+          <p class="text-on-surface font-body-lg leading-relaxed">Operator menyiapkan sampel fotokatalis ZnO-Ag dan larutan limbah pewarna, lalu ditempatkan di dalam beaker yang berada pada reaktor.</p>
+        </li>
+        <li class="flex items-start gap-md">
+          <span class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary text-sm font-bold shrink-0 mt-[2px]">2</span>
+          <p class="text-on-surface font-body-lg leading-relaxed">Operator mengoperasikan MICROWAT untuk memulai proses fotodegradasi.</p>
+        </li>
+        <li class="flex items-start gap-md">
+          <span class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary text-sm font-bold shrink-0 mt-[2px]">3</span>
+          <p class="text-on-surface font-body-lg leading-relaxed">Larutan hasil degradasi dipompa secara otomatis menuju kuvet spektrofotometer menggunakan sistem pompa yang terintegrasi.</p>
+        </li>
+        <li class="flex items-start gap-md">
+          <span class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary text-sm font-bold shrink-0 mt-[2px]">4</span>
+          <p class="text-on-surface font-body-lg leading-relaxed">Spektrofotometer mengidentifikasi perubahan konsentrasi zat pencemar pada larutan.</p>
+        </li>
+        <li class="flex items-start gap-md">
+          <span class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary text-sm font-bold shrink-0 mt-[2px]">5</span>
+          <p class="text-on-surface font-body-lg leading-relaxed">Seluruh proses dan hasil pengujian dipantau melalui website based (PWA) dan layar LCD Raspberry Pi.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- System Introduction -->
+  <section class="flex flex-col gap-md">
+    <div class="flex items-center gap-md">
+      <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-secondary">settings_suggest</span>
+      </div>
+      <h2 class="font-headline-md text-headline-md text-on-surface">Pengenalan Sistem</h2>
+    </div>
+    <!-- Hardware: full width row -->
+    <div class="glass-panel rounded-xl p-lg flex flex-col gap-md">
+      <div class="flex items-center gap-sm mb-sm">
+        <span class="material-symbols-outlined text-secondary text-[22px]">developer_board</span>
+        <h3 class="font-body-lg font-bold text-on-surface">Pemodelan Hardware</h3>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-lg items-start">
+        <div class="flex flex-col gap-md">
+          <p class="text-on-surface-variant font-body-md leading-relaxed">
+            Komponen utama meliputi <strong class="text-on-surface">ruang reaktor berbasis microwave</strong>, lampu UV HPL sebagai sumber iradiasi, sampel fotokatalis ZnO-Ag, sistem pompa untuk sirkulasi larutan limbah, spektrofotometer UV-Vis, Raspberry Pi 5 sebagai pengendali utama, serta layar LCD touchscreen sebagai antarmuka pengguna. Seluruh perangkat diintegrasikan untuk menghasilkan sistem yang bekerja secara terkoordinasi.
+          </p>
+          <div class="grid grid-cols-2 gap-sm">
+            <div class="p-sm rounded-lg bg-secondary/5 border border-secondary/20 text-xs text-on-surface-variant flex items-center gap-xs">
+              <span class="material-symbols-outlined text-secondary text-[14px]">memory</span> Raspberry Pi 5
+            </div>
+            <div class="p-sm rounded-lg bg-secondary/5 border border-secondary/20 text-xs text-on-surface-variant flex items-center gap-xs">
+              <span class="material-symbols-outlined text-secondary text-[14px]">biotech</span> Avantes Spectrometer
+            </div>
+            <div class="p-sm rounded-lg bg-secondary/5 border border-secondary/20 text-xs text-on-surface-variant flex items-center gap-xs">
+              <span class="material-symbols-outlined text-secondary text-[14px]">water_pump</span> Sistem Pompa (2×)
+            </div>
+            <div class="p-sm rounded-lg bg-secondary/5 border border-secondary/20 text-xs text-on-surface-variant flex items-center gap-xs">
+              <span class="material-symbols-outlined text-secondary text-[14px]">settings_input_component</span> Motor Driver LN298N
+            </div>
+          </div>
+        </div>
+        <!-- Hardware model image (4 views) -->
+        <div class="rounded-xl overflow-hidden border border-secondary/20 bg-white">
+          <img src="/images/hardware-model.png" alt="MICROWAT Hardware Model — Tampak Depan, Atas, Samping Kiri, Samping Kanan"
+            class="w-full h-auto object-contain" loading="lazy">
+          <p class="text-center text-xs text-on-surface-variant py-sm bg-surface-container/30">Pemodelan 3D Reaktor MICROWAT</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Software -->
+    <div class="glass-panel rounded-xl p-lg flex flex-col gap-md">
+      <div class="flex items-center gap-sm mb-sm">
+        <span class="material-symbols-outlined text-tertiary text-[22px]">code</span>
+        <h3 class="font-body-lg font-bold text-on-surface">Pemodelan Software</h3>
+      </div>
+      <p class="text-on-surface-variant font-body-md leading-relaxed">
+        Pemodelan software menggambarkan alur kerja aplikasi yang mengendalikan seluruh proses pengoperasian MICROWAT. Aplikasi berbasis web memungkinkan operator untuk <strong class="text-on-surface">mengontrol perangkat</strong>, memantau status sistem secara real-time, dan menampilkan hasil pengukuran serta analisis. Sistem dirancang dengan antarmuka yang intuitif sehingga memudahkan pengoperasian dan monitoring selama proses pengujian berlangsung.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-sm mt-sm">
+        <div class="flex items-center gap-sm p-sm rounded-lg bg-tertiary/5 border border-tertiary/20 flex-1">
+          <span class="material-symbols-outlined text-tertiary text-[14px]">dashboard</span>
+          <span class="text-xs text-on-surface-variant">Dashboard monitoring real-time</span>
+        </div>
+        <div class="flex items-center gap-sm p-sm rounded-lg bg-tertiary/5 border border-tertiary/20 flex-1">
+          <span class="material-symbols-outlined text-tertiary text-[14px]">query_stats</span>
+          <span class="text-xs text-on-surface-variant">Analitik per session dan tanggal</span>
+        </div>
+        <div class="flex items-center gap-sm p-sm rounded-lg bg-tertiary/5 border border-tertiary/20 flex-1">
+          <span class="material-symbols-outlined text-tertiary text-[14px]">science</span>
+          <span class="text-xs text-on-surface-variant">Kontrol panel perangkat terintegrasi</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team -->
+  <section class="flex flex-col gap-md">
+    <div class="flex items-center gap-md">
+      <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-primary">group</span>
+      </div>
+      <h2 class="font-headline-md text-headline-md text-on-surface">Tim Pengembang</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+
+      <!-- Student Team -->
+      <div class="glass-panel rounded-xl p-lg">
+        <h3 class="font-body-lg font-bold text-primary mb-md flex items-center gap-sm">
+          <span class="material-symbols-outlined text-[20px]">school</span> Tim Mahasiswa
+        </h3>
+        <div class="flex flex-col gap-md">
+          <div class="flex items-center gap-md p-md bg-surface-container rounded-xl border border-outline-variant/30">
+            <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-primary">person</span>
+            </div>
+            <div>
+              <p class="font-bold text-on-surface">Fachrizal Amri</p>
+              <p class="text-xs text-on-surface-variant">122130126 · Teknik Elektro ITERA</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-md p-md bg-surface-container rounded-xl border border-outline-variant/30">
+            <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-primary">person</span>
+            </div>
+            <div>
+              <p class="font-bold text-on-surface">Christin Oktapiana Harianja</p>
+              <p class="text-xs text-on-surface-variant">122130068 · Teknik Elektro ITERA</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-md p-md bg-surface-container rounded-xl border border-outline-variant/30">
+            <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-primary">person</span>
+            </div>
+            <div>
+              <p class="font-bold text-on-surface">Indah Kurnia Sari</p>
+              <p class="text-xs text-on-surface-variant">122130058 · Teknik Elektro ITERA</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supervisor Team -->
+      <div class="glass-panel rounded-xl p-lg">
+        <h3 class="font-body-lg font-bold text-secondary mb-md flex items-center gap-sm">
+          <span class="material-symbols-outlined text-[20px]">supervisor_account</span> Tim Dosen
+        </h3>
+        <div class="flex flex-col gap-md">
+          <div class="flex items-center gap-md p-md bg-surface-container rounded-xl border border-outline-variant/30">
+            <div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-secondary">person</span>
+            </div>
+            <div>
+              <p class="font-bold text-on-surface">Dr. Suratun Nafisah, S.Si., M.Sc.</p>
+              <p class="text-xs text-on-surface-variant">NIP: 19880815 202203 2 004</p>
+              <p class="text-xs text-primary">Teknik Elektro · ITERA</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-md p-md bg-surface-container rounded-xl border border-outline-variant/30">
+            <div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-secondary">person</span>
+            </div>
+            <div>
+              <p class="font-bold text-on-surface">Rheyuniarto Sahlendar Asthan, S.T., M.T.</p>
+              <p class="text-xs text-on-surface-variant">NIP: 19890705 201903 1 015</p>
+              <p class="text-xs text-primary">Teknik Elektro · ITERA</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="glass-panel rounded-xl p-lg text-center border border-primary/20">
+    <span class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+    <p class="font-headline-md text-headline-md text-primary font-bold mt-sm">MICROWAT</p>
+    <p class="text-on-surface-variant text-body-md">Precision Lab Monitor — Real-time Wastewater Degradation Monitoring</p>
+    <p class="text-on-surface-variant text-body-md mt-sm">Teknik Elektro · Institut Teknologi Sumatera (ITERA) | <span class="text-primary">V1.0.0</span></p>
+  </div>
+
+</div>

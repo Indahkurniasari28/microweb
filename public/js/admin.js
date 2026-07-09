@@ -4,29 +4,28 @@
 
 // ─── User Management ─────────────────────────────────────────────────────────
 
-const DEMO_USERS = [
-  { id: 1, name: 'Erik Wijaya', email: 'admin.erik@itera.ac.id', institution: 'ITERA Lab 4', role: 'admin', status: 'active', joined: '2023-11-12' },
-  { id: 2, name: 'Siti Aminah', email: 'siti.a@brin.go.id', institution: 'BRIN Physics', role: 'user', status: 'pending', joined: '2024-05-01' },
-  { id: 3, name: 'Doni Pratama', email: 'doni.p@itera.ac.id', institution: 'ITERA Lab 4', role: 'user', status: 'active', joined: '2023-08-20' },
-  { id: 4, name: 'Rahma Sari', email: 'rahma.s@ui.ac.id', institution: 'UI Chem Dept', role: 'user', status: 'active', joined: '2024-01-10' },
-  { id: 5, name: 'Budi Santoso', email: 'budi.s@itb.ac.id', institution: 'ITB Lab', role: 'user', status: 'blocked', joined: '2023-06-15' },
-  { id: 6, name: 'Lia Permata', email: 'lia.p@unila.ac.id', institution: 'UNILA Research', role: 'user', status: 'pending', joined: '2024-09-05' },
-  { id: 7, name: 'Faisal Ahmad', email: 'faisal.a@itera.ac.id', institution: 'ITERA Lab 4', role: 'user', status: 'active', joined: '2023-12-22' }
-];
-
-let umUsers = [...DEMO_USERS];
-let umFiltered = [...DEMO_USERS];
+let umUsers = [];
+let umFiltered = [];
 let umPage = 1;
 const UM_PER_PAGE = 10;
 let umEditTarget = null;
 
-function initUserManagementPage() {
+async function initUserManagementPage() {
   console.log('🔧 Init User Management');
 
-  umUsers = [...DEMO_USERS];
-  umFiltered = [...umUsers];
   umPage = 1;
+  renderUmLoading();
 
+  try {
+    const res = await fetch('/api/admin/users');
+    const data = await res.json();
+    umUsers = data.users || [];
+  } catch (err) {
+    console.error('Gagal load users:', err);
+    umUsers = [];
+  }
+
+  umFiltered = [...umUsers];
   updateUmStats();
   renderUmTable();
 
@@ -35,22 +34,38 @@ function initUserManagementPage() {
   document.getElementById('um-status-filter')?.addEventListener('change', filterUmUsers);
 
   document.getElementById('btn-add-user')?.addEventListener('click', () => {
-    addNotification('ℹ️ Form tambah user belum tersambung ke backend', 'info');
+    addNotification('ℹ️ Gunakan form register untuk menambah user baru', 'info');
   });
 
-  document.getElementById('btn-review-all')?.addEventListener('click', () => {
+  document.getElementById('btn-review-all')?.addEventListener('click', async () => {
     const pending = umUsers.filter(u => u.status === 'pending');
-    if (pending.length) {
-      pending.forEach(u => { u.status = 'active'; });
-      filterUmUsers();
-      addNotification(`✅ ${pending.length} user diaktifkan`, 'success');
-    }
+    if (!pending.length) return;
+    await Promise.all(pending.map(u => fetch(`/api/admin/users/${u.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'active' })
+    }).catch(() => null)));
+    pending.forEach(u => { u.status = 'active'; });
+    filterUmUsers();
+    addNotification(`✅ ${pending.length} user diaktifkan`, 'success');
   });
 
   // Modal controls
   document.getElementById('um-modal-close')?.addEventListener('click', closeUmModal);
   document.getElementById('um-modal-cancel')?.addEventListener('click', closeUmModal);
   document.getElementById('um-modal-save')?.addEventListener('click', saveUmRole);
+}
+
+function renderUmLoading() {
+  const tbody = document.getElementById('um-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = `
+    <tr><td colspan="6" class="px-lg py-xl text-center text-on-surface-variant">
+      <div class="flex flex-col items-center gap-sm">
+        <span class="material-symbols-outlined text-[40px] animate-spin text-primary/50">refresh</span>
+        <span class="font-body-md">Memuat data pengguna...</span>
+      </div>
+    </td></tr>`;
 }
 
 function filterUmUsers() {
@@ -79,13 +94,12 @@ function updateUmStats() {
   const badge = document.getElementById('um-total-badge');
   if (badge) badge.textContent = `${total} TOTAL`;
 
-  const pct = Math.round((total / 150) * 100);
   const arc = document.getElementById('um-capacity-arc');
-  if (arc) arc.setAttribute('stroke-dasharray', `${pct},100`);
+  if (arc) arc.setAttribute('stroke-dasharray', `100,100`);
   const pctEl = document.getElementById('um-capacity-pct');
-  if (pctEl) pctEl.textContent = `${pct}%`;
+  if (pctEl) pctEl.textContent = `${total}`;
   const textEl = document.getElementById('um-capacity-text');
-  if (textEl) textEl.textContent = `${total} of 150 licenses`;
+  if (textEl) textEl.textContent = `${total} pengguna aktif`;
 
   const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setEl('um-stat-active', active);
@@ -122,10 +136,10 @@ function renderUmTable() {
   }
 
   tbody.innerHTML = paged.map(u => {
-    const statusColor = u.status === 'active' ? 'text-tertiary bg-tertiary/10 border-tertiary'
-      : u.status === 'pending' ? 'text-secondary bg-secondary/10 border-secondary'
-      : 'text-error bg-error/10 border-error';
-    const statusDot = u.status === 'active' ? 'bg-tertiary' : u.status === 'pending' ? 'bg-secondary' : 'bg-error';
+    const statusColor = u.status === 'active' ? 'text-green-500 bg-green-500/10 border-green-500'
+      : u.status === 'pending' ? 'text-yellow-500 bg-yellow-500/10 border-yellow-500'
+      : 'text-red-500 bg-red-500/10 border-red-500';
+    const statusDot = u.status === 'active' ? 'bg-green-500' : u.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500';
     const roleStyle = u.role === 'admin'
       ? 'bg-primary/10 text-primary border border-primary/30'
       : 'bg-surface-container-highest text-on-surface-variant border border-outline-variant/30';
@@ -143,7 +157,7 @@ function renderUmTable() {
             </div>
           </div>
         </td>
-        <td class="px-lg py-md text-body-md text-on-surface-variant hidden md:table-cell">${u.institution}</td>
+        <td class="px-lg py-md text-body-md text-on-surface-variant hidden md:table-cell">${u.institution || '-'}</td>
         <td class="px-lg py-md">
           <span class="px-sm py-xs rounded text-label-caps ${roleStyle}">${u.role.toUpperCase()}</span>
         </td>
@@ -214,34 +228,58 @@ function closeUmModal() {
   umEditTarget = null;
 }
 
-function saveUmRole() {
+async function saveUmRole() {
   if (!umEditTarget) return;
   const newRole = document.getElementById('modal-role-select')?.value;
-  if (newRole) {
-    umEditTarget.role = newRole;
-    filterUmUsers();
-    addNotification(`✅ Role ${umEditTarget.name} diperbarui ke ${newRole.toUpperCase()}`, 'success');
+  if (newRole && newRole !== umEditTarget.role) {
+    try {
+      await fetch(`/api/admin/users/${umEditTarget.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole })
+      });
+      umEditTarget.role = newRole;
+      filterUmUsers();
+      addNotification(`✅ Role ${umEditTarget.name} diperbarui ke ${newRole.toUpperCase()}`, 'success');
+    } catch {
+      addNotification('❌ Gagal memperbarui role', 'error');
+    }
   }
   closeUmModal();
 }
 
-function toggleUmBlock(userId) {
-  const user = umUsers.find(u => u.id === userId);
+async function toggleUmBlock(userId) {
+  const user = umUsers.find(u => String(u.id) === String(userId));
   if (!user) return;
-  user.status = user.status === 'blocked' ? 'active' : 'blocked';
-  filterUmUsers();
-  addNotification(`${user.status === 'blocked' ? '🔒' : '🔓'} User ${user.name} ${user.status === 'blocked' ? 'diblokir' : 'diaktifkan'}`, user.status === 'blocked' ? 'warning' : 'success');
+  const newStatus = user.status === 'blocked' ? 'active' : 'blocked';
+  try {
+    await fetch(`/api/admin/users/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    user.status = newStatus;
+    filterUmUsers();
+    addNotification(`${newStatus === 'blocked' ? '🔒 User diblokir' : '🔓 User diaktifkan'}: ${user.name}`, newStatus === 'blocked' ? 'warning' : 'success');
+  } catch {
+    addNotification('❌ Gagal memperbarui status', 'error');
+  }
 }
 
-function deleteUmUser(userId) {
-  const user = umUsers.find(u => u.id === userId);
+async function deleteUmUser(userId) {
+  const user = umUsers.find(u => String(u.id) === String(userId));
   if (!user) return;
   if (!confirm(`Hapus user ${user.name}?`)) return;
-  umUsers = umUsers.filter(u => u.id !== userId);
-  umFiltered = umFiltered.filter(u => u.id !== userId);
-  renderUmTable();
-  updateUmStats();
-  addNotification(`🗑️ User ${user.name} dihapus`, 'warning');
+  try {
+    await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+    umUsers = umUsers.filter(u => String(u.id) !== String(userId));
+    umFiltered = umFiltered.filter(u => String(u.id) !== String(userId));
+    renderUmTable();
+    updateUmStats();
+    addNotification(`🗑️ User ${user.name} dihapus`, 'warning');
+  } catch {
+    addNotification('❌ Gagal menghapus user', 'error');
+  }
 }
 
 // ─── Log Detail ───────────────────────────────────────────────────────────────
@@ -252,50 +290,25 @@ let logFiltered = [];
 let logDrawerEntry = null;
 
 function buildLogEntries() {
-  const entries = [];
-  const now = Date.now();
-  const types = ['Measurement', 'System Event', 'Calibration', 'System Event', 'Error'];
-  const typeKeys = ['measurement', 'system', 'system', 'system', 'error'];
-  const statuses = ['NOMINAL', 'NOMINAL', 'NOMINAL', 'WARNING', 'ANOMALY'];
-  const statusColors = ['tertiary', 'tertiary', 'tertiary', 'secondary', 'error'];
-
-  for (let i = 0; i < 50; i++) {
-    const t = types[i % types.length];
-    const sk = typeKeys[i % typeKeys.length];
-    const st = statuses[i % statuses.length];
-    const sc = statusColors[i % statusColors.length];
-    const m = measurementHistory[i] || null;
-    entries.push({
+  return measurementHistory.map((m, i) => {
+    const isSafe = (m.concentration || 0) <= 5;
+    return {
       id: i + 1,
-      timestamp: new Date(now - i * 60000).toLocaleString('id-ID'),
-      rawTs: now - i * 60000,
-      event: t,
-      typeKey: sk,
-      value: m ? `${m.absorbance?.toFixed(3)} a.u.` : `${(0.3 + Math.random() * 0.7).toFixed(3)} a.u.`,
-      status: st,
-      statusColor: sc,
-      absorbance: m?.absorbance?.toFixed(3) || (0.3 + Math.random() * 0.7).toFixed(3),
-      concentration: m?.concentration?.toFixed(2) || (20 + Math.random() * 80).toFixed(2),
-      degradation: m?.degradation?.toFixed(1) || (10 + Math.random() * 90).toFixed(1),
+      timestamp: new Date(m.timestamp).toLocaleString('id-ID'),
+      rawTs: new Date(m.timestamp).getTime(),
+      event: 'Measurement',
+      typeKey: 'measurement',
+      value: `${(m.absorbance || 0).toFixed(3)} a.u.`,
+      status: isSafe ? 'NOMINAL' : 'WARNING',
+      statusColor: isSafe ? 'tertiary' : 'secondary',
+      absorbance: (m.absorbance || 0).toFixed(3),
+      concentration: (m.concentration || 0).toFixed(2),
+      degradation: (m.degradation || 0).toFixed(1),
+      session: m.session || 1,
+      wastewaterType: m.wastewaterType || '-',
       notes: ''
-    });
-  }
-
-  // Real measurement history injected on top
-  measurementHistory.forEach((m, i) => {
-    if (entries[i]) {
-      entries[i].event = 'Measurement';
-      entries[i].typeKey = 'measurement';
-      entries[i].value = `${m.absorbance?.toFixed(3)} a.u.`;
-      entries[i].absorbance = m.absorbance?.toFixed(3);
-      entries[i].concentration = m.concentration?.toFixed(2);
-      entries[i].degradation = m.degradation?.toFixed(1);
-      entries[i].status = parseFloat(entries[i].degradation) >= 70 ? 'NOMINAL' : 'WARNING';
-      entries[i].statusColor = parseFloat(entries[i].degradation) >= 70 ? 'tertiary' : 'secondary';
-    }
+    };
   });
-
-  return entries;
 }
 
 function initLogDetailPage() {
@@ -341,7 +354,7 @@ function updateLogMetrics() {
   set('log-absorbance', abs.toFixed(3));
   setW('log-abs-bar', Math.min(100, abs * 100));
   set('log-concentration', conc.toFixed(2) + ' ppm');
-  setW('log-conc-bar', Math.min(100, (conc / 150) * 100));
+  setW('log-conc-bar', Math.min(100, (conc / 10) * 100));
   set('log-degradation', deg.toFixed(1) + '%');
   setW('log-deg-bar', deg);
 }

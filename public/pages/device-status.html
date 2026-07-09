@@ -1,10 +1,10 @@
-<!-- DEVICE STATUS PAGE -->
+<!-- DEVICE PAGE -->
 <div class="flex flex-col gap-lg max-w-[1440px]">
 
   <!-- Page Header -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
     <div>
-      <h1 class="font-headline-lg text-headline-lg text-on-surface">Device Status</h1>
+      <h1 class="font-headline-lg text-headline-lg text-on-surface">Device Control Panel</h1>
       <div class="flex items-center gap-sm mt-sm">
         <span class="inline-flex items-center gap-xs px-sm py-xs rounded-full bg-tertiary/10 border border-tertiary text-tertiary text-[10px] font-bold uppercase tracking-wider pulse-glow">
           <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> System Online
@@ -25,8 +25,203 @@
     </div>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- KONTROL PENGUKURAN (moved to top) -->
+  <!-- ============================================================ -->
+  <div class="glass-panel p-lg rounded-2xl flex flex-col gap-lg border-l-4 border-primary">
+
+    <div class="flex justify-between items-start flex-wrap gap-md">
+      <div>
+        <h3 class="font-headline-md text-headline-md text-on-surface">Kontrol Pengukuran</h3>
+        <p class="text-xs text-on-surface-variant font-data-md mt-xs">Kontrol manual aliran limbah &amp; spektrometri · Otomatis setiap 15 menit</p>
+      </div>
+      <div class="flex items-center gap-sm flex-wrap">
+        <span id="control-status-badge" class="inline-flex items-center gap-xs px-sm py-xs rounded-full bg-surface-container-highest border border-outline text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">STANDBY</span>
+        <button id="btn-start-measurement" class="px-md py-xs bg-primary-container text-on-primary-container rounded-lg font-label-caps text-label-caps hover:opacity-90 transition-colors flex items-center gap-xs">
+          <span class="material-symbols-outlined text-[16px]">play_arrow</span> Start Session
+        </button>
+        <button id="btn-stop-measurement" class="px-md py-xs bg-error/10 border border-error text-error rounded-lg font-label-caps text-label-caps hover:bg-error/20 transition-colors flex items-center gap-xs">
+          <span class="material-symbols-outlined text-[16px]">stop</span> Stop Session
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="bg-surface-container-lowest/50 rounded-xl p-md border border-outline-variant/30">
+      <div class="flex items-center gap-sm mb-sm">
+        <span class="material-symbols-outlined text-primary text-[18px]">info</span>
+        <span class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Alur Kerja Pengukuran</span>
+      </div>
+      <p class="text-on-surface-variant text-[12px] font-data-md leading-relaxed">
+        Setiap <strong class="text-on-surface">15 menit</strong> selama 60 menit:
+        Isi kuvet &rarr; Ukur spektrofotometer &rarr; Kosongkan kuvet.
+        Setiap siklus menghasilkan data absorbansi, konsentrasi, dan degradasi baru.
+      </p>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-sm">
+
+      <!-- Isi / Fill -->
+      <button id="btn-isi"
+        class="flex flex-col items-center justify-center gap-sm p-lg rounded-xl bg-primary/10 border border-primary/30 hover:bg-primary/20 active:scale-[0.98] transition-all group text-center">
+        <div class="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v10M8 6l4-4 4 4"/>
+            <rect x="5" y="14" width="14" height="8" rx="2"/>
+            <path d="M8 18h8"/>
+          </svg>
+        </div>
+        <div>
+          <p class="font-bold font-body-md text-on-surface text-base">Isi (Fill)</p>
+          <p class="text-[11px] text-on-surface-variant font-data-md mt-xs">Waterpump 1 aktif — tarik limbah dari beaker ke kuvet</p>
+        </div>
+        <span id="status-isi" class="font-label-caps text-[10px] font-bold uppercase text-primary bg-primary/10 border border-primary/30 px-sm py-xs rounded-lg">READY</span>
+      </button>
+
+      <!-- Ukur / Measure -->
+      <button id="btn-ukur"
+        class="flex flex-col items-center justify-center gap-sm p-lg rounded-xl bg-secondary/10 border border-secondary/30 hover:bg-secondary/20 active:scale-[0.98] transition-all group text-center">
+        <div class="w-14 h-14 rounded-2xl bg-secondary/15 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+          </svg>
+        </div>
+        <div>
+          <p class="font-bold font-body-md text-on-surface text-base">Ukur (Measure)</p>
+          <p class="text-[11px] text-on-surface-variant font-data-md mt-xs">Avantes spektrofotometer ukur 200–800 nm</p>
+        </div>
+        <span id="status-ukur" class="font-label-caps text-[10px] font-bold uppercase text-secondary bg-secondary/10 border border-secondary/30 px-sm py-xs rounded-lg">READY</span>
+      </button>
+
+      <!-- Kosong / Empty -->
+      <button id="btn-kosong"
+        class="flex flex-col items-center justify-center gap-sm p-lg rounded-xl bg-tertiary/10 border border-tertiary/30 hover:bg-tertiary/20 active:scale-[0.98] transition-all group text-center">
+        <div class="w-14 h-14 rounded-2xl bg-tertiary/15 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-tertiary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22V12M8 18l4 4 4-4"/>
+            <rect x="5" y="2" width="14" height="8" rx="2"/>
+            <path d="M8 6h8"/>
+          </svg>
+        </div>
+        <div>
+          <p class="font-bold font-body-md text-on-surface text-base">Kosong (Empty)</p>
+          <p class="text-[11px] text-on-surface-variant font-data-md mt-xs">Waterpump 2 aktif — buang limbah terukur dari kuvet</p>
+        </div>
+        <span id="status-kosong" class="font-label-caps text-[10px] font-bold uppercase text-tertiary bg-tertiary/10 border border-tertiary/30 px-sm py-xs rounded-lg">READY</span>
+      </button>
+
+    </div>
+
+    <!-- Control Log -->
+    <div class="bg-surface-container-lowest/30 rounded-lg p-sm border border-outline-variant/20">
+      <p class="text-[10px] text-on-surface-variant uppercase font-label-caps mb-xs">Log Kontrol</p>
+      <div id="control-log" class="space-y-xs max-h-[80px] overflow-y-auto">
+        <p class="text-[11px] text-on-surface-variant font-data-md">Sistem siap. Tekan tombol untuk memulai...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODE SIMULASI                                                -->
+  <!-- ============================================================ -->
+  <div class="glass-panel p-lg rounded-2xl flex flex-col gap-lg border-2 border-dashed border-secondary/40">
+
+    <div class="flex items-start justify-between flex-wrap gap-md">
+      <div>
+        <div class="flex items-center gap-sm">
+          <span class="material-symbols-outlined text-secondary text-[22px]">science</span>
+          <h3 class="font-headline-md text-headline-md text-on-surface">Mode Simulasi</h3>
+          <span class="px-sm py-xs text-[10px] font-bold uppercase bg-secondary/10 border border-secondary/40 text-secondary rounded-full tracking-widest">DEV</span>
+        </div>
+        <p class="text-xs text-on-surface-variant mt-xs">Jalankan siklus degradasi simulatif tanpa alat fisik. Data mengalir ke Dashboard, Analytics, dan History.</p>
+      </div>
+    </div>
+
+    <!-- Waste type selector -->
+    <div class="flex flex-col gap-xs">
+      <span class="text-[10px] text-on-surface-variant font-label-caps uppercase tracking-widest">Jenis Limbah:</span>
+      <div class="flex flex-wrap gap-sm">
+        <button class="sim-wt-btn px-md py-xs rounded-lg text-[12px] font-bold border transition-all" data-wt="rc"
+          style="color:#f87171">Congo Red (CR)</button>
+        <button class="sim-wt-btn px-md py-xs rounded-lg text-[12px] font-bold border transition-all" data-wt="mg"
+          style="color:#34d399">Malachite Green (MG)</button>
+        <button class="sim-wt-btn px-md py-xs rounded-lg text-[12px] font-bold border transition-all" data-wt="mb"
+          style="color:#60a5fa">Methylene Blue (MB)</button>
+      </div>
+    </div>
+
+    <!-- Progress steps -->
+    <div class="flex flex-col gap-xs">
+      <span class="text-[10px] text-on-surface-variant font-label-caps uppercase tracking-widest">Progress Siklus:</span>
+      <div class="flex items-center gap-sm flex-wrap">
+        <div class="flex items-center gap-xs">
+          <div class="sim-step-dot w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-on-surface-variant transition-all ring-offset-1" style="ring-offset-color:var(--background)"></div>
+          <span class="text-[11px] text-on-surface-variant" style="color:#515151">0 min</span>
+        </div>
+        <span class="text-outline-variant">→</span>
+        <div class="flex items-center gap-xs">
+          <div class="sim-step-dot w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-on-surface-variant transition-all"></div>
+          <span class="text-[11px]" style="color:#B177DE">15 min</span>
+        </div>
+        <span class="text-outline-variant">→</span>
+        <div class="flex items-center gap-xs">
+          <div class="sim-step-dot w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-on-surface-variant transition-all"></div>
+          <span class="text-[11px]" style="color:#CC9900">30 min</span>
+        </div>
+        <span class="text-outline-variant">→</span>
+        <div class="flex items-center gap-xs">
+          <div class="sim-step-dot w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-on-surface-variant transition-all"></div>
+          <span class="text-[11px]" style="color:#00CBCC">45 min</span>
+        </div>
+        <span class="text-outline-variant">→</span>
+        <div class="flex items-center gap-xs">
+          <div class="sim-step-dot w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-on-surface-variant transition-all"></div>
+          <span class="text-[11px]" style="color:#7D4E4E">60 min</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interval control -->
+    <div class="flex items-center gap-sm flex-wrap">
+      <span class="text-[10px] text-on-surface-variant font-label-caps uppercase tracking-widest shrink-0">Interval per Step:</span>
+      <div class="flex items-center gap-xs glass-panel rounded-lg px-md py-xs border border-outline-variant">
+        <input id="sim-interval" type="number" value="3" min="1" max="60"
+          class="w-14 bg-transparent text-on-surface font-data-md text-center outline-none text-sm">
+        <span class="text-xs text-on-surface-variant">detik</span>
+      </div>
+      <span class="text-xs text-on-surface-variant">(gunakan 1 detik untuk demo cepat, 900 detik untuk 15 menit riil)</span>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex flex-wrap gap-sm">
+      <button id="btn-sim-start"
+        class="flex items-center gap-xs px-lg py-sm bg-secondary-container text-on-secondary-container rounded-xl font-label-caps text-label-caps hover:opacity-90 active:scale-[0.98] transition-all">
+        <span class="material-symbols-outlined text-[18px]">play_circle</span> Start Simulasi
+      </button>
+      <button id="btn-sim-stop" disabled
+        class="flex items-center gap-xs px-lg py-sm bg-error/10 border border-error/30 text-error rounded-xl font-label-caps text-label-caps hover:bg-error/20 active:scale-[0.98] transition-all opacity-40">
+        <span class="material-symbols-outlined text-[18px]">stop_circle</span> Stop
+      </button>
+      <button id="btn-sim-reset"
+        class="flex items-center gap-xs px-lg py-sm glass-panel border border-outline-variant text-on-surface-variant rounded-xl font-label-caps text-label-caps hover:text-on-surface active:scale-[0.98] transition-all">
+        <span class="material-symbols-outlined text-[18px]">restart_alt</span> Reset Data
+      </button>
+    </div>
+
+    <!-- Log output -->
+    <div class="bg-surface-container-lowest/60 rounded-xl p-md border border-outline-variant/30">
+      <span class="text-[10px] text-on-surface-variant font-label-caps uppercase tracking-widest block mb-sm">Log Simulasi:</span>
+      <div id="sim-log" class="flex flex-col gap-[2px] max-h-[120px] overflow-y-auto">
+        <p class="text-[11px] font-data-md text-on-surface-variant">Panel siap. Pilih jenis limbah lalu tekan Start.</p>
+      </div>
+    </div>
+
+  </div>
+
   <!-- Summary KPIs -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
     <div class="glass-panel p-md rounded-2xl flex flex-col justify-between">
       <span class="text-on-surface-variant text-xs font-label-caps uppercase tracking-widest">Active Devices</span>
       <div class="flex items-end justify-between mt-sm">
@@ -41,31 +236,12 @@
         <span class="material-symbols-outlined text-on-surface-variant mb-1">schedule</span>
       </div>
     </div>
-    <div class="glass-panel p-md rounded-2xl flex flex-col justify-between">
-      <span class="text-on-surface-variant text-xs font-label-caps uppercase tracking-widest">Konsentrasi</span>
-      <div class="flex items-end justify-between mt-sm">
-        <div class="flex items-baseline gap-xs">
-          <span id="device-concentration" class="font-data-lg text-headline-lg text-on-surface">-</span>
-          <span class="text-sm font-data-md text-on-surface-variant">ppm</span>
-        </div>
-        <span class="material-symbols-outlined text-secondary mb-1">opacity</span>
-      </div>
-    </div>
-    <div class="glass-panel p-md rounded-2xl flex flex-col justify-between">
-      <span class="text-on-surface-variant text-xs font-label-caps uppercase tracking-widest">Degradation</span>
-      <div class="flex items-end justify-between mt-sm">
-        <div class="flex items-baseline gap-xs">
-          <span id="device-degradation" class="font-data-lg text-headline-lg text-on-surface">-</span>
-          <span class="text-sm font-data-md text-on-surface-variant">%</span>
-        </div>
-        <span class="material-symbols-outlined text-tertiary mb-1">trending_up</span>
-      </div>
-    </div>
   </div>
 
   <!-- Device Cards Grid -->
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-lg">
-    <!-- Raspberry Pi -->
+
+    <!-- Raspberry Pi 5 -->
     <div class="glass-panel p-lg rounded-2xl flex flex-col gap-lg cursor-pointer hover:border-tertiary/50 hover:shadow-lg active:scale-[0.98] active:bg-tertiary/5 transition-all select-none" onclick="navigateToDeviceDetail('raspberry')" role="button" tabindex="0">
       <div class="flex justify-between items-start">
         <div class="flex gap-md">
@@ -74,25 +250,29 @@
           </div>
           <div>
             <h3 class="font-headline-md text-headline-md text-on-surface">Raspberry Pi 5</h3>
-            <p class="text-xs text-on-surface-variant font-data-md">Cortex-A76 · 8 GB RAM</p>
+            <p class="text-xs text-on-surface-variant font-data-md">Cortex-A76 · 8 GB RAM · Controller Utama</p>
           </div>
         </div>
         <span id="rpi-online-badge" class="inline-flex items-center gap-xs px-sm py-xs rounded-full bg-surface-container-highest border border-outline text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">
           OFFLINE
         </span>
       </div>
-      <div class="grid grid-cols-3 gap-md">
-        <div class="space-y-1">
-          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">CPU</p>
-          <p id="rpi-cpu" class="font-data-md text-on-surface">-</p>
-        </div>
+      <div class="grid grid-cols-4 gap-md">
         <div class="space-y-1">
           <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">RAM</p>
           <p id="rpi-ram" class="font-data-md text-on-surface">-</p>
         </div>
         <div class="space-y-1">
-          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">Latency</p>
-          <p id="rpi-latency" class="font-data-md text-on-surface">-</p>
+          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">Temp</p>
+          <p id="rpi-temp" class="font-data-md text-on-surface">-</p>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">Network</p>
+          <p id="rpi-network" class="font-data-md text-on-surface">-</p>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">Koneksi</p>
+          <p id="rpi-connection" class="font-data-md text-on-surface">-</p>
         </div>
       </div>
       <div class="space-y-2">
@@ -109,7 +289,7 @@
       </div>
     </div>
 
-    <!-- Avantes Spectrophotometer -->
+    <!-- Avantes Spectrometer -->
     <div class="glass-panel p-lg rounded-2xl flex flex-col gap-lg cursor-pointer hover:border-primary/50 hover:shadow-lg active:scale-[0.98] active:bg-primary/5 transition-all select-none" onclick="navigateToDeviceDetail('spectrometer')" role="button" tabindex="0">
       <div class="flex justify-between items-start">
         <div class="flex gap-md">
@@ -117,8 +297,8 @@
             <span class="material-symbols-outlined text-3xl">biotech</span>
           </div>
           <div>
-            <h3 class="font-headline-md text-headline-md text-on-surface">Avantes UV Spektrofotometer</h3>
-            <p class="text-xs text-on-surface-variant font-data-md">360–2500 nm · USB</p>
+            <h3 class="font-headline-md text-headline-md text-on-surface">Avantes Spectrometer</h3>
+            <p class="text-xs text-on-surface-variant font-data-md">UV-Vis · 200–800 nm · USB ke RPi 5</p>
           </div>
         </div>
         <span id="spec-online-badge" class="inline-flex items-center gap-xs px-sm py-xs rounded-full bg-tertiary/10 border border-tertiary text-tertiary text-[10px] font-bold uppercase tracking-wider">
@@ -127,20 +307,20 @@
       </div>
       <div class="grid grid-cols-2 gap-md">
         <div class="space-y-1">
-          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">Peak λ</p>
-          <p class="font-data-md text-on-surface">664 nm</p>
+          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">Konektivitas</p>
+          <p id="spec-connectivity" class="font-data-md text-on-surface">USB Connected</p>
         </div>
         <div class="space-y-1">
           <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">Absorbance</p>
           <p id="spec-absorbance" class="font-data-md text-on-surface">-</p>
         </div>
         <div class="space-y-1">
-          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">USB</p>
-          <p class="font-data-md text-on-surface">Connected</p>
+          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">Rentang</p>
+          <p class="font-data-md text-on-surface">200–800 nm</p>
         </div>
         <div class="space-y-1">
           <p class="text-[10px] text-on-surface-variant uppercase font-label-caps tracking-widest">Status</p>
-          <p id="spec-status" class="font-data-md text-primary font-bold">CAPTURING</p>
+          <p id="spec-status" class="font-data-md text-primary font-bold">STANDBY</p>
         </div>
       </div>
       <div class="space-y-2">
@@ -149,170 +329,80 @@
           <span id="spec-uptime">-</span>
         </div>
         <div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-          <div id="spec-progress-bar" class="h-full bg-primary-container w-[45%] transition-all duration-1000"></div>
+          <div id="spec-progress-bar" class="h-full bg-primary-container w-0 transition-all duration-1000"></div>
         </div>
       </div>
       <div class="flex items-center gap-xs text-[10px] text-primary/60 font-label-caps uppercase mt-xs">
         <span class="material-symbols-outlined text-[14px]">open_in_new</span><span>Tap untuk detail</span>
       </div>
     </div>
+
   </div>
 
-  <!-- ============================================================ -->
-  <!-- ESP32 SENSOR SECTION -->
-  <!-- ============================================================ -->
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-lg">
+  <!-- Motor Driver + Waterpumps -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
 
-    <!-- ESP32 Real Sensor -->
-    <div class="glass-panel p-lg rounded-2xl flex flex-col gap-lg cursor-pointer hover:border-secondary/50 hover:shadow-lg active:scale-[0.98] active:bg-secondary/5 transition-all select-none" onclick="navigateToDeviceDetail('esp32')" role="button" tabindex="0">
-      <div class="flex justify-between items-start">
-        <div class="flex gap-md">
-          <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-            <span class="material-symbols-outlined text-3xl">sensors</span>
-          </div>
-          <div>
-            <h3 class="font-headline-md text-headline-md text-on-surface">ESP32 Real Sensor</h3>
-            <p class="text-xs text-on-surface-variant font-data-md">WiFi · MQTT · Real-time</p>
-          </div>
+    <!-- Motor Driver LN298N -->
+    <div class="glass-panel p-lg rounded-2xl flex flex-col gap-md">
+      <div class="flex gap-md items-center">
+        <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+          <span class="material-symbols-outlined text-2xl">settings_input_component</span>
         </div>
-        <span id="esp32-status-badge" class="inline-flex items-center gap-xs px-sm py-xs rounded-full bg-surface-container-highest border border-outline text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">
-          OFFLINE
-        </span>
-      </div>
-      <div class="grid grid-cols-2 gap-md">
-        <div class="space-y-1">
-          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps">Distance</p>
-          <div class="flex items-baseline gap-xs">
-            <span id="esp32-distance" class="font-data-md text-on-surface text-xl font-bold">-</span>
-            <span class="text-xs text-on-surface-variant">cm</span>
-          </div>
-          <span id="esp32-distance-status" class="inline-block px-xs py-xs bg-surface-container-highest/50 text-on-surface-variant rounded font-label-caps text-[9px] uppercase">-</span>
-        </div>
-        <div class="space-y-1">
-          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps">Rain Sensor</p>
-          <div id="esp32-rain-display" class="flex flex-col gap-xs">
-            <span id="esp32-rain" class="font-data-md text-on-surface text-xl font-bold">-</span>
-          </div>
-        </div>
-        <div class="space-y-1">
-          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps">WiFi Signal</p>
-          <span id="esp32-rssi" class="font-data-md text-on-surface">-</span>
-          <span class="text-[9px] text-on-surface-variant"> dBm</span>
-        </div>
-        <div class="space-y-1">
-          <p class="text-[10px] text-on-surface-variant uppercase font-label-caps">Connection</p>
-          <span id="esp32-connection" class="font-data-md text-on-surface-variant">OFFLINE</span>
+        <div>
+          <h3 class="font-body-md font-bold text-on-surface">Motor Driver LN298N</h3>
+          <p class="text-xs text-on-surface-variant">Driver penggerak pompa</p>
         </div>
       </div>
-      <div class="bg-surface-container-lowest/50 rounded-lg p-sm border border-outline-variant/30">
-        <div class="flex justify-between items-center mb-xs">
-          <span class="text-[10px] text-on-surface-variant font-label-caps uppercase">Last Update</span>
-          <button id="btn-refresh-esp32" class="text-primary text-[10px] font-bold hover:underline flex items-center gap-xs">
-            <span class="material-symbols-outlined text-[14px]">refresh</span> Refresh
-          </button>
-        </div>
-        <span id="esp32-last-update" class="font-data-md text-on-surface text-xs">-</span>
-      </div>
-      <!-- Raw Data -->
-      <div class="bg-surface-container-lowest/30 rounded-lg p-sm border border-outline-variant/20">
-        <p class="text-[10px] text-on-surface-variant uppercase font-label-caps mb-xs">Raw MQTT Data</p>
-        <pre id="esp32-raw-data" class="text-[11px] text-on-surface-variant font-data-md overflow-x-auto">{
-  "status": "Waiting...",
-  "distance": "-",
-  "rain": "-"
-}</pre>
-      </div>
-      <div class="flex items-center gap-xs text-[10px] text-secondary/60 font-label-caps uppercase mt-xs">
-        <span class="material-symbols-outlined text-[14px]">open_in_new</span><span>Tap untuk detail</span>
+      <div class="flex items-center justify-between p-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+        <span class="text-xs text-on-surface-variant">Status</span>
+        <span id="motordriver-status" class="text-xs font-bold text-secondary">ACTIVE</span>
       </div>
     </div>
 
-    <!-- ESP32 Simulator -->
-    <div class="glass-panel p-lg rounded-2xl flex flex-col gap-lg">
-      <div class="flex justify-between items-start">
-        <div class="flex gap-md">
-          <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-            <span class="material-symbols-outlined text-3xl">memory</span>
-          </div>
-          <div>
-            <h3 class="font-headline-md text-headline-md text-on-surface">Simulasi ESP32</h3>
-            <p class="text-xs text-on-surface-variant font-data-md">WiFi: UBINNMASJIDD</p>
-          </div>
+    <!-- Waterpump 1 (Fill) -->
+    <div class="glass-panel p-lg rounded-2xl flex flex-col gap-md">
+      <div class="flex gap-md items-center">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+          <span class="material-symbols-outlined text-2xl">water_pump</span>
         </div>
-        <span id="esp-status" class="inline-flex items-center gap-xs px-sm py-xs rounded-full bg-tertiary/10 border border-tertiary text-tertiary text-[10px] font-bold uppercase">
-          🟢 ONLINE
-        </span>
-      </div>
-
-      <!-- Ultrasonic Sensor -->
-      <div class="bg-surface-container-lowest/40 rounded-xl p-md border border-outline-variant/30">
-        <h4 class="font-body-md font-bold text-on-surface mb-md flex items-center gap-sm">
-          <span class="material-symbols-outlined text-primary">sensor_occupied</span> Sensor Ultrasonic
-        </h4>
-        <div class="flex items-center justify-between mb-md">
-          <div class="flex items-baseline gap-xs">
-            <span id="ultrasonic-value" class="font-data-lg text-[32px] font-bold text-primary">25.5</span>
-            <span class="font-data-md text-on-surface-variant">cm</span>
-          </div>
-          <span id="ultrasonic-status" class="px-sm py-xs bg-surface-container-highest/50 text-on-surface-variant rounded font-label-caps text-label-caps uppercase">DEKAT</span>
-        </div>
-        <input type="range" id="ultrasonic-slider" min="5" max="200" value="25.5" step="0.1"
-          class="w-full h-1.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-primary">
-        <div class="flex justify-between text-[10px] text-on-surface-variant mt-xs">
-          <span>Dekat (5–50cm)</span>
-          <span>Jauh (50–200cm)</span>
+        <div>
+          <h3 class="font-body-md font-bold text-on-surface">Waterpump 1</h3>
+          <p class="text-xs text-on-surface-variant">Mengisap (Fill)</p>
         </div>
       </div>
-
-      <!-- Rain Sensor -->
-      <div class="bg-surface-container-lowest/40 rounded-xl p-md border border-outline-variant/30">
-        <h4 class="font-body-md font-bold text-on-surface mb-md flex items-center gap-sm">
-          <span class="material-symbols-outlined text-primary">water_drop</span> Sensor Hujan
-        </h4>
-        <div class="flex gap-sm mb-md">
-          <button id="btn-rain-dry" class="flex-1 flex items-center justify-center gap-sm py-sm px-md rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 font-bold font-body-md hover:bg-yellow-500/20 transition-colors">
-            <span class="material-symbols-outlined">wb_sunny</span> KERING
-          </button>
-          <button id="btn-rain-wet" class="flex-1 flex items-center justify-center gap-sm py-sm px-md rounded-lg bg-primary/20 border border-primary/50 text-primary font-bold font-body-md hover:bg-primary/30 transition-colors">
-            <span class="material-symbols-outlined">water_drop</span> BASAH
-          </button>
-        </div>
-        <div class="flex items-center gap-sm">
-          <span class="text-2xl" id="rain-icon">💧</span>
-          <span id="rain-text" class="font-data-md text-on-surface font-bold">BASAH</span>
-        </div>
+      <div class="flex items-center justify-between p-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+        <span class="text-xs text-on-surface-variant">Status</span>
+        <span id="pump1-status" class="text-xs font-bold text-on-surface-variant">STANDBY</span>
       </div>
-
-      <!-- JSON Preview -->
-      <div class="bg-surface-container-lowest/30 rounded-lg p-sm border border-outline-variant/20">
-        <p class="text-[10px] text-on-surface-variant uppercase font-label-caps mb-xs">Data ke Server</p>
-        <pre id="simulator-json" class="text-[11px] text-on-surface-variant font-data-md overflow-x-auto">{
-  "timestamp": "--:--:--",
-  "ultrasonic_distance": 25.5,
-  "rain_sensor": "BASAH"
-}</pre>
-      </div>
-
-      <!-- Controls -->
-      <div class="flex gap-sm">
-        <button id="btn-send-data" class="flex-1 bg-tertiary/10 border border-tertiary text-tertiary py-sm px-md rounded-lg font-bold font-body-md hover:bg-tertiary/20 transition-colors flex items-center justify-center gap-sm">
-          <span class="material-symbols-outlined text-[18px]">send</span> Kirim Data
-        </button>
-        <button id="btn-auto-simulate" class="flex-1 bg-primary-container text-on-primary-container py-sm px-md rounded-lg font-bold font-body-md hover:opacity-90 transition-opacity flex items-center justify-center gap-sm">
-          <span class="material-symbols-outlined text-[18px]">play_circle</span> Auto Simulate
-        </button>
+      <div class="flex gap-xs">
+        <span class="px-xs py-[2px] rounded text-[9px] font-bold bg-primary/10 border border-primary/30 text-primary">ACTIVE</span>
+        <span class="px-xs py-[2px] rounded text-[9px] font-bold bg-surface-container border border-outline-variant text-on-surface-variant">STANDBY</span>
+        <span class="px-xs py-[2px] rounded text-[9px] font-bold bg-error/10 border border-error/30 text-error">OFFLINE</span>
       </div>
     </div>
-  </div>
 
-  <!-- Simulation Log -->
-  <div class="glass-panel rounded-xl overflow-hidden">
-    <div class="px-lg py-md border-b border-outline-variant flex items-center justify-between">
-      <h3 class="font-headline-md text-headline-md text-on-surface">Log Simulasi</h3>
+    <!-- Waterpump 2 (Empty) -->
+    <div class="glass-panel p-lg rounded-2xl flex flex-col gap-md">
+      <div class="flex gap-md items-center">
+        <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary shrink-0">
+          <span class="material-symbols-outlined text-2xl">output_circle</span>
+        </div>
+        <div>
+          <h3 class="font-body-md font-bold text-on-surface">Waterpump 2</h3>
+          <p class="text-xs text-on-surface-variant">Membuang (Empty)</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-between p-sm bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+        <span class="text-xs text-on-surface-variant">Status</span>
+        <span id="pump2-status" class="text-xs font-bold text-on-surface-variant">STANDBY</span>
+      </div>
+      <div class="flex gap-xs">
+        <span class="px-xs py-[2px] rounded text-[9px] font-bold bg-tertiary/10 border border-tertiary/30 text-tertiary">ACTIVE</span>
+        <span class="px-xs py-[2px] rounded text-[9px] font-bold bg-surface-container border border-outline-variant text-on-surface-variant">STANDBY</span>
+        <span class="px-xs py-[2px] rounded text-[9px] font-bold bg-error/10 border border-error/30 text-error">OFFLINE</span>
+      </div>
     </div>
-    <div id="simulation-log" class="p-lg max-h-[200px] overflow-y-auto flex flex-col gap-xs">
-      <p class="font-data-md text-on-surface-variant text-[12px]">Simulasi siap dijalankan...</p>
-    </div>
+
   </div>
 
 </div>

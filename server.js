@@ -32,7 +32,7 @@ try {
   const serviceAccount = require("./serviceAccountKey.json");
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://pomclear-ec893-default-rtdb.asia-southeast1.firebasedatabase.app",
+    databaseURL: "https://microwat-iot-default-rtdb.asia-southeast1.firebasedatabase.app",
   });
   db = admin.database();
   console.log("✅ Firebase Admin SDK initialized");
@@ -366,6 +366,42 @@ io.on("connection", (socket) => {
     console.log("📤 Reset measurement command received");
   });
 
+  // ── Motor / Pump Control (delegasi ke Flask di RPi) ──
+  socket.on("deviceControl", async (data) => {
+    const FLASK_URL = process.env.FLASK_URL || "http://localhost:5000";
+    const actionMap = {
+      fill:    { motor: "motor1", action: "start" },
+      measure: null, // handled by spectrometer, no GPIO
+      empty:   { motor: "motor2", action: "start" },
+    };
+
+    const cmd = actionMap[data.action];
+    if (!cmd) {
+      // "measure" hanya trigger spektrometer, bukan motor
+      socket.emit("deviceControlResult", { action: data.action, status: "ok" });
+      return;
+    }
+
+    try {
+      const res = await fetch(`${FLASK_URL}/${cmd.motor}/${cmd.action}`, { method: "GET" });
+      if (!res.ok) throw new Error(`Flask returned ${res.status}`);
+
+      console.log(`🔧 Motor control: ${data.action} → ${cmd.motor}/${cmd.action}`);
+      socket.emit("deviceControlResult", { action: data.action, status: "ok" });
+
+      // Auto-stop motor setelah 5 detik
+      setTimeout(async () => {
+        await fetch(`${FLASK_URL}/${cmd.motor}/stop`).catch(() => {});
+        socket.emit("deviceControlResult", { action: data.action, status: "done" });
+        console.log(`🛑 Motor auto-stop: ${cmd.motor}`);
+      }, 5000);
+
+    } catch (err) {
+      console.error(`❌ Flask motor error: ${err.message}`);
+      socket.emit("deviceControlResult", { action: data.action, status: "error", message: err.message });
+    }
+  });
+
   socket.on("publish", (data) => {
     if (mqttClient.connected) {
       mqttClient.publish(data.topic, data.message, { qos: 1 });
@@ -399,10 +435,15 @@ app.post("/api/register", (req, res) => {
     return res.status(409).json({ success: false, message: "Email sudah terdaftar" });
   }
 
+  const { name, institution } = req.body;
   const user = {
     id: Date.now().toString(),
     email,
     password,
+    name: name || email.split('@')[0],
+    institution: institution || '',
+    role: users.size === 0 ? 'admin' : 'user',
+    status: 'pending',
     createdAt: new Date().toISOString()
   };
 
@@ -569,6 +610,54 @@ app.get("/api/parameters", async (req, res) => {
 });
 
 // ============================================================================
+// ADMIN — USER MANAGEMENT API
+// ============================================================================
+
+/**
+ * GET: List all registered users (admin)
+ */
+app.get("/api/admin/users", (req, res) => {
+  const list = Array.from(users.values()).map(u => ({
+    id: u.id,
+    name: u.name || '',
+    email: u.email,
+    institution: u.institution || '',
+    role: u.role || 'user',
+    status: u.status || 'active',
+    joined: u.createdAt ? u.createdAt.split('T')[0] : ''
+  }));
+  res.json({ success: true, users: list });
+});
+
+/**
+ * PATCH: Update user status or role
+ */
+app.patch("/api/admin/users/:id", (req, res) => {
+  const { id } = req.params;
+  const { status, role } = req.body;
+  let found = null;
+  for (const [email, u] of users.entries()) {
+    if (u.id === id) { found = { email, user: u }; break; }
+  }
+  if (!found) return res.status(404).json({ success: false, message: 'User tidak ditemukan' });
+  if (status) found.user.status = status;
+  if (role) found.user.role = role;
+  users.set(found.email, found.user);
+  res.json({ success: true, message: 'User diperbarui' });
+});
+
+/**
+ * DELETE: Remove a user
+ */
+app.delete("/api/admin/users/:id", (req, res) => {
+  const { id } = req.params;
+  for (const [email, u] of users.entries()) {
+    if (u.id === id) { users.delete(email); return res.json({ success: true }); }
+  }
+  res.status(404).json({ success: false, message: 'User tidak ditemukan' });
+});
+
+// ============================================================================
 // START SERVER
 // ============================================================================
 const PORT = process.env.PORT || 3000;
@@ -586,6 +675,31 @@ server.listen(PORT, "0.0.0.0", () => {
   // spectrometer.start();
   // startMeasurementSimulation();
 });
+
+// ============================================================================
+// RPi TELEMETRY POLLER — ambil data real dari Flask setiap 5 detik
+// ============================================================================
+const FLASK_URL = process.env.FLASK_URL || "http://localhost:5000";
+
+async function pollRpiTelemetry() {
+  try {
+    const res = await fetch(`${FLASK_URL}/telemetry`, { signal: AbortSignal.timeout(3000) });
+    if (!res.ok) return;
+    const data = await res.json();
+    io.emit("rpiTelemetry", {
+      cpu:    data.cpu,
+      ram:    data.ram,
+      temp:   data.temp,
+      status: data.status || "ONLINE",
+      timestamp: new Date().toISOString()
+    });
+  } catch {
+    // Flask offline — emit status offline agar dashboard tahu
+    io.emit("rpiTelemetry", { status: "OFFLINE", timestamp: new Date().toISOString() });
+  }
+}
+
+setInterval(pollRpiTelemetry, 5000);
 
 process.on("SIGTERM", () => {
   console.log("SIGTERM received, shutting down gracefully...");

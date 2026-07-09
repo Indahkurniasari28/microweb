@@ -35,6 +35,26 @@ function initializeSocket() {
     updateEsp32Display(data);
   });
 
+  socket.on('rpiTelemetry', data => {
+    window.rpiTelemetry = data;
+    updateRpiDisplay(data);
+  });
+
+function updateEsp32Display(data) {
+  esp32RealData = data;
+  window.esp32RealData = data;
+}
+
+function updateRpiDisplay(data) {
+  window.rpiTelemetry = data;
+  // Re-render halaman device-detail raspberry supaya status & metrics langsung update
+  if (typeof currentDeviceId !== 'undefined' && currentDeviceId === 'raspberry') {
+    if (typeof initDeviceDetailPage === 'function') {
+      initDeviceDetailPage();
+    }
+  }
+}
+
   socket.on('measurementStarted', () => {
     addNotification('▶️ Pengukuran dimulai', 'info');
     updateMeasurementStatus('measuring');

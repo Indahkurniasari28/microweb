@@ -1,20 +1,14 @@
 // ============================================================================
-// MICROWAT - Device Status Page
+// MICROWAT - Device Page
 // ============================================================================
 
 let deviceClockInterval = null;
 let deviceClockSeconds = 0;
 let currentDeviceId = null;
-
-let esp32RealData = {
-  distance: 0,
-  rainStatus: 'KERING',
-  status: 'OFFLINE',
-  lastUpdate: null
-};
+var esp32RealData = null;
 
 function initDeviceStatusPage() {
-  console.log('🔧 Init Device Status');
+  console.log('🔧 Init Device Page');
 
   // Stop any previous clock
   if (deviceClockInterval) {
@@ -52,94 +46,185 @@ function initDeviceStatusPage() {
   // Export report button
   document.getElementById('btn-export-device-report')?.addEventListener('click', exportHistoryCSV);
 
+  // Start / Stop session buttons
+  document.getElementById('btn-start-measurement')?.addEventListener('click', () => {
+    if (socket?.connected) {
+      socket.emit('startMeasurement');
+      addControlLog('Session dimulai via tombol Start.');
+      addNotification('▶ Session measurement dimulai', 'info');
+    } else {
+      addControlLog('ERROR: Tidak terhubung ke server.');
+      addNotification('❌ Tidak terhubung ke server', 'error');
+    }
+  });
+
+  document.getElementById('btn-stop-measurement')?.addEventListener('click', () => {
+    if (socket?.connected) {
+      socket.emit('stopMeasurement');
+      addControlLog('Session dihentikan via tombol Stop.');
+      addNotification('⏹ Session measurement dihentikan', 'warning');
+    } else {
+      addNotification('❌ Tidak terhubung ke server', 'error');
+    }
+  });
+
   // Update KPIs with current measurement data
   updateDeviceKPIs();
 
-  // Init ESP32 real sensor
-  initializeEsp32RealSensor();
+  // Init control buttons (Isi / Ukur / Kosong)
+  initControlButtons();
 
-  // Init simulator
-  initSimulatorSection();
+  // Init simulation panel
+  if (typeof initSpectralSimPanel === 'function') initSpectralSimPanel();
 }
 
 function updateDeviceKPIs() {
   if (measurementHistory.length > 0) {
     const latest = measurementHistory[0];
-    const concEl = document.getElementById('device-concentration');
-    if (concEl) concEl.textContent = (latest.concentration || 0).toFixed(2);
-    const degEl = document.getElementById('device-degradation');
-    if (degEl) degEl.textContent = (latest.degradation || 0).toFixed(1);
     const specAbs = document.getElementById('spec-absorbance');
     if (specAbs) specAbs.textContent = (latest.absorbance || 0).toFixed(3) + ' a.u.';
   }
 
-  // Active devices count
-  const countEl = document.getElementById('device-active-count');
-  if (countEl) countEl.textContent = socket?.connected ? '3/4' : '0/4';
+  const isConnected = socket?.connected;
 
-  // RPI status
+  // Active devices count (RPi + Avantes + Motor Driver + Pump1 + Pump2 = 5)
+  const countEl = document.getElementById('device-active-count');
+  if (countEl) countEl.textContent = isConnected ? '5/5' : '0/5';
+
+  // RPI status badge
   const rpiBadge = document.getElementById('rpi-online-badge');
   if (rpiBadge) {
-    if (socket?.connected) {
-      rpiBadge.textContent = 'ONLINE';
-      rpiBadge.className = 'inline-flex items-center gap-xs px-sm py-xs rounded-full bg-tertiary/10 border border-tertiary text-tertiary text-[10px] font-bold uppercase tracking-wider';
-    }
+    rpiBadge.textContent = isConnected ? 'ONLINE' : 'OFFLINE';
+    rpiBadge.className = isConnected
+      ? 'inline-flex items-center gap-xs px-sm py-xs rounded-full bg-tertiary/10 border border-tertiary text-tertiary text-[10px] font-bold uppercase tracking-wider'
+      : 'inline-flex items-center gap-xs px-sm py-xs rounded-full bg-surface-container-highest border border-outline text-on-surface-variant text-[10px] font-bold uppercase tracking-wider';
+  }
+
+  // RPi telemetry
+  const rpi = window.rpiTelemetry;
+  if (rpi) {
+    const setEl = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    setEl('rpi-ram', rpi.ram || '-');
+    setEl('rpi-temp', rpi.temp ? `${rpi.temp}°C` : '-');
+    setEl('rpi-network', rpi.networkSpeed ? `${rpi.networkSpeed} Mbps` : '-');
+    setEl('rpi-connection', rpi.status || 'OFFLINE');
+    const loadBar = document.getElementById('rpi-load-bar');
+    if (loadBar && rpi.cpuUsage) loadBar.style.width = `${Math.min(rpi.cpuUsage, 100)}%`;
+    const loadTime = document.getElementById('rpi-load-time');
+    if (loadTime) loadTime.textContent = rpi.cpuUsage ? `${rpi.cpuUsage}%` : '-';
   }
 
   const lastUpdated = document.getElementById('device-last-updated');
   if (lastUpdated) lastUpdated.textContent = 'Last updated: ' + new Date().toLocaleTimeString('id-ID');
 }
 
-function initializeEsp32RealSensor() {
-  fetchEsp32Status();
-  document.getElementById('btn-refresh-esp32')?.addEventListener('click', fetchEsp32Status);
-  // Auto refresh every 5 seconds
-  setInterval(fetchEsp32Status, 5000);
+// ============================================================================
+// KONTROL PENGUKURAN (Isi / Ukur / Kosong)
+// ============================================================================
+
+function addControlLog(message) {
+  const log = document.getElementById('control-log');
+  if (!log) return;
+  const time = new Date().toLocaleTimeString('id-ID');
+  const p = document.createElement('p');
+  p.className = 'text-[11px] text-on-surface-variant font-data-md';
+  p.textContent = `[${time}] ${message}`;
+  log.insertBefore(p, log.firstChild);
+  // Keep last 10 entries
+  while (log.children.length > 10) log.removeChild(log.lastChild);
 }
 
-function fetchEsp32Status() {
-  fetch('/api/esp32/status')
-    .then(r => r.json())
-    .then(data => {
-      if (data.success && data.esp32Data) updateEsp32Display(data.esp32Data);
-    })
-    .catch(err => console.error('[ESP32] Fetch error:', err));
+function setControlBadge(status) {
+  const badge = document.getElementById('control-status-badge');
+  if (!badge) return;
+  const map = {
+    STANDBY:  'bg-surface-container-highest border border-outline text-on-surface-variant',
+    FILLING:  'bg-primary/10 border border-primary text-primary',
+    MEASURING:'bg-secondary/10 border border-secondary text-secondary',
+    EMPTYING: 'bg-tertiary/10 border border-tertiary text-tertiary',
+    DONE:     'bg-tertiary/10 border border-tertiary text-tertiary',
+  };
+  badge.textContent = status;
+  badge.className = `inline-flex items-center gap-xs px-sm py-xs rounded-full text-[10px] font-bold uppercase tracking-wider ${map[status] || map.STANDBY}`;
 }
 
-function updateEsp32Display(data) {
-  esp32RealData = data;
+function setButtonStatus(id, statusText, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const colorMap = {
+    primary:  'text-primary bg-primary/10 border border-primary/30',
+    secondary:'text-secondary bg-secondary/10 border border-secondary/30',
+    tertiary: 'text-tertiary bg-tertiary/10 border border-tertiary/30',
+    default:  'text-on-surface-variant bg-surface-container border border-outline-variant/30',
+  };
+  el.textContent = statusText;
+  el.className = `font-label-caps text-[10px] font-bold uppercase px-sm py-xs rounded-lg ${colorMap[color] || colorMap.default}`;
+}
 
-  const distEl = document.getElementById('esp32-distance');
-  if (distEl && data.distance !== undefined) distEl.textContent = data.distance.toFixed(1);
+function initControlButtons() {
+  document.getElementById('btn-isi')?.addEventListener('click', () => {
+    if (!socket?.connected) {
+      addControlLog('ERROR: Tidak terhubung ke server.');
+      addNotification('❌ Tidak terhubung ke server', 'error');
+      return;
+    }
+    setControlBadge('FILLING');
+    setButtonStatus('status-isi', 'RUNNING', 'primary');
+    addControlLog('Isi: Pompa air dinyalakan — memompa limbah ke kuvet...');
+    addNotification('💧 Isi: Pompa aktif', 'info');
+    socket.emit('deviceControl', { action: 'fill' });
 
-  const distStatus = document.getElementById('esp32-distance-status');
-  if (distStatus && data.distanceStatus) distStatus.textContent = data.distanceStatus;
+    // Reset status after a moment (server will confirm via event)
+    setTimeout(() => {
+      setButtonStatus('status-isi', 'DONE', 'primary');
+      addControlLog('Isi: Selesai — kuvet terisi.');
+    }, 3000);
+  });
 
-  const rainEl = document.getElementById('esp32-rain');
-  if (rainEl) rainEl.textContent = data.rainStatus || '-';
+  document.getElementById('btn-ukur')?.addEventListener('click', () => {
+    if (!socket?.connected) {
+      addControlLog('ERROR: Tidak terhubung ke server.');
+      addNotification('❌ Tidak terhubung ke server', 'error');
+      return;
+    }
+    setControlBadge('MEASURING');
+    setButtonStatus('status-ukur', 'RUNNING', 'secondary');
+    addControlLog('Ukur: Spektrofotometer mengukur panjang gelombang...');
+    addNotification('🔬 Ukur: Spektrofotometer aktif', 'info');
+    socket.emit('deviceControl', { action: 'measure' });
 
-  const rssiEl = document.getElementById('esp32-rssi');
-  if (rssiEl && data.wifiSignal) rssiEl.textContent = data.wifiSignal;
+    setTimeout(() => {
+      setButtonStatus('status-ukur', 'DONE', 'secondary');
+      addControlLog('Ukur: Pengukuran selesai — data dikirim ke server.');
+    }, 3000);
+  });
 
-  const connEl = document.getElementById('esp32-connection');
-  if (connEl) connEl.textContent = data.status || 'OFFLINE';
+  document.getElementById('btn-kosong')?.addEventListener('click', () => {
+    if (!socket?.connected) {
+      addControlLog('ERROR: Tidak terhubung ke server.');
+      addNotification('❌ Tidak terhubung ke server', 'error');
+      return;
+    }
+    setControlBadge('EMPTYING');
+    setButtonStatus('status-kosong', 'RUNNING', 'tertiary');
+    addControlLog('Kosong: Mengosongkan kuvet...');
+    addNotification('🪣 Kosong: Kuvet dikosongkan', 'info');
+    socket.emit('deviceControl', { action: 'empty' });
 
-  const badgeEl = document.getElementById('esp32-status-badge');
-  if (badgeEl) {
-    const isOnline = data.status === 'ONLINE';
-    badgeEl.textContent = isOnline ? 'ONLINE' : 'OFFLINE';
-    badgeEl.className = `inline-flex items-center gap-xs px-sm py-xs rounded-full text-[10px] font-bold uppercase tracking-wider ${
-      isOnline ? 'bg-tertiary/10 border border-tertiary text-tertiary' : 'bg-surface-container-highest border border-outline text-on-surface-variant'
-    }`;
-  }
-
-  const timeEl = document.getElementById('esp32-last-update');
-  if (timeEl && data.timestamp) timeEl.textContent = data.timestamp;
-
-  const rawEl = document.getElementById('esp32-raw-data');
-  if (rawEl) rawEl.textContent = JSON.stringify(data, null, 2);
-
-  addNotification('[OK] Data ESP32 diperbarui', 'success');
+    setTimeout(() => {
+      setControlBadge('DONE');
+      setButtonStatus('status-kosong', 'DONE', 'tertiary');
+      // Reset all statuses back to READY after emptying
+      setTimeout(() => {
+        setControlBadge('STANDBY');
+        setButtonStatus('status-isi',    'READY', 'default');
+        setButtonStatus('status-ukur',   'READY', 'default');
+        setButtonStatus('status-kosong', 'READY', 'default');
+        addControlLog('Siklus selesai. Sistem kembali STANDBY.');
+      }, 2000);
+      addControlLog('Kosong: Kuvet telah dikosongkan — siklus selesai.');
+    }, 3000);
+  });
 }
 
 // ============================================================================
@@ -174,7 +259,11 @@ function navigateToDeviceDetail(deviceId) {
 
 function initDeviceDetailPage() {
   const deviceId = currentDeviceId || 'raspberry';
-  const isConnected = socket?.connected;
+  const socketOk  = socket?.connected;
+  const rpi        = window.rpiTelemetry;
+  const rpiOnline  = rpi?.status === 'ONLINE';
+  // RPi online = socket terhubung DAN telemetri sudah diterima dari Flask
+  const isConnected = deviceId === 'raspberry' ? (socketOk && rpiOnline) : socketOk;
 
   const DEVICES = {
     raspberry: {
@@ -300,7 +389,7 @@ function initDeviceDetailPage() {
     if (degBar)   degBar.style.width = deg != null ? Math.min(deg, 100) + '%' : '0%';
     if (degBadge) {
       if (deg == null) { degBadge.textContent = '-'; degBadge.className = 'font-label-caps text-[10px] font-bold uppercase text-on-surface-variant'; }
-      else if (deg >= 70) { degBadge.textContent = 'SAFE'; degBadge.className = 'font-label-caps text-[10px] font-bold uppercase text-tertiary'; }
+      else if (conc != null && parseFloat(conc) <= 5) { degBadge.textContent = 'SAFE'; degBadge.className = 'font-label-caps text-[10px] font-bold uppercase text-tertiary'; }
       else { degBadge.textContent = 'NOT SAFE'; degBadge.className = 'font-label-caps text-[10px] font-bold uppercase text-error'; }
     }
     if (concEl) concEl.textContent = conc != null ? conc.toFixed(2) : '-';
@@ -401,11 +490,13 @@ function _renderDeviceMetrics(deviceId, isConnected) {
   const latest = window.measurementHistory?.[0];
 
   if (deviceId === 'raspberry') {
+    const rpi = window.rpiTelemetry;
+    const online = isConnected && rpi?.status === 'ONLINE';
     metrics = [
-      { label: 'CPU Usage',    value: isConnected ? '~12%'      : '-', icon: 'memory',       color: 'text-tertiary' },
-      { label: 'RAM Usage',    value: isConnected ? '~34%'      : '-', icon: 'sd_card',      color: 'text-tertiary' },
-      { label: 'Latency',      value: isConnected ? '< 5 ms'    : '-', icon: 'network_ping', color: 'text-primary'  },
-      { label: 'Core Temp',    value: isConnected ? '~42 °C'    : '-', icon: 'thermostat',   color: 'text-secondary'},
+      { label: 'CPU Usage', value: online ? rpi.cpu  + '%'   : (isConnected ? '...' : '-'), icon: 'memory',       color: 'text-tertiary',  id: 'dd-metric-cpu'  },
+      { label: 'RAM Usage', value: online ? rpi.ram  + '%'   : (isConnected ? '...' : '-'), icon: 'sd_card',      color: 'text-tertiary',  id: 'dd-metric-ram'  },
+      { label: 'Latency',   value: isConnected ? '< 5 ms'    : '-',                          icon: 'network_ping', color: 'text-primary'                         },
+      { label: 'Core Temp', value: online ? rpi.temp + ' °C' : (isConnected ? '...' : '-'), icon: 'thermostat',   color: 'text-secondary', id: 'dd-metric-temp' },
     ];
   } else if (deviceId === 'spectrometer') {
     const deg  = latest ? (latest.degradation  || 0).toFixed(1) : null;
@@ -420,7 +511,7 @@ function _renderDeviceMetrics(deviceId, isConnected) {
     } else if (hist.length === 1) { reactionTime = '< 1m'; }
 
     // Render custom hero layout for spectrometer
-    const isSafe = deg != null && parseFloat(deg) >= 70;
+    const isSafe = conc != null && parseFloat(conc) <= 5;
     grid.innerHTML = `
       <div class="col-span-2 glass-panel rounded-xl p-lg flex flex-col gap-sm">
         <div class="flex items-center gap-xs">
@@ -468,7 +559,7 @@ function _renderDeviceMetrics(deviceId, isConnected) {
         <span class="material-symbols-outlined text-[16px] ${m.color}">${m.icon}</span>
         <span class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">${m.label}</span>
       </div>
-      <span class="font-data-lg text-data-lg ${m.color} truncate">${m.value}</span>
+      <span class="font-data-lg text-data-lg ${m.color} truncate" ${m.id ? `id="${m.id}"` : ''}>${m.value}</span>
     </div>
   `).join('');
 }
@@ -476,6 +567,7 @@ function _renderDeviceMetrics(deviceId, isConnected) {
 function _renderDeviceHealth(deviceId, isConnected, state) {
   const list = document.getElementById('dd-health-list');
   if (!list) return;
+  const socketOk = socket?.connected;
 
   const STATUS_BADGE = {
     connected: 'px-sm py-[2px] rounded-full bg-tertiary/10 border border-tertiary text-tertiary text-[10px] font-bold uppercase',
@@ -488,11 +580,14 @@ function _renderDeviceHealth(deviceId, isConnected, state) {
   let items = [];
 
   if (deviceId === 'raspberry') {
+    const rpiH   = window.rpiTelemetry;
+    const rpiOn  = rpiH?.status === 'ONLINE';
+    const tempStr = rpiOn ? `Core Temp: ${rpiH.temp} °C` : (socketOk ? 'Menunggu data RPi...' : 'No connection');
     items = [
-      { icon: 'memory',    label: 'RPi 5 Controller', sub: isConnected ? 'Core Temp: ~42°C' : 'No connection', statusKey: isConnected ? 'connected' : 'offline', statusLabel: isConnected ? 'CONNECTED' : 'OFFLINE', color: 'text-tertiary' },
-      { icon: 'biotech',   label: 'Avantes Spectrometer', sub: isConnected ? 'USB terhubung' : 'Menunggu host', statusKey: isConnected ? 'active' : 'offline', statusLabel: isConnected ? 'CONNECTED' : 'OFFLINE', color: 'text-primary' },
-      { icon: 'sensors',   label: 'ESP32 MQTT Client', sub: esp32RealData?.status === 'ONLINE' ? 'Data stream aktif' : 'Menunggu data', statusKey: esp32RealData?.status === 'ONLINE' ? 'connected' : 'standby', statusLabel: esp32RealData?.status === 'ONLINE' ? 'ACTIVE' : 'IDLE', color: 'text-secondary' },
-      { icon: 'wifi',      label: 'Network Interface', sub: isConnected ? 'TCP/IP Established' : 'Disconnected', statusKey: isConnected ? 'connected' : 'offline', statusLabel: isConnected ? 'ONLINE' : 'OFFLINE', color: 'text-tertiary' },
+      { icon: 'memory',    label: 'RPi 5 Controller',  sub: tempStr,                                                                                              statusKey: rpiOn ? 'connected' : (socketOk ? 'standby' : 'offline'), statusLabel: rpiOn ? 'ONLINE' : (socketOk ? 'CONNECTING' : 'OFFLINE'), color: 'text-tertiary'  },
+      { icon: 'biotech',   label: 'Avantes Spectrometer', sub: rpiOn ? 'USB terhubung' : 'Menunggu host',                                                         statusKey: rpiOn ? 'active'    : 'offline',                           statusLabel: rpiOn ? 'CONNECTED' : 'OFFLINE',                           color: 'text-primary'   },
+      { icon: 'sensors',   label: 'ESP32 MQTT Client', sub: esp32RealData?.status === 'ONLINE' ? 'Data stream aktif' : 'Menunggu data',                            statusKey: esp32RealData?.status === 'ONLINE' ? 'connected' : 'standby', statusLabel: esp32RealData?.status === 'ONLINE' ? 'ACTIVE' : 'IDLE',  color: 'text-secondary' },
+      { icon: 'wifi',      label: 'Network Interface', sub: socketOk ? 'TCP/IP Established' : 'Disconnected',                                                     statusKey: socketOk ? 'connected' : 'offline',                        statusLabel: socketOk ? 'ONLINE' : 'OFFLINE',                           color: 'text-tertiary'  },
     ];
   } else if (deviceId === 'spectrometer') {
     items = [
