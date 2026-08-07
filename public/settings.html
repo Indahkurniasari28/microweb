@@ -1,0 +1,141 @@
+<!-- SETTINGS PAGE -->
+<div class="max-w-4xl mx-auto flex flex-col gap-lg">
+
+  <!-- Page Header with Tabs -->
+  <div>
+    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-md">Account Management</h2>
+    <div class="flex gap-lg border-b border-outline-variant">
+      <button id="tab-profile" class="pb-sm border-b-2 border-primary text-primary font-bold text-body-md transition-colors">Profile</button>
+      <button id="tab-parameters" class="pb-sm border-b-2 border-transparent text-on-surface-variant font-body-md hover:text-primary transition-colors">Parameters</button>
+    </div>
+  </div>
+
+  <!-- Profile Tab -->
+  <div id="panel-profile" class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+    <!-- Left: Avatar -->
+    <div class="lg:col-span-4 space-y-lg">
+      <div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center">
+        <div class="relative group mb-md">
+          <div class="w-20 h-20 rounded-full border-2 border-primary p-1">
+            <div class="w-full h-full rounded-full bg-surface-container-highest flex items-center justify-center">
+              <span class="material-symbols-outlined text-on-surface-variant text-4xl">person</span>
+            </div>
+          </div>
+          <button class="absolute bottom-0 right-0 bg-primary text-on-primary p-1 rounded-full shadow-lg hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-[18px]">edit</span>
+          </button>
+        </div>
+        <h3 class="font-headline-md text-headline-md text-on-surface" id="profile-display-name">User</h3>
+        <p class="font-data-md text-on-surface-variant mb-md" id="settings-email">-</p>
+        <div class="w-full pt-md border-t border-outline-variant flex flex-col gap-sm">
+          <div class="flex justify-between items-center">
+            <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">System Role</span>
+            <span class="px-sm py-px bg-primary/10 border border-primary text-primary rounded-lg text-[10px] font-bold uppercase">User</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">Status</span>
+            <span class="font-data-md text-data-md text-on-surface">Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Form -->
+    <div class="lg:col-span-8">
+      <div class="glass-panel rounded-xl p-lg">
+        <div class="mb-xl">
+          <h3 class="font-headline-md text-headline-md text-on-surface">Personal Information</h3>
+          <p class="font-body-md text-on-surface-variant mt-xs">Update your account details.</p>
+        </div>
+        <form id="profile-form" class="space-y-lg">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div class="space-y-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Full Name</label>
+              <input id="profile-name" type="text" placeholder="Nama lengkap"
+                class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
+            </div>
+            <div class="space-y-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Email Address</label>
+              <input id="profile-email-input" type="email" placeholder="email@example.com"
+                class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary transition-all font-body-md" disabled>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div class="space-y-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Organization</label>
+              <input id="profile-org" type="text" placeholder="Nama institusi / lab"
+                class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
+            </div>
+            <div class="space-y-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Location</label>
+              <input id="profile-location" type="text" placeholder="Kota, Provinsi"
+                class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
+            </div>
+          </div>
+          <div class="space-y-sm">
+            <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">System Role</label>
+            <div class="relative">
+              <input type="text" value="User" readonly
+                class="w-full bg-surface-container-highest/20 border border-outline-variant rounded-lg px-md py-sm text-on-surface-variant cursor-not-allowed font-body-md">
+              <span class="absolute right-md top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">lock</span>
+            </div>
+            <p class="text-[11px] text-on-surface-variant italic px-1">Role dikelola oleh administrator sistem.</p>
+          </div>
+          <div class="pt-md flex justify-between items-center">
+            <button id="btn-logout-settings" type="button"
+              class="flex items-center gap-sm text-error border border-error/30 px-lg py-sm rounded-lg hover:bg-error/10 transition-colors font-body-md">
+              <span class="material-symbols-outlined text-[18px]">logout</span> Logout
+            </button>
+            <button type="submit"
+              class="bg-primary-container text-on-primary-container hover:opacity-90 active:scale-95 transition-all px-xl py-md rounded-lg font-bold flex items-center gap-sm shadow-lg">
+              <span class="material-symbols-outlined">save</span> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parameters Tab (hidden by default) -->
+  <div id="panel-parameters" class="hidden">
+    <div class="glass-panel rounded-xl p-lg">
+      <div class="mb-xl">
+        <h3 class="font-headline-md text-headline-md text-on-surface">Parameter Sistem</h3>
+        <p class="font-body-md text-on-surface-variant mt-xs">Konfigurasi parameter pengukuran spektrofotometer.</p>
+      </div>
+      <form id="parameters-form" class="space-y-lg">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+          <div class="space-y-sm">
+            <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Konsentrasi Awal (ppm)</label>
+            <input type="number" id="initial-concentration" placeholder="100" step="0.1"
+              class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
+          </div>
+          <div class="space-y-sm">
+            <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Panjang Gelombang (nm)</label>
+            <input type="number" id="wavelength" placeholder="254" step="1"
+              class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+          <div class="space-y-sm">
+            <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Koef. Ekstinsi Molar (L/mol·cm)</label>
+            <input type="number" id="extinction-coeff" placeholder="1000" step="0.1"
+              class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
+          </div>
+          <div class="space-y-sm">
+            <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Panjang Path (cm)</label>
+            <input type="number" id="path-length" placeholder="1" step="0.01"
+              class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
+          </div>
+        </div>
+        <div class="flex justify-end pt-md">
+          <button type="submit"
+            class="bg-primary-container text-on-primary-container hover:opacity-90 active:scale-95 transition-all px-xl py-md rounded-lg font-bold flex items-center gap-sm shadow-lg">
+            <span class="material-symbols-outlined">save</span> Simpan Parameter
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>

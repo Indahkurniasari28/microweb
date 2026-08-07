@@ -1,0 +1,172 @@
+<!-- User Management Page -->
+<div class="flex flex-col gap-lg pb-xl">
+
+  <!-- Page Header -->
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant pb-md">
+    <div>
+      <h2 class="font-headline-lg text-headline-lg text-on-surface">User Management</h2>
+      <p class="text-on-surface-variant mt-xs font-body-md">Manage laboratory access, roles, and monitoring permissions.</p>
+    </div>
+    <button id="btn-add-user" class="flex items-center gap-sm bg-primary text-on-primary font-bold px-lg py-sm rounded-lg hover:opacity-90 transition-all text-label-caps">
+      <span class="material-symbols-outlined text-[18px]">person_add</span>
+      ADD USER
+    </button>
+  </div>
+
+  <!-- Pending Approval Banner -->
+  <div id="pending-banner" class="glass-panel rounded-xl p-md border-l-4 border-secondary flex flex-col sm:flex-row items-center justify-between gap-md">
+    <div class="flex items-center gap-md">
+      <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-secondary">person_add</span>
+      </div>
+      <div>
+        <p class="font-body-md font-bold text-on-surface" id="pending-count-text">3 new users awaiting approval</p>
+        <p class="text-on-surface-variant text-body-md">Review access requests for the MICROWAT Laboratory.</p>
+      </div>
+    </div>
+    <button id="btn-review-all" class="bg-secondary text-on-secondary font-bold px-lg py-sm rounded-lg hover:opacity-90 transition-all text-label-caps whitespace-nowrap">
+      REVIEW ALL
+    </button>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+
+    <!-- Left Panel: Filters & Stats -->
+    <aside class="lg:col-span-3 space-y-md">
+
+      <!-- Search & Filter -->
+      <div class="glass-panel rounded-xl p-md space-y-md">
+        <div class="flex items-center justify-between">
+          <h3 class="text-label-caps font-label-caps text-on-surface-variant">User Directory</h3>
+          <span id="um-total-badge" class="bg-primary/10 text-primary border border-primary/30 px-sm py-xs rounded-full text-label-caps">0 TOTAL</span>
+        </div>
+        <div class="space-y-sm">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+            <input id="um-search" type="text" placeholder="Search by name or email..."
+              class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-xl pr-sm py-sm text-body-md outline-none focus:border-primary font-body-md">
+          </div>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">filter_list</span>
+            <select id="um-role-filter" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-xl pr-sm py-sm text-body-md outline-none appearance-none focus:border-primary">
+              <option value="all">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+            </select>
+          </div>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">circle</span>
+            <select id="um-status-filter" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-xl pr-sm py-sm text-body-md outline-none appearance-none focus:border-primary">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Health -->
+      <div class="glass-panel rounded-xl p-md">
+        <h3 class="text-label-caps font-label-caps text-on-surface-variant mb-md">Seat Capacity</h3>
+        <div class="flex items-center gap-md">
+          <div class="relative w-16 h-16 shrink-0">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+              <path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="100,100" stroke-width="3"></path>
+              <path class="text-primary" id="um-capacity-arc" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="85,100" stroke-linecap="round" stroke-width="3"></path>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center font-data-md text-data-md text-primary text-xs" id="um-capacity-pct">85%</div>
+          </div>
+          <div>
+            <p class="text-body-md text-on-surface font-bold">License Usage</p>
+            <p class="text-on-surface-variant text-label-caps" id="um-capacity-text">128 of 150 licenses</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="glass-panel rounded-xl p-md space-y-sm">
+        <h3 class="text-label-caps font-label-caps text-on-surface-variant mb-sm">Quick Stats</h3>
+        <div class="flex justify-between items-center py-xs border-b border-outline-variant/30">
+          <span class="text-body-md text-on-surface-variant">Active Users</span>
+          <span class="font-data-md text-tertiary font-bold" id="um-stat-active">—</span>
+        </div>
+        <div class="flex justify-between items-center py-xs border-b border-outline-variant/30">
+          <span class="text-body-md text-on-surface-variant">Pending</span>
+          <span class="font-data-md text-secondary font-bold" id="um-stat-pending">—</span>
+        </div>
+        <div class="flex justify-between items-center py-xs">
+          <span class="text-body-md text-on-surface-variant">Admins</span>
+          <span class="font-data-md text-primary font-bold" id="um-stat-admin">—</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Panel: User Table -->
+    <div class="lg:col-span-9 glass-panel rounded-xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-outline-variant/30 bg-surface-container-high/50">
+              <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">USER</th>
+              <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant hidden md:table-cell">INSTITUTION</th>
+              <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">ROLE</th>
+              <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">STATUS</th>
+              <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant hidden lg:table-cell">JOINED</th>
+              <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant text-right">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="um-table-body" class="divide-y divide-outline-variant/10">
+            <!-- rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      <div class="p-md bg-surface-container-high/30 border-t border-outline-variant/30 flex items-center justify-between">
+        <span class="text-body-md text-on-surface-variant" id="um-count-label">Loading...</span>
+        <div class="flex gap-sm" id="um-pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal (hidden) -->
+<div id="um-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-background/80 backdrop-blur-sm px-md">
+  <div class="glass-panel max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden border-t-4 border-primary">
+    <div class="p-xl">
+      <div class="flex justify-between items-start mb-lg">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Modify User Permissions</h2>
+        <button id="um-modal-close" class="text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="flex items-center gap-md mb-xl p-md bg-surface-container-high rounded-xl">
+        <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary text-[28px]">person</span>
+        </div>
+        <div>
+          <div class="font-bold text-on-surface" id="modal-user-name">—</div>
+          <div class="text-xs text-on-surface-variant" id="modal-user-email">—</div>
+        </div>
+      </div>
+      <div class="space-y-lg mb-xl">
+        <div>
+          <label class="block text-label-caps text-on-surface-variant mb-xs">Assigned Role</label>
+          <select id="modal-role-select" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface focus:ring-1 focus:ring-primary outline-none appearance-none">
+            <option value="user">Standard User</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-label-caps text-on-surface-variant mb-xs">Authorization Note</label>
+          <textarea id="modal-note" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface focus:ring-1 focus:ring-primary outline-none h-24 resize-none font-body-md" placeholder="Reason for permission change..."></textarea>
+        </div>
+      </div>
+      <div class="flex gap-md">
+        <button id="um-modal-cancel" class="flex-1 py-md font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface border border-outline-variant rounded-lg transition-all">CANCEL</button>
+        <button id="um-modal-save" class="flex-1 py-md font-label-caps text-label-caps bg-primary text-on-primary rounded-lg hover:brightness-110 active:scale-95 transition-all">CONFIRM ROLE</button>
+      </div>
+    </div>
+  </div>
+</div>

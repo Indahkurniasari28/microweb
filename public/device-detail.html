@@ -1,0 +1,172 @@
+<!-- DEVICE DETAIL PAGE -->
+<div class="flex flex-col gap-lg max-w-[1000px]">
+
+  <!-- Breadcrumb / Back Nav -->
+  <div class="flex items-center gap-sm">
+    <button onclick="navigateToPage('device-status')" class="flex items-center gap-xs text-primary hover:opacity-80 transition-opacity font-body-md">
+      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+      <span>Device Status</span>
+    </button>
+    <span class="text-on-surface-variant">/</span>
+    <span id="dd-device-name" class="font-body-md text-on-surface">Loading...</span>
+  </div>
+
+  <!-- ── STATUS BANNER ── -->
+  <section id="dd-status-banner" class="glass-panel rounded-2xl p-lg relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-48 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none"></div>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-md relative z-10">
+      <div class="flex flex-col gap-xs">
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">CURRENT OPERATIONAL STATE</span>
+        <div class="flex items-center gap-sm">
+          <div id="dd-status-dot" class="w-3 h-3 rounded-full bg-outline shrink-0"></div>
+          <h2 id="dd-status-text" class="font-headline-lg text-headline-lg text-on-surface-variant">Loading...</h2>
+        </div>
+        <p id="dd-status-desc" class="font-body-md text-on-surface-variant max-w-[400px]">Memeriksa status perangkat...</p>
+      </div>
+      <div class="flex flex-col items-start sm:items-end gap-xs shrink-0">
+        <span id="dd-uptime-label" class="font-data-md text-data-md text-on-surface">-</span>
+        <span id="dd-version-label" class="font-data-md text-data-md text-on-surface-variant">-</span>
+        <div class="flex gap-sm mt-sm">
+          <button id="dd-action-btn" class="hidden bg-primary text-on-primary px-lg py-sm rounded-lg font-bold text-sm hover:opacity-90 transition-opacity flex items-center gap-sm">
+            <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+            <span>New Session</span>
+          </button>
+          <button id="dd-reset-btn" class="hidden border border-outline-variant px-lg py-sm rounded-lg font-bold text-sm text-on-surface-variant hover:bg-surface-container-high transition-colors">
+            Maintenance
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── METRICS GRID ── -->
+  <div id="dd-metrics-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-md">
+    <!-- Filled by JS -->
+  </div>
+
+  <!-- ── ANALYTICS (spectrometer only) ── -->
+  <section id="dd-analytics-section" class="hidden glass-panel rounded-2xl p-lg">
+    <div class="flex items-center justify-between mb-lg">
+      <div>
+        <h3 class="font-headline-md text-headline-md text-on-surface">PhotoCat Analytics</h3>
+        <p class="text-xs text-on-surface-variant font-body-md mt-xs">Real-time spectrophotometric monitoring</p>
+      </div>
+      <div class="flex items-center gap-sm">
+        <!-- Dye type pill, filled by JS -->
+        <div id="dd-dye-pill" class="hidden items-center gap-xs px-md py-xs rounded-full border font-label-caps text-[10px] uppercase">
+          <span id="dd-dye-pill-dot" class="w-2 h-2 rounded-full"></span>
+          <span id="dd-dye-pill-text"></span>
+        </div>
+        <span class="px-md py-xs bg-primary-container/20 border border-primary-container/40 text-primary rounded-full font-label-caps text-[10px] uppercase">Live</span>
+      </div>
+    </div>
+    <!-- Hero: Degradasi % -->
+    <div class="flex flex-col items-center gap-md py-sm">
+      <span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Efisiensi Degradasi Fotokatalitik</span>
+      <div class="flex items-baseline gap-xs">
+        <span id="dd-spec-deg" class="text-[72px] leading-none font-bold text-tertiary" style="font-family:'Space Mono',monospace">-</span>
+        <span class="text-[32px] text-tertiary/70 font-bold mb-1">%</span>
+      </div>
+      <div class="w-full max-w-xs h-2.5 bg-surface-container-highest rounded-full overflow-hidden">
+        <div id="dd-deg-bar" class="h-full bg-tertiary rounded-full transition-all duration-700" style="width:0%"></div>
+      </div>
+      <div class="flex items-center gap-sm">
+        <span class="font-label-caps text-[10px] text-on-surface-variant">Target ≥ 70%</span>
+        <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+        <span id="dd-deg-badge" class="font-label-caps text-[10px] font-bold uppercase text-on-surface-variant">-</span>
+      </div>
+    </div>
+    <!-- Reaction Time + Konsentrasi -->
+    <div class="grid grid-cols-2 gap-lg pt-lg border-t border-outline-variant">
+      <div class="border-l-2 border-secondary pl-md">
+        <p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Reaction Time</p>
+        <p id="dd-reaction-time" class="font-data-lg text-data-lg text-secondary">-</p>
+        <p class="text-xs text-on-surface-variant mt-xs">durasi sesi</p>
+      </div>
+      <div class="border-l-2 border-primary pl-md">
+        <p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Konsentrasi</p>
+        <p id="dd-spec-conc" class="font-data-lg text-data-lg text-primary">-</p>
+        <p class="text-xs text-on-surface-variant mt-xs">ppm</p>
+        <!-- Dye type indicator, filled by JS -->
+        <div id="dd-dye-badge" class="hidden flex items-center gap-xs mt-sm pt-sm border-t border-outline-variant/30">
+          <span id="dd-dye-dot" class="w-2.5 h-2.5 rounded-full shrink-0"></span>
+          <span id="dd-dye-name" class="font-label-caps text-[10px] font-bold uppercase"></span>
+          <span id="dd-dye-abbr" class="font-label-caps text-[9px] text-on-surface-variant ml-auto"></span>
+        </div>
+      </div>
+    </div>
+    <!-- Session Timeline -->
+    <div class="mt-lg pt-lg border-t border-outline-variant">
+      <p class="font-label-caps text-label-caps text-on-surface-variant mb-md uppercase">Session Timeline</p>
+      <div id="dd-session-timeline" class="relative pl-sm">
+        <div class="absolute left-[9px] top-2 bottom-2 w-[1px] bg-outline-variant"></div>
+        <div class="space-y-md">
+          <div class="relative pl-lg flex flex-col gap-xs">
+            <div class="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-tertiary/20 border border-tertiary"></div>
+            <span class="font-body-md text-body-md text-on-surface">System Start</span>
+            <span id="dd-tl-start" class="font-data-md text-data-md text-on-surface-variant">-</span>
+          </div>
+          <div class="relative pl-lg flex flex-col gap-xs">
+            <div class="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-primary/20 border border-primary"></div>
+            <span class="font-body-md text-body-md text-on-surface">Sensor Terhubung</span>
+            <span id="dd-tl-connected" class="font-data-md text-data-md text-on-surface-variant">-</span>
+          </div>
+          <div class="relative pl-lg flex flex-col gap-xs">
+            <div id="dd-tl-reaction-dot" class="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-outline/20 border border-outline"></div>
+            <span id="dd-tl-reaction-label" class="font-body-md text-body-md text-on-surface-variant">Menunggu Pengukuran</span>
+            <span id="dd-tl-reaction-time" class="font-data-md text-data-md text-on-surface-variant">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── INSTRUMENT HEALTH ── -->
+  <section class="glass-panel rounded-2xl p-lg">
+    <h3 class="font-label-caps text-label-caps text-on-surface-variant mb-md uppercase tracking-widest">Instrument Health</h3>
+    <div id="dd-health-list" class="space-y-md">
+      <!-- Filled by JS -->
+    </div>
+  </section>
+
+  <!-- ── DATA ACQUISITION LOG ── -->
+  <section class="glass-panel rounded-2xl overflow-hidden">
+    <div class="px-lg py-md border-b border-outline-variant flex items-center justify-between">
+      <h3 class="font-headline-md text-headline-md text-on-surface">Data Acquisition Log</h3>
+      <span id="dd-stream-status" class="font-label-caps text-label-caps text-on-surface-variant text-[10px] uppercase">Stream Inactive</span>
+    </div>
+    <div id="dd-log-container" class="p-lg max-h-[260px] overflow-y-auto space-y-sm">
+      <div class="flex flex-col items-center justify-center py-xl text-on-surface-variant">
+        <span class="material-symbols-outlined text-[40px] mb-sm text-surface-container-highest">query_stats</span>
+        <p class="font-body-md">No active data stream detected</p>
+        <p class="text-xs text-outline mt-xs">System is in standby. Begin a new session to see live telemetry.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EVENT HISTORY TABLE ── -->
+  <section class="glass-panel rounded-2xl overflow-hidden">
+    <div class="px-lg py-md border-b border-outline-variant flex items-center justify-between">
+      <h3 class="font-headline-md text-headline-md text-on-surface">Event History</h3>
+      <button id="dd-export-log" class="text-primary font-label-caps text-[10px] border border-primary/30 px-md py-xs rounded hover:bg-primary/5 transition-colors uppercase">
+        Export Log
+      </button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b border-outline-variant bg-surface-container/50">
+            <th class="py-sm px-lg font-label-caps text-label-caps text-on-surface-variant uppercase">Timestamp</th>
+            <th class="py-sm px-lg font-label-caps text-label-caps text-on-surface-variant uppercase">Code</th>
+            <th class="py-sm px-lg font-label-caps text-label-caps text-on-surface-variant uppercase hidden sm:table-cell">Deskripsi</th>
+            <th class="py-sm px-lg font-label-caps text-label-caps text-on-surface-variant uppercase">Status</th>
+          </tr>
+        </thead>
+        <tbody id="dd-event-table" class="font-data-md text-sm divide-y divide-outline-variant/30">
+          <!-- Filled by JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>

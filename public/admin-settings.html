@@ -1,0 +1,264 @@
+<!-- Admin Settings Page -->
+<div class="flex flex-col gap-lg pb-xl">
+
+  <!-- Page Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-md border-b border-outline-variant pb-md">
+    <div>
+      <h2 class="font-headline-lg text-headline-lg text-on-surface">Admin Settings</h2>
+      <p class="text-on-surface-variant font-body-md mt-xs">Configure administrative preferences and laboratory system parameters.</p>
+    </div>
+    <div class="flex items-center gap-sm glass-panel px-md py-sm rounded-lg">
+      <span class="text-on-surface-variant font-label-caps text-[10px]">ROLE:</span>
+      <span class="text-secondary font-label-caps text-[10px] font-bold">ADMIN</span>
+    </div>
+  </div>
+
+  <!-- Two column layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+
+    <!-- Left Tab Sidebar -->
+    <div class="lg:col-span-3 flex flex-col gap-sm" id="admin-settings-tabs">
+      <button data-tab="profile" class="admin-settings-tab w-full glass-panel flex items-center gap-md p-md rounded-lg text-primary border-l-4 border-l-primary text-left transition-all">
+        <span class="material-symbols-outlined">person</span>
+        <span class="font-body-md font-bold">Profile</span>
+      </button>
+      <button data-tab="security" class="admin-settings-tab w-full glass-panel flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary transition-all text-left">
+        <span class="material-symbols-outlined">security</span>
+        <span class="font-body-md">Security</span>
+      </button>
+      <button data-tab="notifications" class="admin-settings-tab w-full glass-panel flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary transition-all text-left">
+        <span class="material-symbols-outlined">notifications_active</span>
+        <span class="font-body-md">Notifications</span>
+      </button>
+      <button data-tab="system" class="admin-settings-tab w-full glass-panel flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary transition-all text-left">
+        <span class="material-symbols-outlined">admin_panel_settings</span>
+        <span class="font-body-md">System Config</span>
+      </button>
+      <div class="pt-sm border-t border-outline-variant/30">
+        <button id="btn-admin-logout-settings" class="w-full flex items-center gap-md p-md rounded-lg text-error/80 hover:bg-error/10 hover:text-error transition-all text-left">
+          <span class="material-symbols-outlined">logout</span>
+          <span class="font-body-md">Logout</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Content Panel -->
+    <div class="lg:col-span-9 space-y-lg">
+
+      <!-- Profile Panel -->
+      <div id="admin-panel-profile" class="glass-panel rounded-xl p-xl border-t-4 border-t-primary">
+        <div class="flex items-center gap-md mb-xl">
+          <span class="material-symbols-outlined text-primary text-[32px]">person</span>
+          <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface">Profile Settings</h2>
+            <p class="text-on-surface-variant text-body-md">Update your administrator profile information.</p>
+          </div>
+        </div>
+        <!-- Avatar Row -->
+        <div class="flex items-center gap-lg mb-xl">
+          <div class="w-20 h-20 rounded-full bg-primary-container/20 border border-primary/30 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-primary text-[40px]">lab_profile</span>
+          </div>
+          <div>
+            <p class="font-body-md font-bold text-on-surface" id="admin-profile-display-name">Administrator</p>
+            <p class="text-on-surface-variant text-body-md" id="admin-settings-email">—</p>
+            <span class="inline-block mt-xs px-sm py-[2px] rounded bg-secondary/20 text-secondary border border-secondary/40 text-label-caps text-[10px]">ADMIN</span>
+          </div>
+        </div>
+        <form id="admin-profile-form" class="space-y-md">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Full Name</label>
+              <input id="admin-profile-name" type="text" placeholder="Your full name"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-body-md">
+            </div>
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Email</label>
+              <input id="admin-profile-email-input" type="email" placeholder="admin@microwat.io" readonly
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface-variant outline-none font-data-md cursor-not-allowed">
+            </div>
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Institution</label>
+              <input id="admin-profile-org" type="text" placeholder="LABTEK 4 • ITERA"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-body-md">
+            </div>
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Location</label>
+              <input id="admin-profile-location" type="text" placeholder="Bandarlampung, Indonesia"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-body-md">
+            </div>
+          </div>
+          <div class="flex justify-end pt-md">
+            <button type="submit" class="bg-primary text-on-primary font-bold px-xl py-sm rounded-lg hover:opacity-90 transition-all text-label-caps flex items-center gap-sm">
+              <span class="material-symbols-outlined text-[18px]">save</span>
+              SAVE PROFILE
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Security Panel (hidden by default) -->
+      <div id="admin-panel-security" class="hidden glass-panel rounded-xl p-xl border-t-4 border-t-secondary">
+        <div class="flex items-center gap-md mb-xl">
+          <span class="material-symbols-outlined text-secondary text-[32px]">security</span>
+          <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface">Security Settings</h2>
+            <p class="text-on-surface-variant text-body-md">Manage password and authentication settings.</p>
+          </div>
+        </div>
+        <div class="space-y-md">
+          <div>
+            <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Current Password</label>
+            <div class="relative">
+              <input id="sec-current-pw" type="password" placeholder="••••••••••••"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md pr-12 text-on-surface outline-none focus:border-primary font-data-md">
+              <button type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">New Password</label>
+            <input id="sec-new-pw" type="password" placeholder="••••••••••••"
+              class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-data-md">
+          </div>
+          <div>
+            <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Confirm New Password</label>
+            <input id="sec-confirm-pw" type="password" placeholder="••••••••••••"
+              class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-data-md">
+          </div>
+          <div class="pt-md border-t border-outline-variant/30">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-body-md text-on-surface font-bold">Two-Factor Authentication</span>
+                <p class="text-on-surface-variant text-[12px]">Add extra security to your admin account</p>
+              </div>
+              <button id="sec-2fa-toggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-surface-variant transition-colors shrink-0">
+                <span class="inline-block h-5 w-5 translate-x-1 transform rounded-full bg-on-surface-variant transition"></span>
+              </button>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button id="btn-sec-save" class="bg-secondary text-on-secondary font-bold px-xl py-sm rounded-lg hover:opacity-90 transition-all text-label-caps">
+              UPDATE PASSWORD
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Panel (hidden by default) -->
+      <div id="admin-panel-notifications" class="hidden glass-panel rounded-xl p-xl border-t-4 border-t-tertiary">
+        <div class="flex items-center gap-md mb-xl">
+          <span class="material-symbols-outlined text-tertiary text-[32px]">notifications_active</span>
+          <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface">Notification Protocols</h2>
+            <p class="text-on-surface-variant text-body-md">Configure system alerts and recipient lists.</p>
+          </div>
+        </div>
+        <div class="space-y-md">
+          <div class="flex items-center justify-between p-md border border-outline-variant/30 rounded-lg">
+            <div>
+              <h4 class="font-body-md text-on-surface font-bold">System Error Alerts</h4>
+              <p class="text-xs text-on-surface-variant">Immediate notification for hardware malfunctions.</p>
+            </div>
+            <button id="notif-system-errors" class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary shrink-0">
+              <span class="inline-block h-5 w-5 translate-x-5 transform rounded-full bg-on-primary transition"></span>
+            </button>
+          </div>
+          <div class="flex items-center justify-between p-md border border-outline-variant/30 rounded-lg">
+            <div>
+              <h4 class="font-body-md text-on-surface font-bold">Efficiency Threshold Alert</h4>
+              <p class="text-xs text-on-surface-variant">Alert when efficiency drops below 50% for >10 mins.</p>
+            </div>
+            <button id="notif-efficiency" class="relative inline-flex h-6 w-11 items-center rounded-full bg-surface-variant shrink-0">
+              <span class="inline-block h-5 w-5 translate-x-1 transform rounded-full bg-on-surface-variant transition"></span>
+            </button>
+          </div>
+          <div class="flex items-center justify-between p-md border border-outline-variant/30 rounded-lg">
+            <div>
+              <h4 class="font-body-md text-on-surface font-bold">New User Registrations</h4>
+              <p class="text-xs text-on-surface-variant">Notify when new users request access.</p>
+            </div>
+            <button id="notif-new-users" class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary shrink-0">
+              <span class="inline-block h-5 w-5 translate-x-5 transform rounded-full bg-on-primary transition"></span>
+            </button>
+          </div>
+          <div class="p-md border border-outline-variant/30 rounded-lg">
+            <h4 class="font-body-md text-on-surface font-bold mb-sm">Alert Recipient List</h4>
+            <div class="flex flex-wrap gap-xs" id="notif-recipients">
+              <span class="bg-primary/10 text-primary border border-primary/30 px-sm py-xs rounded text-[10px] font-bold">admin@microwat.io</span>
+              <span class="bg-primary/10 text-primary border border-primary/30 px-sm py-xs rounded text-[10px] font-bold">ops@microwat.io</span>
+              <button class="text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[16px]">add_circle</span>
+              </button>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button id="btn-notif-save" class="bg-tertiary text-on-tertiary font-bold px-xl py-sm rounded-lg hover:opacity-90 transition-all text-label-caps">
+              SAVE NOTIFICATIONS
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Config Panel (hidden by default) -->
+      <div id="admin-panel-system" class="hidden glass-panel rounded-xl p-xl border-t-4 border-t-primary">
+        <div class="flex items-center gap-md mb-xl">
+          <span class="material-symbols-outlined text-primary text-[32px]">admin_panel_settings</span>
+          <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface">System Configuration</h2>
+            <p class="text-on-surface-variant text-body-md">Global system parameters and measurement settings.</p>
+          </div>
+        </div>
+        <form id="admin-params-form" class="space-y-md">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Initial Concentration (ppm)</label>
+              <input id="sys-initial-concentration" type="number" value="100"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-data-md">
+            </div>
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Measurement Wavelength (nm)</label>
+              <input id="sys-wavelength" type="number" value="254"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-data-md">
+            </div>
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Extinction Coefficient (L/mol·cm)</label>
+              <input id="sys-extinction-coeff" type="number" value="1000"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-data-md">
+            </div>
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Optical Path Length (cm)</label>
+              <input id="sys-path-length" type="number" value="1" step="0.01"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-data-md">
+            </div>
+          </div>
+          <!-- System info -->
+          <div class="mt-lg p-md bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+            <div class="grid grid-cols-3 gap-md text-center">
+              <div>
+                <p class="text-[10px] text-on-surface-variant font-label-caps">SYSTEM VERSION</p>
+                <p class="font-data-md text-primary font-bold">V1.0.0</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-on-surface-variant font-label-caps">UPTIME</p>
+                <p class="font-data-md text-tertiary font-bold" id="admin-sys-uptime">99.98%</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-on-surface-variant font-label-caps">LAST SYNC</p>
+                <p class="font-data-md text-on-surface font-bold" id="admin-sys-lastsync">—</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end pt-md">
+            <button type="submit" class="bg-primary text-on-primary font-bold px-xl py-sm rounded-lg hover:opacity-90 transition-all text-label-caps flex items-center gap-sm">
+              <span class="material-symbols-outlined text-[18px]">save</span>
+              SAVE PARAMETERS
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
