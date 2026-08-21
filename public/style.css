@@ -14,8 +14,8 @@
   --text-dark: #212121;
   --text-light: #666;
   --border: #e0e0e0;
-  --shadow: 0 2px 8px rgba(0,0,0,0.1);
-  --shadow-lg: 0 8px 16px rgba(0,0,0,0.15);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 * {
@@ -24,7 +24,9 @@
   box-sizing: border-box;
 }
 
-html, body, #app-root {
+html,
+body,
+#app-root {
   width: 100%;
   height: 100%;
 }
@@ -123,7 +125,7 @@ body {
 .form-group input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(0,61,165,0.1);
+  box-shadow: 0 0 0 3px rgba(0, 61, 165, 0.1);
 }
 
 .btn {
@@ -156,7 +158,7 @@ body {
   font-size: 13px;
   margin-top: 8px;
   padding: 8px;
-  background: rgba(244,67,54,0.1);
+  background: rgba(244, 67, 54, 0.1);
   border-radius: 4px;
 }
 
@@ -214,13 +216,13 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-header .logo-container {
   width: 40px;
   height: 40px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -243,25 +245,25 @@ body {
   align-items: center;
   gap: 12px;
   padding: 12px 20px;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   transition: all 0.3s;
   border-left: 3px solid transparent;
 }
 
 .nav-link:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .nav-link.active {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   color: white;
   border-left-color: white;
 }
 
 .sidebar-footer {
   padding: 16px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .user-info {
@@ -274,13 +276,13 @@ body {
 
 .btn-logout {
   width: 100%;
-  background: rgba(244,67,54,0.2);
+  background: rgba(244, 67, 54, 0.2);
   color: white;
-  border: 1px solid rgba(244,67,54,0.5);
+  border: 1px solid rgba(244, 67, 54, 0.5);
 }
 
 .btn-logout:hover {
-  background: rgba(244,67,54,0.3);
+  background: rgba(244, 67, 54, 0.3);
 }
 
 .main-content {
@@ -491,12 +493,12 @@ body {
 
 .status-indicator.online {
   color: var(--success);
-  background: rgba(76,175,80,0.1);
+  background: rgba(76, 175, 80, 0.1);
 }
 
 .status-indicator.offline {
   color: var(--danger);
-  background: rgba(244,67,54,0.1);
+  background: rgba(244, 67, 54, 0.1);
 }
 
 .button-group {
@@ -553,7 +555,7 @@ body {
 }
 
 .data-table tr:hover {
-  background: rgba(0,61,165,0.05);
+  background: rgba(0, 61, 165, 0.05);
 }
 
 .empty-state {
@@ -619,22 +621,22 @@ body {
 }
 
 .notification-item.notification-success {
-  background: rgba(76,175,80,0.1);
+  background: rgba(76, 175, 80, 0.1);
   border-left-color: var(--success);
 }
 
 .notification-item.notification-error {
-  background: rgba(244,67,54,0.1);
+  background: rgba(244, 67, 54, 0.1);
   border-left-color: var(--danger);
 }
 
 .notification-item.notification-warning {
-  background: rgba(255,152,0,0.1);
+  background: rgba(255, 152, 0, 0.1);
   border-left-color: var(--warning);
 }
 
 .notification-item.notification-info {
-  background: rgba(33,150,243,0.1);
+  background: rgba(33, 150, 243, 0.1);
   border-left-color: var(--info);
 }
 
@@ -705,12 +707,12 @@ body {
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .sensor-card:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }
 
@@ -770,7 +772,7 @@ body {
   border-radius: 50%;
   background: #667eea;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .sensor-slider::-moz-range-thumb {
@@ -780,7 +782,7 @@ body {
   background: #667eea;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .slider-labels {
@@ -824,7 +826,7 @@ body {
 
 .btn-weather:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-weather.active {

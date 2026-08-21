@@ -9,8 +9,8 @@
   <!-- Profile Tab -->
   <div id="panel-profile" class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
     <!-- Left: Avatar -->
-    <div class="lg:col-span-4 space-y-lg">
-      <div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center">
+    <div class="lg:col-span-4 space-y-lg min-w-0">
+      <div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center min-w-0 overflow-hidden w-full">
         <div class="relative group mb-md">
           <div class="w-20 h-20 rounded-full border-2 border-primary p-1">
             <div class="w-full h-full rounded-full bg-surface-container-highest flex items-center justify-center">
@@ -21,8 +21,8 @@
             <span class="material-symbols-outlined text-[18px]">edit</span>
           </button>
         </div>
-        <h3 class="font-headline-md text-headline-md text-on-surface" id="profile-display-name">User</h3>
-        <p class="font-data-md text-on-surface-variant mb-md" id="settings-email">-</p>
+        <h3 class="font-headline-md text-headline-md text-on-surface w-full truncate px-2" id="profile-display-name">User</h3>
+        <p class="font-data-md text-on-surface-variant mb-md w-full truncate px-2" id="settings-email">-</p>
         <div class="w-full pt-md border-t border-outline-variant flex flex-col gap-sm">
           <div class="flex justify-between items-center">
             <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">System Role</span>

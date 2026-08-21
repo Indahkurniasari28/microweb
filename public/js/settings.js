@@ -17,3 +17,4 @@ function initSettingsPage() {
   // Fill in current user email
   updateUserDisplay(currentUser?.email || '');
 }
+
