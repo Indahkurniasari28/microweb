@@ -24,6 +24,9 @@ async function navigateToPage(pageName) {
 
   console.log('🔄 Navigating to:', pageName);
 
+  // Simpan halaman aktif agar bisa di-restore setelah refresh
+  safeStorage.setItem('lastPage', pageName);
+
   // Update nav active states
   document.querySelectorAll('.nav-link').forEach(link => {
     const isActive = link.dataset.page === pageName;

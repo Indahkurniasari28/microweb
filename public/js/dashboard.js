@@ -236,6 +236,7 @@ function initDashboardChart() {
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: {
+          display: false,
           labels: { color: '#a0b4c4', font: { family: 'Poppins', size: 11 } }
         },
         tooltip: {

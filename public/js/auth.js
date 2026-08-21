@@ -56,7 +56,7 @@ function setupAuthFormListeners() {
         currentUser = data.user;
         clearAuthForms();
         showMainApp();
-        await loadSystemParameters();
+        await (typeof loadSystemParameters === 'function' ? loadSystemParameters() : Promise.resolve());
         addNotification(`✅ Selamat datang, ${email}!`, 'success');
       } else {
         showAuthError('login', data.message);
@@ -149,8 +149,11 @@ function checkAuthState() {
       currentUser = JSON.parse(user);
       updateUserDisplay(currentUser.email);
       showMainApp();
-      loadSystemParameters();
+      if (typeof loadSystemParameters === 'function') {
+        loadSystemParameters();
+      }
     } catch (err) {
+      console.error('❌ checkAuthState error:', err);
       logout();
     }
   } else {
@@ -169,14 +172,14 @@ function logout() {
       const ch = Chart.getChart(c1);
       if (ch) ch.destroy();
     }
-  } catch (e) {}
+  } catch (e) { }
   try {
     const c2 = document.getElementById('dashboard-chart');
     if (c2 && Chart && Chart.getChart) {
       const ch2 = Chart.getChart(c2);
       if (ch2) ch2.destroy();
     }
-  } catch (e) {}
+  } catch (e) { }
   chartInstance = null;
   dashboardChartInstance = null;
   showAuthContainer();
@@ -195,7 +198,8 @@ function showMainApp() {
   updateUserDisplay(currentUser?.email || '');
   const role = (currentUser?.email || '').toLowerCase().includes('admin') ? 'admin' : 'user';
   updateSidebarForRole(role);
-  navigateToPage('dashboard');
+  const lastPage = safeStorage.getItem('lastPage');
+  navigateToPage(lastPage);
 }
 
 function updateUserDisplay(email) {
