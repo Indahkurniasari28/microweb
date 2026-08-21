@@ -479,6 +479,27 @@ io.on("connection", (socket) => {
 // Simple user storage (demo)
 const users = new Map();
 
+function ensureDefaultAdminUser() {
+  const adminEmail = 'admin@microwat.io';
+  const adminPassword = 'admin123';
+
+  if (!users.has(adminEmail)) {
+    users.set(adminEmail, {
+      id: 'default-admin',
+      email: adminEmail,
+      password: adminPassword,
+      name: 'MICROWAT Admin',
+      institution: 'Local Demo',
+      role: 'admin',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    });
+    console.log(`✅ Default admin user created: ${adminEmail} / ${adminPassword}`);
+  }
+}
+
+ensureDefaultAdminUser();
+
 /**
  * POST: Register
  */
@@ -786,21 +807,34 @@ server.listen(PORT, "0.0.0.0", () => {
 // ============================================================================
 const FLASK_URL = process.env.FLASK_URL || "http://localhost:5000";
 
+let lastKnownRpiTelemetry = {
+  cpu: null,
+  ram: null,
+  temp: null,
+  status: "ONLINE",
+  timestamp: new Date().toISOString()
+};
+
 async function pollRpiTelemetry() {
   try {
     const res = await fetch(`${FLASK_URL}/telemetry`, { signal: AbortSignal.timeout(3000) });
-    if (!res.ok) return;
+    if (!res.ok) {
+      io.emit("rpiTelemetry", { ...lastKnownRpiTelemetry, timestamp: new Date().toISOString() });
+      return;
+    }
+
     const data = await res.json();
-    io.emit("rpiTelemetry", {
-      cpu:    data.cpu,
-      ram:    data.ram,
-      temp:   data.temp,
+    lastKnownRpiTelemetry = {
+      cpu: data.cpu ?? null,
+      ram: data.ram ?? null,
+      temp: data.temp ?? null,
       status: data.status || "ONLINE",
       timestamp: new Date().toISOString()
-    });
+    };
+
+    io.emit("rpiTelemetry", lastKnownRpiTelemetry);
   } catch {
-    // Flask offline — emit status offline agar dashboard tahu
-    io.emit("rpiTelemetry", { status: "OFFLINE", timestamp: new Date().toISOString() });
+    io.emit("rpiTelemetry", { ...lastKnownRpiTelemetry, timestamp: new Date().toISOString() });
   }
 }
 

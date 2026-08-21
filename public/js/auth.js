@@ -163,6 +163,20 @@ function logout() {
   currentUser = null;
   currentUserRole = 'user';
   measurementHistory = [];
+  try {
+    const c1 = document.getElementById('monitoring-chart');
+    if (c1 && Chart && Chart.getChart) {
+      const ch = Chart.getChart(c1);
+      if (ch) ch.destroy();
+    }
+  } catch (e) {}
+  try {
+    const c2 = document.getElementById('dashboard-chart');
+    if (c2 && Chart && Chart.getChart) {
+      const ch2 = Chart.getChart(c2);
+      if (ch2) ch2.destroy();
+    }
+  } catch (e) {}
   chartInstance = null;
   dashboardChartInstance = null;
   showAuthContainer();

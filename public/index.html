@@ -599,45 +599,27 @@
       // Coba load latarbelakang1 → latarbelakang2 → ... (jpg, png, webp, jpeg)
       // Foto ditaruh di /uploads/backgrounds/
       const BG_DIR  = '/uploads/backgrounds/';
-      const EXTS    = ['jpg', 'jpeg', 'png', 'webp'];
-      const MAX_BG  = 10; // cek sampai latarbelakang10
+      const bgList  = [
+        BG_DIR + 'latarbelakang1.jpg',
+        BG_DIR + 'latarbelakang2.jpg',
+        BG_DIR + 'latarbelakang3.jpg'
+      ];
 
       const bgLayer   = document.getElementById('auth-bg-img');
       const bgOverlay = document.getElementById('auth-bg-overlay');
-      const bgList    = []; // semua URL yang berhasil ditemukan
       let   bgCurrent = 0;
-
-      function tryLoad(name, ext) {
-        return new Promise(resolve => {
-          const img = new Image();
-          const url = BG_DIR + name + '.' + ext;
-          img.onload  = () => resolve(url);
-          img.onerror = () => resolve(null);
-          img.src = url;
-        });
-      }
-
-      async function scanBackgrounds() {
-        for (let i = 1; i <= MAX_BG; i++) {
-          for (const ext of EXTS) {
-            const url = await tryLoad('latarbelakang' + i, ext);
-            if (url) { bgList.push(url); break; } // ambil ekstensi pertama yang berhasil
-          }
-        }
-        if (bgList.length > 0) applyBackground(0);
-      }
 
       function applyBackground(idx) {
         if (!bgLayer || bgList.length === 0) return;
-        bgLayer.style.backgroundImage = `url('${bgList[idx]}')`;
-        bgLayer.style.opacity = '0.8';          // kecerahan 80%
+        const safeIdx = idx % bgList.length;
+        bgLayer.style.backgroundImage = `url('${bgList[safeIdx]}')`;
+        bgLayer.style.opacity = '0.8';
         bgLayer.style.filter  = 'brightness(0.8)';
         if (bgOverlay) bgOverlay.classList.remove('hidden');
-        bgCurrent = idx;
+        bgCurrent = safeIdx;
       }
 
-      // Ganti background tiap kali slide berganti (opsional — pakai gambar pertama saja)
-      scanBackgrounds();
+      if (bgList.length > 0) applyBackground(0);
     })();
   </script>
 
@@ -1370,6 +1352,8 @@
   <script src="/js/notifications.js?v=1"></script>
   <script src="/js/socket.js?v=1"></script>
   <script src="/js/auth.js?v=1"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="/js/dashboard.js?v=1"></script>
   <script src="/js/analytics.js?v=1"></script>
   <script src="/js/simulator.js?v=1"></script>

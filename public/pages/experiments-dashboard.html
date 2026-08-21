@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MICROWAT - Experiments Dashboard</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:18px}
+    table{border-collapse:collapse;width:100%;margin-top:12px}
+    th,td{border:1px solid #ddd;padding:8px;text-align:left}
+    tr:hover{background:#f7f7f7}
+    #detail{margin-top:18px;padding:12px;border:1px solid #eee;background:#fafafa}
+    .controls{display:flex;gap:8px;align-items:center}
+  </style>
+</head>
+<body>
+  <h1>MICROWAT - Experiments</h1>
+
+  <div class="controls">
+    <label for="experimentId">Experiment ID:</label>
+    <input id="experimentId" placeholder="exp_20260819_001" />
+    <button id="btnLoad">Load (one-shot)</button>
+    <button id="btnSubscribe">Subscribe (realtime)</button>
+    <button id="btnUnsub" disabled>Unsubscribe</button>
+  </div>
+
+  <table aria-live="polite">
+    <thead>
+      <tr>
+        <th>Cycle</th>
+        <th>Elapsed (min)</th>
+        <th>λ max (nm)</th>
+        <th>Absorbance</th>
+        <th>Timestamp</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="cycleTableBody"></tbody>
+  </table>
+
+  <div id="detail">Pilih siklus untuk melihat detail.</div>
+
+  <script type="module" src="/js/experiments-dashboard.js"></script>
+</body>
+</html>

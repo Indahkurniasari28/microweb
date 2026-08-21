@@ -21,6 +21,10 @@ function initHistoryPage() {
   histCurrentFilter = 'all';
   historyFiltered = [...measurementHistory];
 
+  if (typeof subscribeDashboardToWastewaterType === 'function') {
+    subscribeDashboardToWastewaterType(currentWastewaterType || 'rc');
+  }
+
   document.getElementById('btn-export-csv')?.addEventListener('click', exportHistoryCSV);
   document.getElementById('btn-hist-filter')?.addEventListener('click', applyHistoryFilter);
   document.getElementById('hist-prev')?.addEventListener('click', () => {
@@ -31,15 +35,16 @@ function initHistoryPage() {
     if (historyPage < maxPage) { historyPage++; renderHistoryCards(); }
   });
 
-  // Dye type filters
   ['all', 'rc', 'mg', 'mb'].forEach(f => {
     document.getElementById(`filter-${f}`)?.addEventListener('click', () => {
       histCurrentFilter = f;
       setActiveFilter(f);
+      if (f !== 'all' && typeof subscribeDashboardToWastewaterType === 'function') {
+        subscribeDashboardToWastewaterType(f);
+      }
     });
   });
 
-  // Date filter trigger: populate sessions when date selected
   document.getElementById('hist-date-from')?.addEventListener('change', populateSessionFilter);
 
   renderHistoryCards();
@@ -196,16 +201,19 @@ function downloadRowCSV(timestamp) {
 }
 
 function exportHistoryCSV() {
-  if (measurementHistory.length === 0) {
+  const source = buildFilteredHistory ? buildFilteredHistory() : measurementHistory;
+  if (!source || source.length === 0) {
     addNotification('⚠️ Tidak ada data untuk diekspor', 'warning');
     return;
   }
+
   let csv = 'Waktu,Session,Jenis Limbah,Konsentrasi (ppm),Degradasi (%),Status\n';
-  measurementHistory.forEach(m => {
+  source.forEach(m => {
     const wt = m.wastewaterType || 'mb';
     const isSafe = (m.concentration || 0) <= 5;
     csv += `"${m.timestamp}",${m.session || 1},${WASTE_TYPE_LABELS[wt] || wt},${m.concentration || 0},${m.degradation || 0},"${isSafe ? 'SAFE' : 'NOT SAFE'}"\n`;
   });
+
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
