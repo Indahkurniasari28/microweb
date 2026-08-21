@@ -236,6 +236,26 @@
       --auth-dot: 31 41 55;
     }
 
+    /* ── Auth left panel: always use dark colors (readable over background image) ── */
+    #auth-left-panel {
+      --on-surface: 224 232 240;
+      --on-surface-variant: 160 180 196;
+      --primary: 125 211 252;
+      --tertiary: 200 160 240;
+      --surface-container-highest: 32 44 66;
+      --glass-bg: 17 24 39;
+      --glass-border: 31 41 55;
+      --glass-border-hover: 55 65 81;
+      --outline-variant: 42 58 72;
+      --primary-container: 14 77 110;
+      --on-primary-container: 200 234 255;
+      --tertiary-container: 61 32 96;
+      --on-tertiary-container: 232 208 255;
+      --secondary: 136 180 204;
+      --secondary-container: 26 58 78;
+      --on-secondary-container: 192 216 232;
+    }
+
     body {
       background-color: rgb(var(--background));
       -webkit-font-smoothing: antialiased;
@@ -435,13 +455,6 @@
               langsung dengan grafik spektral per siklus 15 menit. Tiap siklus diberi kode warna berbeda untuk
               perbandingan visual yang jelas.</p>
           </div>
-          <!-- <div class="flex flex-wrap justify-center gap-sm mt-md">
-            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#515151; border-color:rgba(81,81,81,0.4); background:rgba(81,81,81,0.08)">● 0 min</span>
-            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#B177DE; border-color:rgba(177,119,222,0.4); background:rgba(177,119,222,0.08)">● 15 min</span>
-            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#CC9900; border-color:rgba(204,153,0,0.4); background:rgba(204,153,0,0.08)">● 30 min</span>
-            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#00CBCC; border-color:rgba(0,203,204,0.4); background:rgba(0,203,204,0.08)">● 45 min</span>
-            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#7D4E4E; border-color:rgba(125,78,78,0.4); background:rgba(125,78,78,0.08)">● 60 min</span>
-          </div> -->
         </div>
         <!-- Slide 3 -->
         <div
