@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0e1a">
+  <meta name="description" content="MICROWAT - Wastewater Degradation Monitoring System">
+  <title>MICROWAT - Precision Lab Monitor</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Apply saved theme before render to prevent flash -->
+  <script>if(localStorage.getItem('theme')==='light')document.documentElement.classList.remove('dark');</script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <!-- Socket.io -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background":                  "rgb(var(--background) / <alpha-value>)",
+            "surface":                     "rgb(var(--surface) / <alpha-value>)",
+            "surface-dim":                 "rgb(var(--surface-dim) / <alpha-value>)",
+            "surface-bright":              "rgb(var(--surface-bright) / <alpha-value>)",
+            "surface-container-lowest":    "rgb(var(--surface-container-lowest) / <alpha-value>)",
+            "surface-container-low":       "rgb(var(--surface-container-low) / <alpha-value>)",
+            "surface-container":           "rgb(var(--surface-container) / <alpha-value>)",
+            "surface-container-high":      "rgb(var(--surface-container-high) / <alpha-value>)",
+            "surface-container-highest":   "rgb(var(--surface-container-highest) / <alpha-value>)",
+            "on-surface":                  "rgb(var(--on-surface) / <alpha-value>)",
+            "on-surface-variant":          "rgb(var(--on-surface-variant) / <alpha-value>)",
+            "on-background":               "rgb(var(--on-background) / <alpha-value>)",
+            "surface-variant":             "rgb(var(--surface-variant) / <alpha-value>)",
+            "inverse-surface":             "rgb(var(--inverse-surface) / <alpha-value>)",
+            "inverse-on-surface":          "rgb(var(--inverse-on-surface) / <alpha-value>)",
+            "primary":                     "rgb(var(--primary) / <alpha-value>)",
+            "on-primary":                  "rgb(var(--on-primary) / <alpha-value>)",
+            "primary-container":           "rgb(var(--primary-container) / <alpha-value>)",
+            "on-primary-container":        "rgb(var(--on-primary-container) / <alpha-value>)",
+            "primary-fixed":               "rgb(var(--primary-fixed) / <alpha-value>)",
+            "primary-fixed-dim":           "rgb(var(--primary-fixed-dim) / <alpha-value>)",
+            "on-primary-fixed":            "rgb(var(--on-primary-fixed) / <alpha-value>)",
+            "on-primary-fixed-variant":    "rgb(var(--on-primary-fixed-variant) / <alpha-value>)",
+            "inverse-primary":             "rgb(var(--inverse-primary) / <alpha-value>)",
+            "surface-tint":                "rgb(var(--surface-tint) / <alpha-value>)",
+            "secondary":                   "rgb(var(--secondary) / <alpha-value>)",
+            "on-secondary":                "rgb(var(--on-secondary) / <alpha-value>)",
+            "secondary-container":         "rgb(var(--secondary-container) / <alpha-value>)",
+            "on-secondary-container":      "rgb(var(--on-secondary-container) / <alpha-value>)",
+            "secondary-fixed":             "rgb(var(--secondary-fixed) / <alpha-value>)",
+            "secondary-fixed-dim":         "rgb(var(--secondary-fixed-dim) / <alpha-value>)",
+            "on-secondary-fixed":          "rgb(var(--on-secondary-fixed) / <alpha-value>)",
+            "on-secondary-fixed-variant":  "rgb(var(--on-secondary-fixed-variant) / <alpha-value>)",
+            "tertiary":                    "rgb(var(--tertiary) / <alpha-value>)",
+            "on-tertiary":                 "rgb(var(--on-tertiary) / <alpha-value>)",
+            "tertiary-container":          "rgb(var(--tertiary-container) / <alpha-value>)",
+            "on-tertiary-container":       "rgb(var(--on-tertiary-container) / <alpha-value>)",
+            "tertiary-fixed":              "rgb(var(--tertiary-fixed) / <alpha-value>)",
+            "tertiary-fixed-dim":          "rgb(var(--tertiary-fixed-dim) / <alpha-value>)",
+            "on-tertiary-fixed":           "rgb(var(--on-tertiary-fixed) / <alpha-value>)",
+            "on-tertiary-fixed-variant":   "rgb(var(--on-tertiary-fixed-variant) / <alpha-value>)",
+            "error":                       "rgb(var(--error) / <alpha-value>)",
+            "on-error":                    "rgb(var(--on-error) / <alpha-value>)",
+            "error-container":             "rgb(var(--error-container) / <alpha-value>)",
+            "on-error-container":          "rgb(var(--on-error-container) / <alpha-value>)",
+            "outline":                     "rgb(var(--outline) / <alpha-value>)",
+            "outline-variant":             "rgb(var(--outline-variant) / <alpha-value>)"
+          },
+          borderRadius: {
+            DEFAULT: "0.5rem",
+            lg: "1rem",
+            xl: "1.5rem",
+            full: "9999px"
+          },
+          spacing: {
+            "margin-desktop": "32px",
+            gutter: "16px",
+            "margin-mobile": "16px",
+            xs: "4px",
+            xl: "32px",
+            sm: "8px",
+            md: "16px",
+            base: "4px",
+            lg: "24px"
+          },
+          fontFamily: {
+            "display-lg": ["Poppins", "sans-serif"],
+            "headline-lg": ["Poppins", "sans-serif"],
+            "headline-md": ["Poppins", "sans-serif"],
+            "body-lg": ["Poppins", "sans-serif"],
+            "body-md": ["Poppins", "sans-serif"],
+            "label-caps": ["Poppins", "sans-serif"],
+            "data-lg": ["Poppins", "sans-serif"],
+            "data-md": ["Poppins", "sans-serif"]
+          },
+          fontSize: {
+            "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }],
+            "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "700" }],
+            "data-lg": ["18px", { lineHeight: "24px", fontWeight: "700" }],
+            "data-md": ["14px", { lineHeight: "20px", fontWeight: "400" }]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* ── Light mode (default) ── */
+    :root {
+      --background:                  240 246 255;
+      --surface:                     255 255 255;
+      --surface-dim:                 232 240 252;
+      --surface-bright:              255 255 255;
+      --surface-container-lowest:    248 251 255;
+      --surface-container-low:       238 244 252;
+      --surface-container:           229 237 248;
+      --surface-container-high:      218 228 242;
+      --surface-container-highest:   204 216 238;
+      --on-surface:                  13 27 42;
+      --on-surface-variant:          74 96 112;
+      --on-background:               13 27 42;
+      --surface-variant:             205 216 232;
+      --inverse-surface:             10 14 26;
+      --inverse-on-surface:          224 232 240;
+      --primary:                     0 102 143;
+      --on-primary:                  255 255 255;
+      --primary-container:           184 232 255;
+      --on-primary-container:        0 31 46;
+      --primary-fixed:               184 232 255;
+      --primary-fixed-dim:           0 102 143;
+      --on-primary-fixed:            0 31 46;
+      --on-primary-fixed-variant:    0 77 115;
+      --inverse-primary:             125 211 252;
+      --surface-tint:                0 102 143;
+      --secondary:                   26 82 112;
+      --on-secondary:                255 255 255;
+      --secondary-container:         192 220 232;
+      --on-secondary-container:      0 21 32;
+      --secondary-fixed:             192 220 232;
+      --secondary-fixed-dim:         26 82 112;
+      --on-secondary-fixed:          13 31 43;
+      --on-secondary-fixed-variant:  42 74 94;
+      --tertiary:                    96 48 160;
+      --on-tertiary:                 255 255 255;
+      --tertiary-container:          224 200 255;
+      --on-tertiary-container:       26 0 46;
+      --tertiary-fixed:              224 200 255;
+      --tertiary-fixed-dim:          96 48 160;
+      --on-tertiary-fixed:           26 0 46;
+      --on-tertiary-fixed-variant:   77 42 115;
+      --error:                       192 0 0;
+      --on-error:                    255 255 255;
+      --error-container:             255 218 218;
+      --on-error-container:          68 0 0;
+      --outline:                     106 128 144;
+      --outline-variant:             192 208 220;
+      --glass-bg:                    255 255 255;
+      --glass-border:                192 208 220;
+      --glass-border-hover:          160 180 200;
+      --auth-dot:                    192 208 220;
+    }
+
+    /* ── Dark mode ── */
+    html.dark {
+      --background:                  10 14 26;
+      --surface:                     15 21 36;
+      --surface-dim:                 15 21 36;
+      --surface-bright:              26 36 56;
+      --surface-container-lowest:    10 14 26;
+      --surface-container-low:       17 24 40;
+      --surface-container:           20 28 46;
+      --surface-container-high:      26 36 56;
+      --surface-container-highest:   32 44 66;
+      --on-surface:                  224 232 240;
+      --on-surface-variant:          160 180 196;
+      --on-background:               224 232 240;
+      --surface-variant:             26 36 56;
+      --inverse-surface:             224 232 240;
+      --inverse-on-surface:          10 14 26;
+      --primary:                     125 211 252;
+      --on-primary:                  0 31 46;
+      --primary-container:           14 77 110;
+      --on-primary-container:        200 234 255;
+      --primary-fixed:               200 234 255;
+      --primary-fixed-dim:           125 211 252;
+      --on-primary-fixed:            0 31 46;
+      --on-primary-fixed-variant:    0 77 115;
+      --inverse-primary:             10 76 110;
+      --surface-tint:                125 211 252;
+      --secondary:                   136 180 204;
+      --on-secondary:                0 31 46;
+      --secondary-container:         26 58 78;
+      --on-secondary-container:      192 216 232;
+      --secondary-fixed:             192 216 232;
+      --secondary-fixed-dim:         136 180 204;
+      --on-secondary-fixed:          13 31 43;
+      --on-secondary-fixed-variant:  42 74 94;
+      --tertiary:                    200 160 240;
+      --on-tertiary:                 26 0 46;
+      --tertiary-container:          61 32 96;
+      --on-tertiary-container:       232 208 255;
+      --tertiary-fixed:              232 208 255;
+      --tertiary-fixed-dim:          200 160 240;
+      --on-tertiary-fixed:           26 0 46;
+      --on-tertiary-fixed-variant:   77 42 115;
+      --error:                       255 107 107;
+      --on-error:                    26 0 0;
+      --error-container:             61 20 20;
+      --on-error-container:          255 179 179;
+      --outline:                     74 96 112;
+      --outline-variant:             42 58 72;
+      --glass-bg:                    17 24 39;
+      --glass-border:                31 41 55;
+      --glass-border-hover:          55 65 81;
+      --auth-dot:                    31 41 55;
+    }
+
+    body {
+      background-color: rgb(var(--background));
+      -webkit-font-smoothing: antialiased;
+      font-family: 'Poppins', sans-serif;
+    }
+    .glass-panel {
+      background: rgb(var(--glass-bg) / 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgb(var(--glass-border));
+    }
+    .glass-panel:hover {
+      border-color: rgb(var(--glass-border-hover));
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .auth-bg {
+      background-color: rgb(var(--background));
+      background-image: radial-gradient(circle at 2px 2px, rgb(var(--auth-dot)) 1px, transparent 0);
+      background-size: 32px 32px;
+    }
+    .technical-glow:focus-within {
+      box-shadow: 0 0 0 1px rgb(var(--primary) / 0.3), inset 0 0 8px rgb(var(--primary) / 0.1);
+      border-color: rgb(var(--primary)) !important;
+    }
+    .status-pulse {
+      animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0px rgb(var(--primary) / 0.4); }
+      50% { opacity: .7; box-shadow: 0 0 0 4px rgb(var(--primary) / 0); }
+    }
+    .pulse-glow { animation: device-pulse 2s infinite; }
+    @keyframes device-pulse {
+      0%   { box-shadow: 0 0 0 0   rgb(var(--tertiary) / 0.4); }
+      70%  { box-shadow: 0 0 0 6px rgb(var(--tertiary) / 0); }
+      100% { box-shadow: 0 0 0 0   rgb(var(--tertiary) / 0); }
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgb(var(--background)); }
+    ::-webkit-scrollbar-thumb { background: rgb(var(--outline-variant)); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgb(var(--outline)); }
+    .nav-link.active {
+      color: rgb(var(--primary));
+      font-weight: 700;
+      background-color: rgb(var(--surface-container-highest) / 0.5);
+    }
+    .nav-link.active .nav-icon { color: rgb(var(--primary)); }
+    .badge-dot {
+      width: 8px; height: 8px;
+      background: rgb(var(--error));
+      border-radius: 50%;
+      position: absolute; top: 4px; right: 4px;
+    }
+    /* Theme transition */
+    *, *::before, *::after {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+    }
+    /* Mobile drawer slide animation */
+    #mobile-drawer {
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+    }
+    #mobile-drawer.flex {
+      transform: translateX(0);
+    }
+    /* Mobile bottom nav icon fill on active */
+    .mobile-bottom-btn.text-primary .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 600;
+    }
+    /* Card device hover glow */
+    .device-card-clickable:hover {
+      box-shadow: 0 0 0 1px rgb(var(--primary) / 0.3), 0 8px 24px rgb(var(--primary) / 0.1);
+    }
+  </style>
+</head>
+<body class="text-on-surface font-body-md min-h-screen">
+
+  <!-- ============================================================ -->
+  <!-- AUTH SCREEN -->
+  <!-- ============================================================ -->
+  <div id="auth-container" class="flex min-h-screen">
+
+    <!-- Left: Decorative slideshow panel -->
+    <div id="auth-left-panel" class="hidden lg:flex flex-1 flex-col relative overflow-hidden bg-gradient-to-br from-[rgb(var(--background))] to-[rgb(var(--surface-container))] border-r border-outline-variant">
+
+      <!-- Background image layer (filled by JS if background1/2/etc exist) -->
+      <div id="auth-bg-img" class="absolute inset-0 bg-cover bg-center" style="opacity:0; transition:opacity 0.8s ease;"></div>
+      <!-- 20% dark overlay so text stays readable -->
+      <div id="auth-bg-overlay" class="absolute inset-0 hidden" style="background:rgba(0,0,0,0.6)"></div>
+
+      <!-- Slides -->
+      <div id="auth-slides" class="absolute inset-0 flex">
+        <!-- Slide 1 -->
+        <div class="auth-slide active absolute inset-0 flex flex-col items-center justify-center p-xl gap-xl transition-opacity duration-700">
+          <div class="relative">
+            <div class="w-24 h-24 rounded-3xl bg-primary/10 border border-primary/30 flex items-center justify-center mb-lg">
+              <span class="material-symbols-outlined text-primary text-[56px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+            </div>
+            <div class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-tertiary animate-ping opacity-40"></div>
+          </div>
+          <div class="text-center max-w-md">
+            <h2 class="font-display-lg text-headline-lg text-on-surface font-bold">MICROWAT</h2>
+            <p class="text-on-surface font-body-lg font-semibold mt-sm">Microwave-Assisted Photocatalytic Reactor</p>
+            <p class="text-on-surface-variant font-body-md mt-md leading-relaxed">Real-time monitoring of synthetic dye wastewater degradation using UV-Vis Spectrometry technology and ZnO-Ag nanomaterial.</p>
+          </div>
+          <div class="grid grid-cols-3 gap-md w-full max-w-sm mt-md">
+            <div class="glass-panel rounded-xl p-md text-center border border-primary/20">
+              <p class="text-primary font-bold text-lg">60 min</p>
+              <p class="text-on-surface-variant text-xs">Measurement Cycle</p>
+            </div>
+            <div class="glass-panel rounded-xl p-md text-center border border-tertiary/20">
+              <p class="text-tertiary font-bold text-lg">200–800</p>
+              <p class="text-on-surface-variant text-xs">nm Spektrum</p>
+            </div>
+            <div class="glass-panel rounded-xl p-md text-center border border-secondary/20">
+              <p class="text-secondary font-bold text-lg">PWA</p>
+              <p class="text-on-surface-variant text-xs">Monitoring</p>
+            </div>
+          </div>
+        </div>
+        <!-- Slide 2 -->
+        <div class="auth-slide absolute inset-0 flex flex-col items-center justify-center p-xl gap-xl opacity-0 transition-opacity duration-700">
+          <div class="w-24 h-24 rounded-3xl bg-tertiary/10 border border-tertiary/30 flex items-center justify-center mb-lg">
+            <span class="material-symbols-outlined text-tertiary text-[56px]">query_stats</span>
+          </div>
+          <div class="text-center max-w-md">
+            <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">Real-Time Analytics</h2>
+            <p class="text-on-surface-variant font-body-lg mt-md leading-relaxed">Monitor wastewater degradation live with a spectral chart per 15-minute cycle. Each cycle is color-coded for clear visual comparison.</p>
+          </div>
+          <div class="flex flex-wrap justify-center gap-sm mt-md">
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#515151; border-color:rgba(81,81,81,0.4); background:rgba(81,81,81,0.08)">● 0 min</span>
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#B177DE; border-color:rgba(177,119,222,0.4); background:rgba(177,119,222,0.08)">● 15 min</span>
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#CC9900; border-color:rgba(204,153,0,0.4); background:rgba(204,153,0,0.08)">● 30 min</span>
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#00CBCC; border-color:rgba(0,203,204,0.4); background:rgba(0,203,204,0.08)">● 45 min</span>
+            <span class="flex items-center gap-xs px-md py-xs rounded-full text-sm font-bold border" style="color:#7D4E4E; border-color:rgba(125,78,78,0.4); background:rgba(125,78,78,0.08)">● 60 min</span>
+          </div>
+        </div>
+        <!-- Slide 3 -->
+        <div class="auth-slide absolute inset-0 flex flex-col items-center justify-center p-xl gap-xl opacity-0 transition-opacity duration-700">
+          <div class="w-24 h-24 rounded-3xl bg-secondary/10 border border-secondary/30 flex items-center justify-center mb-lg">
+            <span class="material-symbols-outlined text-secondary text-[56px]">science</span>
+          </div>
+          <div class="text-center max-w-md">
+            <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">Synthetic Dye Wastewater</h2>
+            <p class="text-on-surface-variant font-body-lg mt-md leading-relaxed">MICROWAT supports monitoring of 3 types of dye wastewater for comprehensive photocatalytic degradation analysis.</p>
+          </div>
+          <div class="flex flex-col gap-sm w-full max-w-xs mt-md">
+            <div class="glass-panel rounded-xl p-md flex items-center gap-md border-l-4" style="border-color:#f87171">
+              <span class="w-3 h-3 rounded-full bg-red-400 shrink-0"></span>
+              <div><p class="font-bold text-on-surface text-sm">Congo Red (CR)</p><p class="text-xs text-on-surface-variant">λ peak: ~495 nm</p></div>
+            </div>
+            <div class="glass-panel rounded-xl p-md flex items-center gap-md border-l-4" style="border-color:#34d399">
+              <span class="w-3 h-3 rounded-full bg-emerald-400 shrink-0"></span>
+              <div><p class="font-bold text-on-surface text-sm">Malachite Green (MG)</p><p class="text-xs text-on-surface-variant">λ peak: ~621 nm</p></div>
+            </div>
+            <div class="glass-panel rounded-xl p-md flex items-center gap-md border-l-4" style="border-color:#60a5fa">
+              <span class="w-3 h-3 rounded-full bg-blue-400 shrink-0"></span>
+              <div><p class="font-bold text-on-surface text-sm">Methylene Blue (MB)</p><p class="text-xs text-on-surface-variant">λ peak: ~665 nm</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Slide controls -->
+      <div class="absolute bottom-lg left-0 right-0 flex justify-center gap-sm">
+        <button class="auth-dot w-2 h-2 rounded-full bg-primary transition-all" data-slide="0"></button>
+        <button class="auth-dot w-2 h-2 rounded-full bg-outline-variant transition-all" data-slide="1"></button>
+        <button class="auth-dot w-2 h-2 rounded-full bg-outline-variant transition-all" data-slide="2"></button>
+      </div>
+      <!-- Prev/Next -->
+      <button id="auth-prev" class="absolute left-md top-1/2 -translate-y-1/2 p-xs rounded-full glass-panel border border-outline-variant text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <button id="auth-next" class="absolute right-md top-1/2 -translate-y-1/2 p-xs rounded-full glass-panel border border-outline-variant text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- Right: Login Form Panel -->
+    <div class="w-full lg:w-[480px] lg:shrink-0 flex items-center justify-center min-h-screen p-md bg-surface/50 backdrop-blur-sm overflow-y-auto">
+      <div class="w-full max-w-[440px] flex flex-col gap-lg py-xl">
+
+      <!-- Login Section -->
+      <div id="login-section" class="auth-section flex flex-col gap-lg">
+        <!-- Brand (shown on mobile, hidden on desktop where left panel shows) -->
+        <div class="text-center flex flex-col items-center gap-sm lg:hidden">
+          <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-primary-container/10 border border-primary/30 mb-sm">
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">biotech</span>
+          </div>
+          <h1 class="font-display-lg text-headline-lg text-on-surface tracking-tighter">MICROWAT</h1>
+          <p class="font-body-lg text-on-surface-variant">Precision Lab Monitor</p>
+        </div>
+        <!-- Card -->
+        <div class="glass-panel p-xl rounded-xl flex flex-col gap-lg">
+          <div class="flex flex-col gap-xs">
+            <h2 class="font-headline-md text-on-surface font-bold text-xl">MICROWAT</h2>
+            <p class="font-body-md text-on-surface-variant">Please sign in to continue.</p>
+          </div>
+          <form id="login-form" class="flex flex-col gap-md">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Scientific Identifier</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">alternate_email</span>
+                <input id="login-email" type="email" placeholder="email@lab.institution.edu" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Access Key</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">lock</span>
+                <input id="login-password" type="password" placeholder="••••••••••••" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-12 font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+                <button type="button" id="toggle-login-pw" class="absolute right-md text-outline hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+            </div>
+            <div id="login-error" class="hidden text-error text-body-md bg-error-container/30 border border-error/30 rounded-lg px-md py-sm"></div>
+            <button type="submit" class="mt-sm w-full py-md bg-primary hover:opacity-90 active:scale-[0.98] transition-all rounded-lg font-headline-md text-on-primary flex items-center justify-center gap-sm">
+              <span>Sign In</span>
+              <span class="material-symbols-outlined text-[20px]">login</span>
+            </button>
+          </form>
+          <div class="flex flex-col gap-md pt-md border-t border-outline-variant">
+            <div class="flex justify-between items-center">
+              <a id="forgot-password-link" href="#" class="font-body-md text-on-surface-variant hover:text-primary transition-colors">Forgot Password?</a>
+              <a id="register-link" href="#" class="font-body-md text-on-surface-variant hover:text-primary transition-colors">Request Access</a>
+            </div>
+          </div>
+        </div>
+        <!-- Status bar -->
+        <div class="glass-panel px-md py-sm rounded-full flex items-center justify-between border-primary/20">
+          <div class="flex items-center gap-sm">
+            <div class="w-2 h-2 rounded-full bg-tertiary status-pulse"></div>
+            <span class="font-label-caps text-label-caps text-tertiary uppercase">System Online</span>
+          </div>
+          <div class="flex items-center gap-md">
+            <div class="flex items-center gap-xs">
+              <span class="font-data-md text-on-surface-variant">Uptime:</span>
+              <span class="font-data-md text-primary">99.98%</span>
+            </div>
+            <div class="h-4 w-[1px] bg-outline-variant"></div>
+            <span class="font-data-md text-on-surface-variant">V1.0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Register Section -->
+      <div id="register-section" class="auth-section hidden flex flex-col gap-lg">
+        <div class="text-center flex flex-col items-center gap-sm">
+          <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-primary-container/10 border border-primary/30 mb-sm">
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">biotech</span>
+          </div>
+          <h1 class="font-display-lg text-headline-lg text-on-surface tracking-tighter">MICROWAT</h1>
+          <p class="font-body-lg text-on-surface-variant">Create New Account</p>
+        </div>
+        <div class="glass-panel p-xl rounded-xl flex flex-col gap-lg">
+          <h2 class="font-headline-md text-on-surface">Request Access</h2>
+          <form id="register-form" class="flex flex-col gap-md">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Email</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">alternate_email</span>
+                <input id="register-email" type="email" placeholder="email@example.com" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Password</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">lock</span>
+                <input id="register-password" type="password" placeholder="minimum 6 characters" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Confirm Password</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">lock_reset</span>
+                <input id="register-confirm" type="password" placeholder="repeat password" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div id="register-error" class="hidden text-error text-body-md bg-error-container/30 border border-error/30 rounded-lg px-md py-sm"></div>
+            <button type="submit" class="w-full py-md bg-primary hover:opacity-90 active:scale-[0.98] transition-all rounded-lg font-headline-md text-on-primary flex items-center justify-center gap-sm">
+              <span>Register</span>
+              <span class="material-symbols-outlined text-[20px]">person_add</span>
+            </button>
+          </form>
+          <div class="pt-md border-t border-outline-variant text-center">
+            <a id="login-link" href="#" class="font-body-md text-on-surface-variant hover:text-primary transition-colors">
+              <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back to Login
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reset Section -->
+      <div id="reset-section" class="auth-section hidden flex flex-col gap-lg">
+        <div class="text-center flex flex-col items-center gap-sm">
+          <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-primary-container/10 border border-primary/30 mb-sm">
+            <span class="material-symbols-outlined text-primary">key</span>
+          </div>
+          <h1 class="font-display-lg text-headline-lg text-on-surface tracking-tighter">MICROWAT</h1>
+          <p class="font-body-lg text-on-surface-variant">Reset Password</p>
+        </div>
+        <div class="glass-panel p-xl rounded-xl flex flex-col gap-lg">
+          <h2 class="font-headline-md text-on-surface">Password Recovery</h2>
+          <form id="reset-form" class="flex flex-col gap-md">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Registered Email</label>
+              <div class="relative group technical-glow flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg transition-all">
+                <span class="material-symbols-outlined absolute left-md text-outline">alternate_email</span>
+                <input id="reset-email" type="email" placeholder="registered email" required
+                  class="w-full bg-transparent border-none focus:ring-0 py-md pl-12 pr-md font-data-md text-on-surface placeholder:text-outline/50 outline-none">
+              </div>
+            </div>
+            <div id="reset-error" class="hidden text-error text-body-md bg-error-container/30 border border-error/30 rounded-lg px-md py-sm"></div>
+            <button type="submit" class="w-full py-md bg-primary hover:opacity-90 active:scale-[0.98] transition-all rounded-lg font-headline-md text-on-primary flex items-center justify-center gap-sm">
+              <span>Send Reset Email</span>
+              <span class="material-symbols-outlined text-[20px]">send</span>
+            </button>
+          </form>
+          <div class="pt-md border-t border-outline-variant text-center">
+            <a id="back-to-login" href="#" class="font-body-md text-on-surface-variant hover:text-primary transition-colors">
+              <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back to Login
+            </a>
+          </div>
+        </div>
+      </div>
+
+      </div><!-- end max-w-[440px] py-xl -->
+    </div><!-- end right panel -->
+  </div><!-- end auth-container -->
+
+  <!-- Auth slideshow + background image loader -->
+  <script>
+    (function() {
+      // ── Slideshow ──
+      let authSlideIdx = 0;
+      const slides = document.querySelectorAll('.auth-slide');
+      const dots   = document.querySelectorAll('.auth-dot');
+
+      function goSlide(n) {
+        if (slides[authSlideIdx]) slides[authSlideIdx].style.opacity = '0';
+        if (dots[authSlideIdx])   dots[authSlideIdx].style.background = 'rgb(var(--outline-variant))';
+        authSlideIdx = (n + slides.length) % slides.length;
+        if (slides[authSlideIdx]) slides[authSlideIdx].style.opacity = '1';
+        if (dots[authSlideIdx])   dots[authSlideIdx].style.background = 'rgb(var(--primary))';
+      }
+
+      document.getElementById('auth-next')?.addEventListener('click', () => goSlide(authSlideIdx + 1));
+      document.getElementById('auth-prev')?.addEventListener('click', () => goSlide(authSlideIdx - 1));
+      dots.forEach(d => d.addEventListener('click', () => goSlide(parseInt(d.dataset.slide))));
+
+      setInterval(() => {
+        const ac = document.getElementById('auth-container');
+        if (ac && !ac.classList.contains('hidden')) goSlide(authSlideIdx + 1);
+      }, 5000);
+
+      // ── Background image loader ──
+      // Try loading background1 → background2 → ... (jpg, png, webp, jpeg)
+      // Photos are placed in /uploads/backgrounds/
+      const BG_DIR  = '/uploads/backgrounds/';
+      const EXTS    = ['jpg', 'jpeg', 'png', 'webp'];
+      const MAX_BG  = 10; // check up to background10
+
+      const bgLayer   = document.getElementById('auth-bg-img');
+      const bgOverlay = document.getElementById('auth-bg-overlay');
+      const bgList    = []; // all URLs that were found successfully
+      let   bgCurrent = 0;
+
+      function tryLoad(name, ext) {
+        return new Promise(resolve => {
+          const img = new Image();
+          const url = BG_DIR + name + '.' + ext;
+          img.onload  = () => resolve(url);
+          img.onerror = () => resolve(null);
+          img.src = url;
+        });
+      }
+
+      async function scanBackgrounds() {
+        for (let i = 1; i <= MAX_BG; i++) {
+          for (const ext of EXTS) {
+            const url = await tryLoad('background' + i, ext);
+            if (url) { bgList.push(url); break; } // use the first extension that succeeds
+          }
+        }
+        if (bgList.length > 0) applyBackground(0);
+      }
+
+      function applyBackground(idx) {
+        if (!bgLayer || bgList.length === 0) return;
+        bgLayer.style.backgroundImage = `url('${bgList[idx]}')`;
+        bgLayer.style.opacity = '0.8';          // 80% brightness
+        bgLayer.style.filter  = 'brightness(0.8)';
+        if (bgOverlay) bgOverlay.classList.remove('hidden');
+        bgCurrent = idx;
+      }
+
+      // Change background whenever the slide changes (optional — currently just uses the first image)
+      scanBackgrounds();
+    })();
+  </script>
+
+  <!-- ============================================================ -->
+  <!-- MAIN APP -->
+  <!-- ============================================================ -->
+  <div id="main-app" class="hidden flex min-h-screen bg-background">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="hidden md:flex flex-col h-screen fixed left-0 top-0 py-lg px-md gap-lg bg-surface-container/90 backdrop-blur-lg border-r border-outline-variant w-64 z-40">
+      <!-- Logo + Title -->
+      <div class="px-md pt-sm">
+        <div class="font-headline-md text-headline-md font-bold text-primary mb-lg">MICROWAT</div>
+        <!-- User info -->
+        <div class="flex items-center px-sm py-sm mb-md">
+          <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center mr-sm shrink-0">
+            <span class="material-symbols-outlined text-primary">lab_profile</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-body-md font-bold text-on-surface truncate" id="user-email-display">User</div>
+            <div class="flex items-center gap-xs mt-[2px]">
+              <span class="text-xs text-on-surface-variant">MICROWAT Lab</span>
+              <span id="role-badge" class="font-label-caps text-[10px] px-xs py-[2px] rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant">USER</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex flex-col gap-xs flex-1">
+        <a href="#" class="nav-link active flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="dashboard">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">dashboard</span>
+          <span class="font-body-md">Dashboard</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="analytics">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">query_stats</span>
+          <span class="font-body-md">Analytics</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="device-status">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">science</span>
+          <span class="font-body-md">Device</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="history">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">database</span>
+          <span class="font-body-md">History</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="settings">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">settings</span>
+          <span class="font-body-md">Settings</span>
+        </a>
+        <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="info">
+          <span class="material-symbols-outlined nav-icon group-hover:text-primary transition-colors">info</span>
+          <span class="font-body-md">Info</span>
+        </a>
+
+        <!-- ADMIN SECTION -->
+        <div id="admin-nav-section" class="hidden flex flex-col gap-xs pt-sm">
+          <div class="px-md pb-xs">
+            <div class="h-[1px] bg-outline-variant mb-sm"></div>
+            <span class="font-label-caps text-[10px] text-secondary/70 uppercase tracking-widest">Admin Panel</span>
+          </div>
+          <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="user-management">
+            <span class="material-symbols-outlined nav-icon group-hover:text-secondary transition-colors">group</span>
+            <span class="font-body-md">User Management</span>
+          </a>
+          <a href="#" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group" data-page="log-detail">
+            <span class="material-symbols-outlined nav-icon group-hover:text-secondary transition-colors">receipt_long</span>
+            <span class="font-body-md">Log Detail</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Footer -->
+      <div class="flex flex-col gap-xs border-t border-outline-variant pt-lg">
+        <button id="export-data-btn" class="bg-primary text-on-primary font-bold py-sm px-md rounded-lg flex items-center justify-center gap-sm hover:opacity-90 transition-opacity mb-sm">
+          <span class="material-symbols-outlined text-[20px]">download</span>
+          <span>Export Data</span>
+        </button>
+        <button id="help-btn" class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg w-full text-left" data-page="help" onclick="navigateToPage('info')">
+          <span class="material-symbols-outlined">help</span>
+          <span class="font-body-md">Help</span>
+        </button>
+        <button id="logout-btn" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg w-full text-left">
+          <span class="material-symbols-outlined">logout</span>
+          <span class="font-body-md">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="flex-1 flex flex-col md:ml-64">
+
+      <!-- TOP HEADER -->
+      <header class="flex justify-between items-center px-md md:px-lg py-md w-full sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant">
+        <div class="flex items-center gap-sm md:gap-md">
+          <!-- Mobile: hamburger to open sidebar drawer -->
+          <button id="mobile-menu-btn" class="md:hidden p-xs rounded-full hover:bg-surface-container-high transition-colors" aria-label="Menu">
+            <span class="material-symbols-outlined text-on-surface-variant">menu</span>
+          </button>
+          <h1 id="page-title" class="font-headline-md text-headline-md text-on-surface">Dashboard</h1>
+        </div>
+        <div class="flex items-center gap-sm">
+          <!-- System Status -->
+          <div class="flex items-center gap-sm glass-panel px-md py-xs rounded-full">
+            <span id="system-status" class="w-2 h-2 rounded-full bg-outline"></span>
+            <span id="system-status-text" class="font-label-caps text-label-caps text-on-surface-variant">Offline</span>
+          </div>
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="p-xs rounded-full hover:bg-surface-container-high transition-colors" title="Toggle light/dark mode">
+            <span class="material-symbols-outlined text-on-surface-variant" id="theme-icon">dark_mode</span>
+          </button>
+          <!-- Notification Bell -->
+          <div class="relative">
+            <button id="notification-btn" class="p-xs rounded-full hover:bg-surface-container-high transition-colors relative">
+              <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+              <span id="notification-badge" class="hidden badge-dot"></span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT (dynamic) -->
+      <main id="page-content" class="flex-1 p-md md:p-lg overflow-auto pb-20 md:pb-lg">
+        <!-- Page content is loaded dynamically here -->
+        <div class="flex items-center justify-center h-64">
+          <div class="flex flex-col items-center gap-md text-on-surface-variant">
+            <span class="material-symbols-outlined text-[48px] animate-spin">refresh</span>
+            <span class="font-body-md">Loading page...</span>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MOBILE SIDEBAR DRAWER OVERLAY -->
+    <div id="mobile-drawer-overlay" class="hidden fixed inset-0 z-[100] bg-background/70 backdrop-blur-sm md:hidden" onclick="closeMobileDrawer()"></div>
+    <aside id="mobile-drawer" class="hidden fixed left-0 top-0 h-full z-[110] w-64 bg-surface-container/95 backdrop-blur-xl border-r border-outline-variant flex flex-col py-lg px-md gap-lg md:hidden overflow-y-auto">
+      <div class="flex items-center justify-between px-md">
+        <div class="font-headline-md text-headline-md font-bold text-primary">MICROWAT</div>
+        <button onclick="closeMobileDrawer()" class="p-xs rounded-full hover:bg-surface-container-high transition-colors">
+          <span class="material-symbols-outlined text-on-surface-variant">close</span>
+        </button>
+      </div>
+      <!-- User info -->
+      <div class="flex items-center px-sm py-sm bg-surface-container-high/30 rounded-xl">
+        <div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center mr-sm shrink-0">
+          <span class="material-symbols-outlined text-primary">lab_profile</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="font-body-md font-bold text-on-surface truncate" id="mobile-user-display">User</div>
+          <div class="flex items-center gap-xs mt-[2px]">
+            <span class="text-xs text-on-surface-variant">MICROWAT Lab</span>
+          </div>
+        </div>
+      </div>
+      <nav class="flex flex-col gap-xs flex-1">
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="dashboard">
+          <span class="material-symbols-outlined">dashboard</span><span class="font-body-md">Dashboard</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="analytics">
+          <span class="material-symbols-outlined">query_stats</span><span class="font-body-md">Analytics</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="device-status">
+          <span class="material-symbols-outlined">science</span><span class="font-body-md">Device</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="history">
+          <span class="material-symbols-outlined">database</span><span class="font-body-md">History</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="settings">
+          <span class="material-symbols-outlined">settings</span><span class="font-body-md">Settings</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" data-page="info">
+          <span class="material-symbols-outlined">info</span><span class="font-body-md">Info</span>
+        </a>
+      </nav>
+      <div class="flex flex-col gap-xs border-t border-outline-variant pt-lg">
+        <button id="mobile-export-btn" class="bg-primary text-on-primary font-bold py-sm px-md rounded-lg flex items-center justify-center gap-sm hover:opacity-90 transition-opacity">
+          <span class="material-symbols-outlined text-[20px]">download</span><span>Export Data</span>
+        </button>
+        <button id="mobile-logout-btn" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg w-full text-left">
+          <span class="material-symbols-outlined">logout</span><span class="font-body-md">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MOBILE BOTTOM NAV BAR -->
+    <nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 bg-surface-container-low/90 backdrop-blur-xl border-t border-outline-variant md:hidden z-50 flex justify-around items-center py-sm px-xs">
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="dashboard">
+        <span class="material-symbols-outlined text-[22px]">dashboard</span>
+        <span class="font-label-caps text-[9px] uppercase">Dashboard</span>
+      </button>
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="analytics">
+        <span class="material-symbols-outlined text-[22px]">query_stats</span>
+        <span class="font-label-caps text-[9px] uppercase">Analytics</span>
+      </button>
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="device-status">
+        <span class="material-symbols-outlined text-[22px]">science</span>
+        <span class="font-label-caps text-[9px] uppercase">Devices</span>
+      </button>
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="history">
+        <span class="material-symbols-outlined text-[22px]">database</span>
+        <span class="font-label-caps text-[9px] uppercase">History</span>
+      </button>
+      <button class="mobile-bottom-btn flex flex-col items-center gap-[3px] text-on-surface-variant px-sm" data-page="settings">
+        <span class="material-symbols-outlined text-[22px]">settings</span>
+        <span class="font-label-caps text-[9px] uppercase">Settings</span>
+      </button>
+    </nav>
+
+    <!-- Help modal removed: Help button now navigates to the Info page -->
+    <div id="help-modal" class="hidden">
+      <!-- Modal container -->
+      <div class="flex w-full h-full max-w-6xl mx-auto my-0 md:my-8 md:rounded-2xl overflow-hidden glass-panel shadow-2xl border border-outline-variant md:max-h-[calc(100vh-64px)]">
+
+        <!-- Left TOC sidebar -->
+        <aside class="hidden md:flex flex-col w-64 shrink-0 bg-surface-container-low/90 border-r border-outline-variant overflow-y-auto">
+          <div class="px-lg py-lg border-b border-outline-variant">
+            <div class="flex items-center gap-sm">
+              <span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings:'FILL' 1;">help</span>
+              <span class="font-headline-md text-headline-md text-primary font-bold">Help</span>
+            </div>
+            <p class="text-on-surface-variant text-body-md mt-xs">Complete MICROWAT guide</p>
+          </div>
+          <nav class="flex flex-col py-md" id="help-toc">
+            <!-- TOC items injected by JS -->
+          </nav>
+        </aside>
+
+        <!-- Right scrollable content -->
+        <div class="flex-1 flex flex-col min-w-0">
+          <!-- Header bar -->
+          <div class="flex items-center justify-between px-lg py-md border-b border-outline-variant bg-surface-container/50 shrink-0">
+            <div class="flex items-center gap-sm">
+              <span class="material-symbols-outlined text-on-surface-variant text-[20px]">menu_book</span>
+              <span class="font-body-md text-on-surface font-bold">MICROWAT Documentation & Tutorial</span>
+            </div>
+            <button id="help-close" class="p-xs rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-on-surface">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 overflow-y-auto p-lg md:p-xl space-y-xl" id="help-content">
+
+            <!-- ── 1. Introduction ── -->
+            <section id="info" class="info-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-primary">info</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Introduction to MICROWAT</h2>
+                  <p class="text-on-surface-variant text-body-md">What it is and how it works</p>
+                </div>
+              </div>
+              <div class="glass-panel rounded-xl p-lg space-y-md">
+                <p class="text-on-surface font-body-lg leading-relaxed">
+                  <strong class="text-primary">MICROWAT</strong> is a real-time dye wastewater degradation monitoring system using UV-Vis Spectrometry technology. The system integrates physical hardware (Raspberry Pi + Avantes Spectrometer + ESP32) with a web dashboard to track photocatalytic degradation efficiency.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-md pt-md border-t border-outline-variant/30">
+                  <div class="text-center p-md rounded-lg bg-primary/5 border border-primary/20">
+                    <span class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+                    <p class="font-bold text-on-surface mt-sm">Beer-Lambert Law</p>
+                    <p class="text-on-surface-variant text-body-md mt-xs">Concentration is calculated from absorbance using A = εbc</p>
+                  </div>
+                  <div class="text-center p-md rounded-lg bg-tertiary/5 border border-tertiary/20">
+                    <span class="material-symbols-outlined text-tertiary text-[32px]" style="font-variation-settings:'FILL' 1;">wifi</span>
+                    <p class="font-bold text-on-surface mt-sm">Real-time WebSocket</p>
+                    <p class="text-on-surface-variant text-body-md mt-xs">Sensor data is sent via Socket.io every time there's a new update</p>
+                  </div>
+                  <div class="text-center p-md rounded-lg bg-secondary/5 border border-secondary/20">
+                    <span class="material-symbols-outlined text-secondary text-[32px]" style="font-variation-settings:'FILL' 1;">devices</span>
+                    <p class="font-bold text-on-surface mt-sm">Multi-Device</p>
+                    <p class="text-on-surface-variant text-body-md mt-xs">RPi, Spectrometer, and ESP32 are all monitored in a single dashboard</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 2. Login & Account ── -->
+            <section id="help-auth" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-secondary">login</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Login & Account</h2>
+                  <p class="text-on-surface-variant text-body-md">How to sign in, register, and reset your password</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-primary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">key</span> Login</h3>
+                  <ol class="space-y-sm text-on-surface-variant list-decimal list-inside">
+                    <li>Enter your <strong class="text-on-surface">email</strong> and <strong class="text-on-surface">password</strong> in the login form</li>
+                    <li>Click the <span class="font-bold text-primary">Sign In</span> button</li>
+                    <li>If successful, you'll be taken straight to the Dashboard page</li>
+                    <li>Use the 👁️ icon to show/hide the password</li>
+                  </ol>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-tertiary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">person_add</span> Register a New Account</h3>
+                  <ol class="space-y-sm text-on-surface-variant list-decimal list-inside">
+                    <li>Click <strong class="text-on-surface">Request Access</strong> below the login form</li>
+                    <li>Fill in your email, password (min. 6 characters), and password confirmation</li>
+                    <li>Click <span class="font-bold text-primary">Register</span></li>
+                    <li>Once successful, log in using the newly created account</li>
+                  </ol>
+                  <div class="mt-md p-sm rounded-lg bg-secondary/10 border border-secondary/30">
+                    <p class="text-body-md text-secondary font-bold">🔑 Admin Tip:</p>
+                    <p class="text-on-surface-variant text-body-md">Register an account with an email containing the word <code class="text-primary bg-primary/10 px-xs rounded">admin</code> (e.g.: <code class="text-primary">admin@lab.com</code>) to automatically get admin panel access.</p>
+                  </div>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-error mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">lock_reset</span> Forgot Password</h3>
+                  <ol class="space-y-sm text-on-surface-variant list-decimal list-inside">
+                    <li>Click <strong class="text-on-surface">Forgot Password?</strong> on the login form</li>
+                    <li>Enter your registered email</li>
+                    <li>Click <span class="font-bold text-primary">Send Reset Email</span></li>
+                    <li>Check your email inbox for the password reset link</li>
+                  </ol>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 3. Dashboard ── -->
+            <section id="help-dashboard" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-primary">dashboard</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Dashboard</h2>
+                  <p class="text-on-surface-variant text-body-md">The main real-time monitoring page</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📊 KPI Cards (4 Main Metrics)</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Degradation (%)</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Dye degradation percentage: <code class="text-primary">((C₀ - Cₜ) / C₀) × 100</code>. Higher = better. Shown with an animated SVG circle.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Absorbance (a.u.)</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Absorbance value from the Avantes spectrometer. Lower = clearer solution.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Concentration (ppm)</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Calculated via the Beer-Lambert Law: <code class="text-primary">C = A / (ε × b)</code>. ε = extinction coefficient, b = path length.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">System Status</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">Connection indicators for Hardware (Spectrometer), MQTT (ESP32), and measurement status (Active/Idle/Complete).</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">⚙️ Quick Actions</h3>
+                  <div class="space-y-sm">
+                    <div class="flex items-start gap-md p-sm rounded-lg hover:bg-surface-container/50 transition-colors">
+                      <span class="material-symbols-outlined text-tertiary shrink-0">play_circle</span>
+                      <div><p class="font-bold text-on-surface">Start Measurement</p><p class="text-on-surface-variant text-body-md">Starts a new measurement session. The system begins receiving and processing data from the spectrometer in real time.</p></div>
+                    </div>
+                    <div class="flex items-start gap-md p-sm rounded-lg hover:bg-surface-container/50 transition-colors">
+                      <span class="material-symbols-outlined text-error shrink-0">stop_circle</span>
+                      <div><p class="font-bold text-on-surface">Stop Measurement</p><p class="text-on-surface-variant text-body-md">Stops the session that's currently running. Data already received stays saved in history.</p></div>
+                    </div>
+                    <div class="flex items-start gap-md p-sm rounded-lg hover:bg-surface-container/50 transition-colors">
+                      <span class="material-symbols-outlined text-outline shrink-0">restart_alt</span>
+                      <div><p class="font-bold text-on-surface">Reset Data</p><p class="text-on-surface-variant text-body-md">Clears the current session's data. Data on the server stays safe — only the display is reset.</p></div>
+                    </div>
+                    <div class="flex items-start gap-md p-sm rounded-lg hover:bg-surface-container/50 transition-colors">
+                      <span class="material-symbols-outlined text-secondary shrink-0">science</span>
+                      <div><p class="font-bold text-on-surface">Simulation Mode</p><p class="text-on-surface-variant text-body-md">Automatically generates simulated data for testing without physical hardware.</p></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📈 Dashboard Chart</h3>
+                  <p class="text-on-surface-variant">A dual-axis line chart showing <strong class="text-primary">Absorbance</strong> (left axis, blue) and <strong class="text-tertiary">Degradation (%)</strong> (right axis, purple) from the last 20 measurements in real time.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 4. Analytics ── -->
+            <section id="help-analytics" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-tertiary">query_stats</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Analytics</h2>
+                  <p class="text-on-surface-variant text-body-md">In-depth monitoring & historical data analysis</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔍 Data Filter</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">calendar_today</span><span>Pick a <strong class="text-on-surface">from – to date</strong> in the filter bar above, then click <span class="text-primary font-bold">Filter</span></span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">bar_chart</span><span>The large monitoring chart shows all data within the selected range on two axes (Absorbance + Degradation)</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">table_chart</span><span>The Spectral Log table below shows details for every measurement — time, values, and status</span></li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📋 Session Summary</h3>
+                  <p class="text-on-surface-variant">The right panel shows a session summary: <strong class="text-on-surface">A₀</strong> (initial absorbance), <strong class="text-on-surface">Af</strong> (final absorbance), total degradation, and last update. The progress bar visually shows degradation progress.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 5. Device ── -->
+            <section id="help-device" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-secondary">science</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Device</h2>
+                  <p class="text-on-surface-variant text-body-md">Hardware status &amp; cuvette measurement controls</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+
+                <!-- KPI Bar -->
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📊 KPI Bar (Top 4 Metrics)</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Active Devices</p>
+                      <p class="text-on-surface-variant text-body-md">Number of connected devices out of a total of 2 devices (Raspberry Pi 5 + Avantes UV Spectrophotometer).</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Monitoring Time</p>
+                      <p class="text-on-surface-variant text-body-md">Hours:Minutes:Seconds elapsed since the Device page was opened. The timer keeps running for the whole active session.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Concentration (ppm)</p>
+                      <p class="text-on-surface-variant text-body-md">Current wastewater concentration from the latest spectrophotometer measurement, calculated via the Beer-Lambert Law.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Degradation (%)</p>
+                      <p class="text-on-surface-variant text-body-md">Wastewater degradation percentage from the latest measurement. Formula: ((C₀ − Cₜ) / C₀) × 100.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hardware Cards -->
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🖥️ Monitored Hardware</h3>
+                  <div class="space-y-sm">
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Raspberry Pi 5</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">The system's main controller. Shows CPU usage, RAM usage, network latency, and system load. ONLINE/OFFLINE status updates automatically via WebSocket. Click the card to see full details (Device Detail).</p>
+                      <div class="mt-sm grid grid-cols-2 gap-xs text-[11px] font-data-md text-on-surface-variant">
+                        <span>• CPU: Cortex-A76 Quad-core</span>
+                        <span>• RAM: 8 GB LPDDR4X</span>
+                        <span>• OS: Raspberry Pi OS Bookworm</span>
+                        <span>• Connection: Server via Socket.io</span>
+                      </div>
+                    </div>
+                    <div class="p-md rounded-lg bg-surface-container border border-outline-variant/30">
+                      <p class="font-bold text-primary">Avantes UV Spectrophotometer</p>
+                      <p class="text-on-surface-variant text-body-md mt-xs">The UV-Vis absorbance measurement instrument. Shows Peak λ, latest absorbance value, USB status, and capture progress. Connected to the RPi via USB. Status shows CAPTURING while a measurement is running.</p>
+                      <div class="mt-sm grid grid-cols-2 gap-xs text-[11px] font-data-md text-on-surface-variant">
+                        <span>• Range: 360–2500 nm</span>
+                        <span>• Connection: USB to RPi 5</span>
+                        <span>• Peak λ: 664 nm (Methylene Blue)</span>
+                        <span>• Status: CAPTURING / STANDBY</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Control Section -->
+                <div class="glass-panel rounded-xl p-lg border-l-4 border-primary">
+                  <h3 class="font-body-lg font-bold text-primary mb-md flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-[20px]">water_pump</span> Measurement Control
+                  </h3>
+                  <p class="text-on-surface-variant mb-md">Three manual control buttons for the wastewater flow and spectrophotometric measurement process. The system also runs automatically every <strong class="text-on-surface">15 minutes</strong>.</p>
+                  <div class="space-y-sm">
+                    <div class="p-md rounded-lg bg-primary/5 border border-primary/20">
+                      <div class="flex items-center gap-sm mb-xs">
+                        <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1;">water_pump</span>
+                        <p class="font-bold text-primary">Fill</p>
+                      </div>
+                      <p class="text-on-surface-variant text-body-md">Activates the water pump to pump wastewater from the <strong class="text-on-surface">beaker</strong> into the spectrophotometer's <strong class="text-on-surface">cuvette</strong>. Press when ready to start a measurement cycle.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-secondary/5 border border-secondary/20">
+                      <div class="flex items-center gap-sm mb-xs">
+                        <span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+                        <p class="font-bold text-secondary">Measure</p>
+                      </div>
+                      <p class="text-on-surface-variant text-body-md">Triggers the Avantes UV Spectrophotometer to measure the <strong class="text-on-surface">wavelength</strong> and absorbance of the sample inside the cuvette. Press after the Fill step finishes. Results appear immediately on Dashboard and Analytics.</p>
+                    </div>
+                    <div class="p-md rounded-lg bg-tertiary/5 border border-tertiary/20">
+                      <div class="flex items-center gap-sm mb-xs">
+                        <span class="material-symbols-outlined text-tertiary text-[18px]" style="font-variation-settings:'FILL' 1;">output_circle</span>
+                        <p class="font-bold text-tertiary">Empty</p>
+                      </div>
+                      <p class="text-on-surface-variant text-body-md">Discharges the already-measured wastewater from the cuvette. The cuvette is emptied so it's ready for the next measurement cycle. Press after the Measure step finishes.</p>
+                    </div>
+                  </div>
+                  <div class="mt-md p-sm rounded-lg bg-surface-container border border-outline-variant/30">
+                    <p class="text-on-surface-variant text-[12px] font-data-md"><strong class="text-on-surface">Workflow:</strong> Fill → Measure → Empty → repeat every 15 minutes. Each cycle produces one absorbance/concentration/degradation data point.</p>
+                  </div>
+                </div>
+
+                <!-- Live Refresh & Export -->
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔄 Live Refresh &amp; Export Report</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">toggle_on</span><span><strong class="text-on-surface">Live Refresh</strong> – A toggle in the top-right corner of the page. When active (blue), the KPI bar and status cards update automatically every time new data arrives.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">download</span><span><strong class="text-on-surface">Export Report</strong> – A button in the top-right corner that downloads all history data as a CSV file.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">open_in_new</span><span><strong class="text-on-surface">Tap for detail</strong> – Every device card (RPi / Avantes) can be clicked to open the Device Detail page with full telemetry and logs.</span></li>
+                  </ul>
+                </div>
+
+              </div>
+            </section>
+
+            <!-- ── 6. Data History ── -->
+            <section id="help-history" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-primary">database</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Data History</h2>
+                  <p class="text-on-surface-variant text-body-md">History of all measurements & data export</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📁 Data Table</h3>
+                  <p class="text-on-surface-variant mb-md">Shows all historical measurements with columns: <strong class="text-on-surface">Time, Absorbance, Concentration, Degradation (%),</strong> and <strong class="text-on-surface">Status</strong> (SAFE if degradation ≥70%, NOT SAFE if &lt;70%).</p>
+                  <p class="text-on-surface-variant">Shows <strong class="text-on-surface">20 rows per page</strong>. Use the ← → buttons below to navigate between pages.</p>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔽 Filter & Export</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">filter_alt</span><span><strong class="text-on-surface">Date Filter</strong> – Choose a from and to date, click Filter to narrow the data</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">label</span><span><strong class="text-on-surface">Dye Type Filter</strong> – ALL / RC (Rhodamine C) / MG (Malachite Green) / MB (Methylene Blue) buttons in the page header</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">download</span><span><strong class="text-on-surface">Export CSV</strong> – Download all data (with filters applied) as a CSV file. You can also click CSV in the Action column to export a single row.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">download</span><span><strong class="text-on-surface">Export Data (Sidebar)</strong> – The button in the bottom sidebar will immediately download all history data as CSV.</span></li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 7. Settings ── -->
+            <section id="help-settings" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-outline/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-on-surface-variant">settings</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Settings (User)</h2>
+                  <p class="text-on-surface-variant text-body-md">Account profile & system parameters</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">👤 Profile Tab</h3>
+                  <p class="text-on-surface-variant mb-sm">Update your name, organization, and location. Email cannot be changed (read-only). Click <strong class="text-primary">Save Profile</strong> to save.</p>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">⚗️ Parameters Tab</h3>
+                  <p class="text-on-surface-variant mb-md">Configure Beer-Lambert calculation parameters:</p>
+                  <div class="grid grid-cols-2 gap-sm">
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Initial C₀ (ppm)</strong><br><span class="text-on-surface-variant">Initial solution concentration before the degradation process starts</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Wavelength (nm)</strong><br><span class="text-on-surface-variant">Spectrometer measurement wavelength (default: 254 nm)</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Extinction Coef.</strong><br><span class="text-on-surface-variant">Molar extinction coefficient of the dye (L/mol·cm)</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Path Length (cm)</strong><br><span class="text-on-surface-variant">Optical path length of the spectrometer's cuvette</span></div>
+                  </div>
+                  <p class="text-on-surface-variant text-body-md mt-md">Click <strong class="text-primary">Save Parameters</strong> — parameters are applied immediately to all new calculations.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 8. Admin ── -->
+            <section id="help-admin" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-secondary">admin_panel_settings</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Admin Features</h2>
+                  <p class="text-on-surface-variant text-body-md">Exclusive system administrator access</p>
+                </div>
+              </div>
+              <div class="p-md rounded-xl bg-secondary/10 border border-secondary/30 mb-md">
+                <p class="text-secondary font-bold text-body-md">⚠️ The admin panel only appears if the email contains the word <code class="bg-secondary/20 px-xs rounded">admin</code> (e.g.: admin@lab.com)</p>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-secondary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[20px]">group</span> User Management</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li><strong class="text-on-surface">View all users</strong> — table with name, email, institution, role, status, join date</li>
+                    <li><strong class="text-on-surface">Search & Filter</strong> — search by name/email, filter by role (Admin/User) or status (Active/Pending/Blocked)</li>
+                    <li><strong class="text-on-surface">Edit Role</strong> — click the ✏️ icon to change a user's role (User → Admin or vice versa)</li>
+                    <li><strong class="text-on-surface">Block/Unblock</strong> — click the 🚫 icon to block or reactivate a user</li>
+                    <li><strong class="text-on-surface">Delete User</strong> — click the 🗑️ icon to delete an account (will ask for confirmation)</li>
+                    <li><strong class="text-on-surface">Review Pending</strong> — the banner above shows the number of users awaiting approval. Click REVIEW ALL to activate them all at once</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-secondary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[20px]">receipt_long</span> Log Detail</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li><strong class="text-on-surface">Event Log Table</strong> — all system events: Measurement, System Event, Calibration, Error, with timestamp and status (NOMINAL/WARNING/ANOMALY)</li>
+                    <li><strong class="text-on-surface">Filter Log</strong> — filter by date and event type</li>
+                    <li><strong class="text-on-surface">Detail Drawer</strong> — click any row to open a detail panel on the right: absorbance value, concentration, degradation, and an admin notes field</li>
+                    <li><strong class="text-on-surface">Flag Anomaly</strong> — mark an entry as an anomaly from the detail panel</li>
+                    <li><strong class="text-on-surface">Export CSV</strong> — download the entire event log as a CSV file</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-secondary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[20px]">tune</span> Instrument Config</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li><strong class="text-on-surface">Microwave Emitter</strong> — set power range (W), current intensity via slider, toggle auto power control</li>
+                    <li><strong class="text-on-surface">UV Lamp Assembly</strong> — set flux density (μW/cm²), wavelength, view estimated remaining lamp life</li>
+                    <li><strong class="text-on-surface">Spectrometer Calibration</strong> — set C₀, path length, extinction coefficient, and measurement wavelength</li>
+                    <li><strong class="text-on-surface">Safety Thresholds</strong> — max particle emission limit (ppm) and minimum degradation threshold before an alarm</li>
+                    <li><strong class="text-on-surface">Save Config</strong> — save all changes to the server at once</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-secondary mb-md flex items-center gap-sm"><span class="material-symbols-outlined text-[20px]">manage_accounts</span> Admin Settings</h3>
+                  <p class="text-on-surface-variant mb-md">An expanded admin-only version of Settings, with tabs:</p>
+                  <div class="grid grid-cols-2 gap-sm">
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Profile</strong><br><span class="text-on-surface-variant">Update admin name, organization, location</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Security</strong><br><span class="text-on-surface-variant">Change password, enable 2FA</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">Notifications</strong><br><span class="text-on-surface-variant">Configure error alerts, efficiency, new users, and recipient list</span></div>
+                    <div class="p-sm rounded bg-surface-container text-body-md"><strong class="text-primary">System Config</strong><br><span class="text-on-surface-variant">Global calculation parameters (same as user Settings)</span></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ── 9. Tips & Navigation ── -->
+            <section id="help-tips" class="help-section">
+              <div class="flex items-center gap-md mb-lg">
+                <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-tertiary">tips_and_updates</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-md text-headline-md text-on-surface">Tips & Navigation</h2>
+                  <p class="text-on-surface-variant text-body-md">How to use the app efficiently</p>
+                </div>
+              </div>
+              <div class="space-y-md">
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🧭 Sidebar Navigation</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>Click a menu item in the left sidebar to switch pages. The active page is marked in blue with bold text.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>The <strong>Export Data</strong> button in the sidebar is always available to download history data anytime.</span></li>
+                    <li class="flex items-start gap-sm"><span class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>The connection status (Online/Offline) is shown in the top-right header — green = connected to the server.</span></li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔔 Notifications</h3>
+                  <p class="text-on-surface-variant mb-md">Click the 🔔 bell icon in the header to open the notification panel. Notifications appear automatically when:</p>
+                  <ul class="space-y-xs text-on-surface-variant list-disc list-inside">
+                    <li>New data arrives from the spectrometer</li>
+                    <li>The connection to the server is lost or reconnected</li>
+                    <li>A measurement is started, stopped, or reset</li>
+                    <li>Data is saved successfully or an error occurs</li>
+                    <li>Simulator data is sent successfully</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🌓 Display Mode</h3>
+                  <p class="text-on-surface-variant">Click the <span class="material-symbols-outlined text-[16px] align-middle">light_mode</span> / <span class="material-symbols-outlined text-[16px] align-middle">dark_mode</span> icon in the top-right header to switch between <strong class="text-on-surface">Dark Mode</strong> (dark, good for dim labs) and <strong class="text-on-surface">Light Mode</strong> (bright, good for well-lit environments). Your choice is saved automatically.</p>
+                </div>
+                <div class="glass-panel rounded-xl p-lg">
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">📱 Progressive Web App (PWA)</h3>
+                  <p class="text-on-surface-variant">MICROWAT can be installed as an app on your device:</p>
+                  <ul class="space-y-xs text-on-surface-variant list-disc list-inside mt-sm">
+                    <li><strong>Chrome/Edge Desktop</strong> — click the install icon (⊞) in the address bar</li>
+                    <li><strong>Android Chrome</strong> — tap "Add to Home Screen" in the browser menu</li>
+                    <li><strong>iOS Safari</strong> — tap Share → Add to Home Screen</li>
+                  </ul>
+                </div>
+                <div class="glass-panel rounded-xl p-lg border-l-4 border-primary">
+                  <h3 class="font-body-lg font-bold text-primary mb-md">💡 Tips for Optimal Measurement</h3>
+                  <ul class="space-y-sm text-on-surface-variant">
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">1.</span><span>Set <strong class="text-on-surface">C₀ (initial concentration)</strong> in Settings before starting your first measurement</span></li>
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">2.</span><span>Use <strong class="text-on-surface">simulation mode</strong> in Dashboard to understand the data flow before connecting hardware</span></li>
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">3.</span><span>Export data to CSV periodically as a backup, especially after long sessions</span></li>
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">4.</span><span>Use the date filter in History to compare sessions from different days</span></li>
+                    <li class="flex items-start gap-sm"><span class="text-primary font-bold shrink-0">5.</span><span>A <span class="text-tertiary font-bold">SAFE</span> status (degradation ≥70%) indicates a successful degradation process. Target at least 70%.</span></li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <!-- Footer -->
+            <div class="glass-panel rounded-xl p-lg text-center border border-primary/20">
+              <span class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings:'FILL' 1;">biotech</span>
+              <p class="font-headline-md text-headline-md text-primary font-bold mt-sm">MICROWAT</p>
+              <p class="text-on-surface-variant text-body-md">Precision Lab Monitor — Real-time Wastewater Degradation Monitoring</p>
+              <p class="text-on-surface-variant text-body-md mt-sm">LABTEK 4 • ITERA | <span class="text-primary">V1.0.0</span></p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATION PANEL (floating) -->
+    <div id="notification-panel" class="hidden fixed right-0 top-16 w-80 max-h-[calc(100vh-64px)] z-50 flex flex-col glass-panel border-outline-variant rounded-l-xl overflow-hidden shadow-2xl">
+      <div class="px-lg py-md border-b border-outline-variant flex items-center justify-between">
+        <h3 class="font-headline-md text-body-md font-bold text-on-surface">Notifications</h3>
+        <button id="close-notification-panel" class="text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div id="notification-list" class="flex-1 overflow-y-auto p-md flex flex-col gap-sm">
+        <p class="text-on-surface-variant text-body-md text-center py-lg">No notifications</p>
+      </div>
+    </div>
+
+  </div>
+
+  
+
+  <!-- ============================================================ -->
+  <!-- SCRIPTS (ordered by dependency) -->
+  <!-- ============================================================ -->
+  <script src="/js/utils.js?v=1"></script>
+  <script src="/js/notifications.js?v=1"></script>
+  <script src="/js/socket.js?v=1"></script>
+  <script src="/js/auth.js?v=1"></script>
+  <script src="/js/dashboard.js?v=1"></script>
+  <script src="/js/analytics.js?v=1"></script>
+  <script src="/js/simulator.js?v=1"></script>
+  <script src="/js/device-status.js?v=1"></script>
+  <script src="/js/history.js?v=1"></script>
+  <script src="/js/settings.js?v=1"></script>
+  <script src="/js/admin.js?v=1"></script>
+  <script src="/js/navigation.js?v=1"></script>
+  <script src="/js/app.js?v=1"></script>
+  <script src="/js/help.js?v=1"></script>
+</body>
+</html>
