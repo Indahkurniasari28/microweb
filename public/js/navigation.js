@@ -10,6 +10,7 @@ const PAGE_TITLES = {
   history:            'History',
   settings:           'Settings',
   info:               'Info',
+  help:               'Help',
   'user-management':  'User Management',
   'log-detail':       'Log Detail',
   'instrument-config':'Instrument Config',
@@ -83,6 +84,7 @@ function initPage(pageName) {
     case 'history':             initHistoryPage(); break;
     case 'settings':            initSettingsPage(); break;
     case 'info':                /* static page, no init needed */ break;
+    case 'help':                /* static page, no init needed */ break;
     case 'admin-settings':      initAdminSettingsPage(); break;
     case 'user-management':     initUserManagementPage(); break;
     case 'log-detail':          initLogDetailPage(); break;

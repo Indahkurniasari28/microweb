@@ -762,7 +762,7 @@
 
     <!-- SIDEBAR -->
     <aside id="sidebar"
-      class="hidden md:flex flex-col h-screen fixed left-0 top-0 py-lg px-md gap-lg bg-surface-container/90 backdrop-blur-lg border-r border-outline-variant w-64 z-40">
+      class="hidden md:flex flex-col h-screen fixed left-0 top-0 py-lg px-md gap-lg bg-surface-container/90 backdrop-blur-lg border-r border-outline-variant w-64 z-40 overflow-y-auto">
       <!-- Logo + Title -->
       <div class="px-md pt-sm">
         <div class="font-headline-md text-headline-md font-bold text-primary mb-lg">MICROWAT</div>
@@ -783,7 +783,7 @@
       </div>
 
       <!-- Navigation -->
-      <nav class="flex flex-col gap-xs flex-1 overflow-y-auto pr-sm">
+      <nav class="flex flex-col gap-xs flex-1">
         <a href="#"
           class="nav-link active flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg group"
           data-page="dashboard">
@@ -852,7 +852,7 @@
         </button>
         <button id="help-btn"
           class="nav-link flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg w-full text-left"
-          data-page="info" onclick="navigateToPage('help')">
+          data-page="help" onclick="navigateToPage('help')">
           <span class="material-symbols-outlined">help</span>
           <span class="font-body-md">Help</span>
         </button>
