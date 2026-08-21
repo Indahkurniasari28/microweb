@@ -75,7 +75,54 @@ let esp32Data = {
   lastUpdate: new Date()
 };
 
+let latestExperimentMeasurement = null;
 let mqttClients = [];
+
+function normalizePi5Measurement(payload = {}) {
+  const ts = payload.timestamp || new Date().toISOString();
+  const reactionTimeMin = Number(payload.reactionTimeMin ?? payload.elapsedMinutes ?? payload.timeMinutes ?? 0);
+  const rawAbsorbance = Number(payload.absorbance ?? payload.absorbanceA ?? payload.absorbanceValue ?? 0);
+  const rawConcentration = Number(payload.concentration ?? payload.concentrationPpm ?? payload.concentration_ppm ?? 0);
+  const rawDegradation = Number(payload.degradation ?? payload.degradationPct ?? payload.degradation_percent ?? 0);
+  let absorbance = Number.isFinite(rawAbsorbance) ? rawAbsorbance : 0;
+  let concentration = Number.isFinite(rawConcentration) ? rawConcentration : 0;
+  let degradation = Number.isFinite(rawDegradation) ? rawDegradation : 0;
+
+  if (Array.isArray(payload.spectrum) && payload.spectrum.length > 0) {
+    const valid = payload.spectrum
+      .map((pt) => Number(pt?.absorbance ?? pt?.y ?? pt?.value ?? 0))
+      .filter((v) => Number.isFinite(v));
+    if (valid.length > 0) {
+      absorbance = valid.reduce((sum, v) => sum + v, 0) / valid.length;
+    }
+  }
+
+  if (!concentration && Number.isFinite(payload.initialConcentration) && payload.initialConcentration > 0 && absorbance > 0 && Number.isFinite(payload.referenceAbsorbance) && payload.referenceAbsorbance > 0) {
+    concentration = (absorbance / payload.referenceAbsorbance) * payload.initialConcentration;
+  }
+
+  if (!degradation && Number.isFinite(payload.initialConcentration) && payload.initialConcentration > 0 && concentration > 0) {
+    degradation = Math.max(0, ((Number(payload.initialConcentration) - concentration) / Number(payload.initialConcentration)) * 100);
+  }
+
+  degradation = Math.min(100, Math.max(0, degradation));
+
+  return {
+    id: payload.id || `pi5-${Date.now()}`,
+    timestamp: ts,
+    reactionTimeMin,
+    absorbance,
+    concentration,
+    degradation,
+    status: payload.status || "measuring",
+    wavelength: Number(payload.wavelength ?? payload.lambdaMax ?? payload.referenceWavelength ?? 254),
+    spectrum: Array.isArray(payload.spectrum) ? payload.spectrum : [],
+    source: "raspberry-pi-5",
+    instrument: payload.instrument || "MICROWAT Pi5",
+    sensor: payload.sensor || "spectrometer",
+    cycle: Number(payload.cycle ?? payload.siklus ?? 0)
+  };
+}
 
 // Simple MQTT server
 const mqttServer = net.createServer((socket) => {
@@ -181,14 +228,25 @@ const mqttServer = net.createServer((socket) => {
   });
 });
 
-// Start built-in MQTT server on port 1883
-mqttServer.listen(1883, '0.0.0.0', () => {
-  console.log('🟢 Built-in MQTT Broker running on 0.0.0.0:1883');
-});
+const MQTT_PORT = Number(process.env.MQTT_PORT || 1883);
+const ENABLE_LOCAL_MQTT = process.env.ENABLE_LOCAL_MQTT !== "false";
 
-mqttServer.on('error', (error) => {
-  console.error('❌ MQTT Server error:', error.message);
-});
+if (ENABLE_LOCAL_MQTT) {
+  // Start built-in MQTT server on port 1883 (or env override)
+  mqttServer.listen(MQTT_PORT, '0.0.0.0', () => {
+    console.log(`🟢 Built-in MQTT Broker running on 0.0.0.0:${MQTT_PORT}`);
+  });
+
+  mqttServer.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      console.warn(`⚠️ MQTT port ${MQTT_PORT} is already in use. Set MQTT_PORT to a free port or stop the conflicting process.`);
+    } else {
+      console.error('❌ MQTT Server error:', error.message);
+    }
+  });
+} else {
+  console.log("ℹ️ Local MQTT broker disabled (ENABLE_LOCAL_MQTT=false)");
+}
 
 // Also try to connect to cloud MQTT as fallback
 
@@ -550,6 +608,45 @@ app.get("/api/system-status", (req, res) => {
 });
 
 /**
+ * POST: Receive experiment dataset from Raspberry Pi 5
+ */
+app.post("/api/pi5/experiment", async (req, res) => {
+  const payload = req.body || {};
+  const measurement = normalizePi5Measurement(payload);
+  latestExperimentMeasurement = measurement;
+
+  try {
+    await db.ref("measurements").push().set(measurement);
+  } catch (error) {
+    console.warn("⚠️ Pi5 experiment save to DB failed:", error.message);
+  }
+
+  io.emit("spectrometerUpdate", measurement);
+  io.emit("measurementStarted", { source: "raspberry-pi-5", timestamp: measurement.timestamp });
+
+  console.log(`📡 Raspberry Pi 5 experiment data accepted: ${measurement.absorbance} a.u., ${measurement.degradation.toFixed(1)}%`);
+  res.json({ success: true, message: "Data eksperimen Pi 5 diterima", measurement });
+});
+
+/**
+ * POST: Receive Raspberry Pi 5 telemetry status
+ */
+app.post("/api/pi5/telemetry", (req, res) => {
+  const payload = req.body || {};
+  const telemetry = {
+    cpu: payload.cpu ?? null,
+    ram: payload.ram ?? null,
+    temp: payload.temp ?? null,
+    status: payload.status || "ONLINE",
+    timestamp: payload.timestamp || new Date().toISOString(),
+    source: "raspberry-pi-5"
+  };
+
+  io.emit("rpiTelemetry", telemetry);
+  res.json({ success: true, telemetry });
+});
+
+/**
  * GET: ESP32 IoT Status
  */
 app.get("/api/esp32/status", (req, res) => {
@@ -660,7 +757,15 @@ app.delete("/api/admin/users/:id", (req, res) => {
 // ============================================================================
 // START SERVER
 // ============================================================================
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT || 3000);
+
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} is already in use. Set PORT to a different value before starting the app.`);
+    process.exit(1);
+  }
+  throw error;
+});
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log("\n" + "=".repeat(70));

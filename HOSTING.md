@@ -21,10 +21,73 @@
 - MQTT Broker (port 1883)
 - Firebase database (cloud)
 
+### Konfigurasi penting untuk project ini
+
+Di banyak platform hosting (Railway/Render/Heroku), aplikasi hanya boleh listen di **1 port HTTP** (`PORT`).
+Karena itu, saat deploy gunakan env berikut:
+
+```env
+PORT=3000
+ENABLE_LOCAL_MQTT=false
+```
+
+Jika `ENABLE_LOCAL_MQTT=false`, backend tetap jalan normal dan akan memakai cloud MQTT (jika dikonfigurasi), plus endpoint HTTP untuk integrasi Raspberry Pi 5:
+
+- `POST /api/pi5/telemetry`
+- `POST /api/pi5/experiment`
+
+Untuk local/LAN testing dengan perangkat langsung, aktifkan lagi:
+
+```env
+ENABLE_LOCAL_MQTT=true
+MQTT_PORT=1883
+```
+
 **Yang tetap sama:**
 - Web dashboard (zero changes)
 - Database (firebase, zero changes)
 - MQTT topics (same)
+
+### Railway (disarankan untuk project ini)
+
+Untuk Railway, gunakan mode HTTP saja pada aplikasi ini:
+
+- `ENABLE_LOCAL_MQTT=false`
+- `PORT` diisi otomatis oleh Railway
+- MQTT tetap dipakai melalui broker eksternal (`MQTT_BROKER`, `MQTT_USER`, `MQTT_PASSWORD`)
+
+Kenapa local MQTT dimatikan?
+
+- Railway hanya menyediakan 1 port service untuk aplikasi web.
+- Built-in broker lokal membutuhkan port TCP tambahan (`1883`) yang tidak cocok untuk model deploy Railway.
+- Jadi perangkat Pi/ESP diarahkan ke broker MQTT eksternal, sedangkan web app tetap menerima data juga dari endpoint HTTP Pi5.
+
+#### Deploy Command (Railway CLI)
+
+Jalankan dari folder project:
+
+```powershell
+npx railway login
+npx railway init
+npx railway up
+```
+
+Set environment di Railway:
+
+```powershell
+npx railway variables set ENABLE_LOCAL_MQTT=false
+npx railway variables set MQTT_BROKER=wss://YOUR_BROKER_HOST:8884/mqtt
+npx railway variables set MQTT_USER=YOUR_MQTT_USERNAME
+npx railway variables set MQTT_PASSWORD=YOUR_MQTT_PASSWORD
+```
+
+Untuk melihat URL deployment:
+
+```powershell
+npx railway domain
+```
+
+Jika `railway domain` belum aktif, buat domain dulu dari dashboard Railway pada service yang sama.
 
 ---
 
