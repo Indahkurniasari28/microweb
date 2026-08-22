@@ -119,7 +119,7 @@ function renderHistoryCards() {
 
   const countEl = document.getElementById('hist-count-label');
   if (countEl) countEl.textContent = total > 0
-    ? `Menampilkan ${Math.min(start + 1, total)}–${Math.min(start + HIST_PER_PAGE, total)} dari ${total} record`
+    ? `Show ${Math.min(start + 1, total)}–${Math.min(start + HIST_PER_PAGE, total)} from ${total} record`
     : 'Tidak ada data';
 
   const pageEl = document.getElementById('hist-page-info');
