@@ -89,6 +89,59 @@
           </div>
         </form>
       </div>
+
+      <!-- Password / Security Card for User -->
+      <div class="glass-panel rounded-xl p-lg mt-lg">
+        <div class="mb-lg flex items-center gap-md">
+          <div class="w-10 h-10 rounded-lg bg-secondary/15 flex items-center justify-center text-secondary">
+            <span class="material-symbols-outlined text-[24px]">lock_reset</span>
+          </div>
+          <div>
+            <h3 class="font-headline-md text-headline-md text-on-surface">Change Password</h3>
+            <p class="font-body-md text-on-surface-variant mt-xs">Update your login credentials securely.</p>
+          </div>
+        </div>
+        <form id="user-password-form" class="space-y-md">
+          <div>
+            <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px] uppercase">Current Password</label>
+            <div class="relative">
+              <input id="user-current-pw" type="password" placeholder="••••••••••••"
+                class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm pr-12 text-on-surface outline-none focus:border-primary font-data-md">
+              <button id="toggle-user-current-pw" type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px] uppercase">New Password</label>
+              <div class="relative">
+                <input id="user-new-pw" type="password" placeholder="min. 6 karakter"
+                  class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm pr-12 text-on-surface outline-none focus:border-primary font-data-md">
+                <button id="toggle-user-new-pw" type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px] uppercase">Confirm New Password</label>
+              <div class="relative">
+                <input id="user-confirm-pw" type="password" placeholder="ulangi kata sandi"
+                  class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm pr-12 text-on-surface outline-none focus:border-primary font-data-md">
+                <button id="toggle-user-confirm-pw" type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="pt-sm flex justify-end">
+            <button id="btn-user-update-pw" type="submit"
+              class="bg-secondary text-on-secondary hover:opacity-90 active:scale-95 transition-all px-lg py-sm rounded-lg font-bold flex items-center gap-xs shadow-md text-label-caps">
+              <span class="material-symbols-outlined text-[18px]">key</span> Update Password
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 

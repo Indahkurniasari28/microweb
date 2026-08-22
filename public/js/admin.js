@@ -508,22 +508,40 @@ function initInstrumentConfigPage() {
   if (lastBackup) lastBackup.textContent = new Date(Date.now() - 3600000 * 4).toLocaleString('id-ID');
 }
 
-function setupToggleButton(id) {
+function setupToggleButton(id, initialVal = null, onChange = null) {
   const btn = document.getElementById(id);
   if (!btn) return;
-  btn.addEventListener('click', () => {
-    const dot = btn.querySelector('span');
-    const isOn = dot.classList.contains('translate-x-5');
-    if (isOn) {
-      dot.classList.replace('translate-x-5', 'translate-x-1');
-      btn.classList.remove('bg-primary');
-      btn.classList.add('bg-surface-variant');
-    } else {
-      dot.classList.replace('translate-x-1', 'translate-x-5');
+  const dot = btn.querySelector('span');
+
+  function setToggleState(state) {
+    if (state) {
       btn.classList.add('bg-primary');
       btn.classList.remove('bg-surface-variant');
+      if (dot) {
+        dot.classList.add('translate-x-5', 'bg-on-primary');
+        dot.classList.remove('translate-x-1', 'bg-on-surface-variant');
+      }
+    } else {
+      btn.classList.remove('bg-primary');
+      btn.classList.add('bg-surface-variant');
+      if (dot) {
+        dot.classList.remove('translate-x-5', 'bg-on-primary');
+        dot.classList.add('translate-x-1', 'bg-on-surface-variant');
+      }
     }
-  });
+  }
+
+  if (initialVal !== null) {
+    setToggleState(initialVal);
+  }
+
+  btn.onclick = (e) => {
+    e.preventDefault();
+    const isCurrentlyOn = btn.classList.contains('bg-primary');
+    const nextState = !isCurrentlyOn;
+    setToggleState(nextState);
+    if (typeof onChange === 'function') onChange(nextState);
+  };
 }
 
 function saveInstrumentConfig() {
@@ -560,10 +578,13 @@ function applyCalibration() {
 function initAdminSettingsPage() {
   console.log('🔧 Init Admin Settings');
 
+  const email = currentUser?.email || 'admin@microwat.io';
+
   // Tab switching
   const tabs = document.querySelectorAll('.admin-settings-tab');
   tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
       const target = tab.dataset.tab;
       switchAdminTab(target);
     });
@@ -572,39 +593,127 @@ function initAdminSettingsPage() {
   // Default tab
   switchAdminTab('profile');
 
-  // Fill user info
-  updateAdminSettingsDisplay(currentUser?.email || '');
+  // Fill user info from saved profile
+  updateAdminSettingsDisplay(email);
 
-  // Logout
-  document.getElementById('btn-admin-logout-settings')?.addEventListener('click', logout);
+  // Logout button
+  document.getElementById('btn-admin-logout-settings')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    logout();
+  });
 
-  // Profile form
+  // Profile form submission
   document.getElementById('admin-profile-form')?.addEventListener('submit', e => {
     e.preventDefault();
-    addNotification('✅ Profil admin disimpan', 'success');
+    const name = document.getElementById('admin-profile-name')?.value?.trim() || '';
+    const org = document.getElementById('admin-profile-org')?.value?.trim() || '';
+    const location = document.getElementById('admin-profile-location')?.value?.trim() || '';
+
+    const profileData = { name, org, institution: org, location, email };
+    safeStorage.setItem('user_profile_' + email, JSON.stringify(profileData));
+
+    if (currentUser) {
+      currentUser.name = name;
+      currentUser.institution = org;
+      safeStorage.setItem('user', JSON.stringify(currentUser));
+    }
+
+    const dispName = document.getElementById('admin-profile-display-name');
+    if (dispName) dispName.textContent = name || email;
+    const userEmailDisp = document.getElementById('user-email-display');
+    if (userEmailDisp) userEmailDisp.textContent = name || email;
+
+    addNotification('✅ Profil administrator berhasil disimpan', 'success');
   });
 
-  // Security form
-  document.getElementById('btn-sec-save')?.addEventListener('click', () => {
+  // Password visibility toggles
+  setupPasswordVisibilityToggle('toggle-sec-current-pw', 'sec-current-pw');
+  setupPasswordVisibilityToggle('toggle-sec-new-pw', 'sec-new-pw');
+  setupPasswordVisibilityToggle('toggle-sec-confirm-pw', 'sec-confirm-pw');
+
+  // Security form / Update Password button
+  document.getElementById('btn-sec-save')?.addEventListener('click', async () => {
+    const curPw = document.getElementById('sec-current-pw')?.value;
     const p1 = document.getElementById('sec-new-pw')?.value;
     const p2 = document.getElementById('sec-confirm-pw')?.value;
-    if (!p1 || p1 !== p2) {
-      addNotification('❌ Password tidak cocok', 'error');
+
+    if (!curPw) {
+      addNotification('⚠️ Masukkan kata sandi saat ini', 'warning');
       return;
     }
-    addNotification('✅ Password diperbarui', 'success');
+    if (!p1 || p1.length < 6) {
+      addNotification('⚠️ Password baru minimal 6 karakter', 'warning');
+      return;
+    }
+    if (p1 !== p2) {
+      addNotification('❌ Konfirmasi password tidak cocok', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, currentPassword: curPw, newPassword: p1 })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('sec-current-pw').value = '';
+        document.getElementById('sec-new-pw').value = '';
+        document.getElementById('sec-confirm-pw').value = '';
+        safeStorage.setItem('user_pw_' + email, p1);
+        addNotification('✅ Kata sandi baru admin berhasil disimpan ke database', 'success');
+      } else {
+        addNotification(`❌ ${data.message || 'Gagal memperbarui kata sandi'}`, 'error');
+      }
+    } catch (err) {
+      safeStorage.setItem('user_pw_' + email, p1);
+      document.getElementById('sec-current-pw').value = '';
+      document.getElementById('sec-new-pw').value = '';
+      document.getElementById('sec-confirm-pw').value = '';
+      addNotification('✅ Kata sandi baru admin disimpan (lokal)', 'success');
+    }
   });
 
-  // Notifications save
+  // 2FA toggle with storage persistence
+  const saved2fa = safeStorage.getItem('sec_2fa_' + email) === 'true';
+  setupToggleButton('sec-2fa-toggle', saved2fa, (state) => {
+    safeStorage.setItem('sec_2fa_' + email, String(state));
+    addNotification(state ? '🔒 Two-Factor Authentication diaktifkan' : '🔓 Two-Factor Authentication dinonaktifkan', 'info');
+  });
+
+  // Notifications toggles with storage persistence
+  let notifPrefs = { errors: true, efficiency: false, newUsers: true };
+  try {
+    const rawPrefs = safeStorage.getItem('notif_prefs_' + email);
+    if (rawPrefs) notifPrefs = JSON.parse(rawPrefs);
+  } catch (e) {}
+
+  setupToggleButton('notif-system-errors', notifPrefs.errors, (state) => { notifPrefs.errors = state; });
+  setupToggleButton('notif-efficiency', notifPrefs.efficiency, (state) => { notifPrefs.efficiency = state; });
+  setupToggleButton('notif-new-users', notifPrefs.newUsers, (state) => { notifPrefs.newUsers = state; });
+
+  // Add Recipient button
+  document.getElementById('btn-add-recipient')?.addEventListener('click', () => {
+    const newEmail = prompt('Masukkan alamat email penerima notifikasi:');
+    if (newEmail && newEmail.includes('@')) {
+      const container = document.getElementById('notif-recipients');
+      const addBtn = document.getElementById('btn-add-recipient');
+      if (container && addBtn) {
+        const badge = document.createElement('span');
+        badge.className = 'bg-primary/10 text-primary border border-primary/30 px-sm py-xs rounded text-[10px] font-bold flex items-center gap-xs';
+        badge.innerHTML = `<span>${newEmail.trim()}</span><button type="button" class="hover:text-error transition-colors text-[14px] leading-none" onclick="this.parentElement.remove(); addNotification('🗑️ Penerima dihapus dari daftar', 'info');">&times;</button>`;
+        container.insertBefore(badge, addBtn);
+        addNotification(`📧 ${newEmail.trim()} ditambahkan ke daftar penerima`, 'info');
+      }
+    }
+  });
+
+  // Notifications save button
   document.getElementById('btn-notif-save')?.addEventListener('click', () => {
-    addNotification('✅ Pengaturan notifikasi disimpan', 'success');
+    safeStorage.setItem('notif_prefs_' + email, JSON.stringify(notifPrefs));
+    addNotification('✅ Pengaturan notifikasi berhasil disimpan', 'success');
   });
-
-  // Toggle buttons
-  setupToggleButton('sec-2fa-toggle');
-  setupToggleButton('notif-system-errors');
-  setupToggleButton('notif-efficiency');
-  setupToggleButton('notif-new-users');
 
   // System params form
   document.getElementById('admin-params-form')?.addEventListener('submit', async e => {
@@ -615,6 +724,10 @@ function initAdminSettingsPage() {
       moldExtinctionCoeff: parseFloat(document.getElementById('sys-extinction-coeff')?.value || 1000),
       pathLength: parseFloat(document.getElementById('sys-path-length')?.value || 1)
     };
+
+    safeStorage.setItem('system_parameters', JSON.stringify(params));
+    systemParameters = params;
+
     try {
       const response = await fetch('/api/parameters', {
         method: 'POST',
@@ -623,52 +736,101 @@ function initAdminSettingsPage() {
       });
       const data = await response.json();
       if (data.success) {
-        systemParameters = params;
-        addNotification('✅ Parameter sistem disimpan', 'success');
+        addNotification('✅ Parameter sistem berhasil disimpan ke server', 'success');
+      } else {
+        addNotification('✅ Parameter sistem disimpan (lokal)', 'success');
       }
     } catch {
-      addNotification('✅ Parameter disimpan (lokal)', 'success');
-      systemParameters = params;
+      addNotification('✅ Parameter sistem disimpan (lokal)', 'success');
     }
   });
 
   // Populate system params
-  if (systemParameters) {
-    const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
-    set('sys-initial-concentration', systemParameters.initialConcentration);
-    set('sys-wavelength', systemParameters.wavelength);
-    set('sys-extinction-coeff', systemParameters.moldExtinctionCoeff);
-    set('sys-path-length', systemParameters.pathLength);
-  }
+  loadAndPopulateSystemParams();
 
   const sysLastSync = document.getElementById('admin-sys-lastsync');
   if (sysLastSync) sysLastSync.textContent = new Date().toLocaleTimeString('id-ID');
 }
 
+function setupPasswordVisibilityToggle(btnId, inputId) {
+  const btn = document.getElementById(btnId);
+  const input = document.getElementById(inputId);
+  if (!btn || !input) return;
+
+  btn.onclick = (e) => {
+    e.preventDefault();
+    const icon = btn.querySelector('.material-symbols-outlined');
+    if (input.type === 'password') {
+      input.type = 'text';
+      if (icon) icon.textContent = 'visibility_off';
+    } else {
+      input.type = 'password';
+      if (icon) icon.textContent = 'visibility';
+    }
+  };
+}
+
+async function loadAndPopulateSystemParams() {
+  let params = systemParameters || {};
+  try {
+    const rawLocal = safeStorage.getItem('system_parameters');
+    if (rawLocal) params = { ...params, ...JSON.parse(rawLocal) };
+  } catch (e) {}
+
+  try {
+    const res = await fetch('/api/parameters');
+    const data = await res.json();
+    if (data.success && data.parameters) {
+      params = { ...params, ...data.parameters };
+    }
+  } catch (e) {}
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined && !isNaN(val)) el.value = val;
+  };
+
+  setVal('sys-initial-concentration', params.initialConcentration || 100);
+  setVal('sys-wavelength', params.wavelength || 254);
+  setVal('sys-extinction-coeff', params.moldExtinctionCoeff || 1000);
+  setVal('sys-path-length', params.pathLength || 1);
+}
+
 function switchAdminTab(tab) {
   const panels = ['profile', 'security', 'notifications', 'system'];
   panels.forEach(p => {
-    document.getElementById(`admin-panel-${p}`)?.classList.add('hidden');
+    const el = document.getElementById(`admin-panel-${p}`);
+    if (el) el.classList.add('hidden');
   });
-  document.getElementById(`admin-panel-${tab}`)?.classList.remove('hidden');
+  const activePanel = document.getElementById(`admin-panel-${tab}`);
+  if (activePanel) activePanel.classList.remove('hidden');
 
   document.querySelectorAll('.admin-settings-tab').forEach(btn => {
     const isActive = btn.dataset.tab === tab;
-    btn.classList.toggle('text-primary', isActive);
-    btn.classList.toggle('border-l-4', isActive);
-    btn.classList.toggle('border-l-primary', isActive);
-    btn.classList.toggle('font-bold', isActive);
-    btn.classList.toggle('text-on-surface-variant', !isActive);
-    btn.classList.remove('border-l-0');
+    if (isActive) {
+      btn.className = 'admin-settings-tab w-full glass-panel flex items-center gap-md p-md rounded-lg text-primary border-l-4 border-l-primary text-left transition-all font-bold';
+    } else {
+      btn.className = 'admin-settings-tab w-full glass-panel flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary transition-all text-left';
+    }
   });
 }
 
 function updateAdminSettingsDisplay(email) {
+  let profile = {};
+  try {
+    profile = JSON.parse(safeStorage.getItem('user_profile_' + email) || '{}');
+  } catch (e) {}
+
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   const setV = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-  set('admin-profile-display-name', email);
+
+  set('admin-profile-display-name', profile.name || email || 'Administrator');
   set('admin-settings-email', email);
   setV('admin-profile-email-input', email);
+  setV('admin-profile-name', profile.name || currentUser?.name || '');
+  setV('admin-profile-org', profile.institution || profile.org || currentUser?.institution || 'LABTEK 4 • ITERA');
+  setV('admin-profile-location', profile.location || 'Bandarlampung, Indonesia');
 }
 
 console.log('✅ admin.js loaded');
+

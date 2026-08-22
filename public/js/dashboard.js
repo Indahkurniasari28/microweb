@@ -41,13 +41,40 @@ if (typeof firebase === 'undefined') {
 const microwatDb = typeof firebase !== 'undefined' ? firebase.firestore() : null;
 
 // ── Konfigurasi eksperimen per jenis limbah ────────────────────────────────
-// TODO: isi experimentId Firestore untuk MG dan MB begitu eksperimennya ada.
-// Formatnya sama seperti yang dipakai di config.py -> FIREBASE_EXPERIMENT_ID
-const WASTEWATER_EXPERIMENT_MAP = {
-  rc: 'exp_20260819_001', // Congo Red — sesuai config.py saat ini
-  mg: null,                // TODO: experimentId Malachite Green
-  mb: null                 // TODO: experimentId Methylene Blue
+const DEFAULT_EXPERIMENT_MAP = {
+  rc: 'exp_20260819_001', // Congo Red default
+  mg: 'exp_mg_001',       // Malachite Green default
+  mb: 'exp_mb_001'        // Methylene Blue default
 };
+
+const WASTEWATER_EXPERIMENT_MAP = { ...DEFAULT_EXPERIMENT_MAP };
+
+function getActiveExperimentId(wt) {
+  const saved = safeStorage.getItem('activeExperimentId_' + wt);
+  if (saved) return saved;
+  return WASTEWATER_EXPERIMENT_MAP[wt] || DEFAULT_EXPERIMENT_MAP[wt] || 'exp_20260819_001';
+}
+
+function setActiveExperimentId(wt, id) {
+  safeStorage.setItem('activeExperimentId_' + wt, id);
+  WASTEWATER_EXPERIMENT_MAP[wt] = id;
+  const known = getKnownExperimentIds();
+  if (!known.includes(id)) {
+    known.push(id);
+    safeStorage.setItem('knownExperimentIds', JSON.stringify(known));
+  }
+}
+
+function getKnownExperimentIds() {
+  try {
+    const raw = safeStorage.getItem('knownExperimentIds');
+    const parsed = raw ? JSON.parse(raw) : [];
+    const defaults = ['exp_20260819_001'];
+    return Array.from(new Set([...defaults, ...parsed]));
+  } catch (e) {
+    return ['exp_20260819_001'];
+  }
+}
 
 function normalizeCycleRecord(rawCycle = {}, fallbackId = null) {
   const cycle = rawCycle && typeof rawCycle === 'object' ? rawCycle : {};
@@ -84,10 +111,9 @@ function normalizeCycleRecord(rawCycle = {}, fallbackId = null) {
 }
 
 // C₀ (konsentrasi awal, ppm) dipakai untuk hitung konsentrasi via A/A₀ × C₀.
-// Sesuaikan dengan konsentrasi larutan awal yang benar-benar kamu pakai.
 const INITIAL_CONCENTRATION = 10; // ppm
 
-// Ambang batas SAFE (ppm) — sesuaikan kalau ada standar baku mutu lain.
+// Ambang batas SAFE (ppm)
 const SAFE_THRESHOLD_PPM = 5;
 
 const CYCLE_COLORS = {
@@ -103,6 +129,132 @@ let currentWastewaterType = 'rc';
 let baseAbsorbance = null;      // A₀ — absorbanceMax dari cycle 0
 let currentDashPhase = -1;      // index cycle tertinggi yang sudah masuk
 let cyclesUnsubscribe = null;   // fungsi unsubscribe onSnapshot aktif
+
+// ============================================================================
+// EXPERIMENT SELECTOR & NEW SESSION MODAL
+// ============================================================================
+
+async function populateExperimentSelector(activeId) {
+  const select = document.getElementById('dash-experiment-select');
+  if (!select) return;
+
+  const idSet = new Set(getKnownExperimentIds());
+  if (activeId) idSet.add(activeId);
+
+  if (microwatDb) {
+    try {
+      const snap = await microwatDb.collection('experiments').get();
+      snap.forEach(doc => {
+        if (doc.id) idSet.add(doc.id);
+      });
+    } catch (e) {
+      console.warn('Gagal memuat list eksperimen Firestore:', e);
+    }
+  }
+
+  const ids = Array.from(idSet);
+  select.innerHTML = ids.map(id => `<option value="${id}">${id}</option>`).join('');
+  select.value = activeId || ids[0];
+
+  select.onchange = (e) => {
+    const newId = e.target.value;
+    if (newId) {
+      setActiveExperimentId(currentWastewaterType, newId);
+      subscribeDashboardToWastewaterType(currentWastewaterType);
+    }
+  };
+}
+
+function generateSuggestedExperimentId() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const base = `exp_${yyyy}${mm}${dd}`;
+  const known = getKnownExperimentIds();
+  let count = 1;
+  let candidate = `${base}_${String(count).padStart(3, '0')}`;
+  while (known.includes(candidate)) {
+    count++;
+    candidate = `${base}_${String(count).padStart(3, '0')}`;
+  }
+  return candidate;
+}
+
+function setupNewSessionModal() {
+  const modal = document.getElementById('new-session-modal');
+  const btnNewSession = document.getElementById('btn-new-session');
+  const btnClose = document.getElementById('btn-close-modal');
+  const btnCancel = document.getElementById('btn-cancel-session');
+  const btnConfirm = document.getElementById('btn-confirm-session');
+  const inputExp = document.getElementById('input-new-exp-id');
+
+  if (!modal || !btnNewSession) return;
+
+  function openModal() {
+    if (inputExp) inputExp.value = generateSuggestedExperimentId();
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    inputExp?.focus();
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  btnNewSession.onclick = openModal;
+  if (btnClose) btnClose.onclick = closeModal;
+  if (btnCancel) btnCancel.onclick = closeModal;
+
+  if (btnConfirm) {
+    btnConfirm.onclick = () => {
+      const rawVal = inputExp?.value?.trim();
+      if (!rawVal) {
+        alert('Mohon masukkan Experiment ID / Nama Sesi');
+        return;
+      }
+      const safeId = rawVal.replace(/[^a-zA-Z0-9_-]/g, '_');
+      setActiveExperimentId(currentWastewaterType, safeId);
+      closeModal();
+      populateExperimentSelector(safeId);
+      subscribeDashboardToWastewaterType(currentWastewaterType);
+    };
+  }
+}
+
+function resetDashboardKpis() {
+  const concEl = document.getElementById('concentration-value');
+  if (concEl) concEl.textContent = '0.00';
+
+  const degEl = document.getElementById('degradation-value');
+  if (degEl) degEl.textContent = '0.0%';
+
+  const circle = document.getElementById('degradation-circle');
+  if (circle) circle.style.strokeDashoffset = '150.8';
+
+  const safetyBadge = document.getElementById('safety-status-badge');
+  if (safetyBadge) {
+    safetyBadge.className = 'mt-xs inline-flex items-center gap-sm px-md py-sm bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg font-label-caps text-[13px] w-fit';
+    safetyBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> SAFE';
+    safetyBadge.classList.remove('unsafe-blink');
+  }
+
+  const safetyNote = document.getElementById('safety-concentration-note');
+  if (safetyNote) safetyNote.textContent = '-';
+
+  const badge = document.getElementById('status-badge');
+  if (badge) {
+    badge.textContent = '■ IDLE';
+    badge.className = 'mt-xs inline-flex items-center gap-sm px-md py-sm bg-surface-container-highest border border-outline-variant text-on-surface-variant rounded-lg font-label-caps text-[13px] w-fit';
+  }
+
+  const lastEl = document.getElementById('last-update-time');
+  if (lastEl) lastEl.textContent = '-';
+
+  const specAbs = document.getElementById('spec-absorbance');
+  if (specAbs) specAbs.textContent = '0.000 a.u.';
+}
 
 // ============================================================================
 // INIT
@@ -129,11 +281,16 @@ function initDashboardPage() {
           b.style.borderColor = `rgba(${hexToRgb(c)}, 0.3)`;
         }
       });
+      const activeId = getActiveExperimentId(currentWastewaterType);
+      populateExperimentSelector(activeId);
       subscribeDashboardToWastewaterType(currentWastewaterType);
     });
   });
 
   initDashboardChart();
+  setupNewSessionModal();
+  const initialExpId = getActiveExperimentId(currentWastewaterType);
+  populateExperimentSelector(initialExpId);
   subscribeDashboardToWastewaterType(currentWastewaterType);
 }
 
@@ -155,11 +312,18 @@ function subscribeDashboardToWastewaterType(wt) {
   }
 
   resetDashboardChart();
+  resetDashboardKpis();
   baseAbsorbance = null;
   currentDashPhase = -1;
   updateDashPhaseUI();
 
-  const experimentId = WASTEWATER_EXPERIMENT_MAP[wt];
+  const experimentId = getActiveExperimentId(wt);
+
+  const select = document.getElementById('dash-experiment-select');
+  if (select && select.value !== experimentId) {
+    select.value = experimentId;
+  }
+
   if (!microwatDb) return;
 
   if (!experimentId) {
@@ -177,6 +341,13 @@ function subscribeDashboardToWastewaterType(wt) {
     .orderBy('cycle')
     .onSnapshot(
       snapshot => {
+        if (snapshot.empty) {
+          resetDashboardChart();
+          resetDashboardKpis();
+          if (phaseText) phaseText.textContent = `Menunggu data dari ${experimentId}…`;
+          updateSystemStatus('hardware', 'online');
+          return;
+        }
         const cycles = snapshot.docs.map(d => normalizeCycleRecord(d.data(), d.id));
         onCyclesUpdate(experimentId, wt, cycles);
         updateSystemStatus('hardware', 'online');
@@ -496,8 +667,8 @@ function syncMeasurementHistoryFromCycles(experimentId, wt, cycles) {
 function updateMeasurementStatus(status) {
   const statuses = {
     measuring: '⏸️ MEASURING',
-    stopped:   '⏹️ STOPPED',
-    idle:      '⏸️ IDLE'
+    stopped: '⏹️ STOPPED',
+    idle: '⏸️ IDLE'
   };
   const el = document.getElementById('measurement-status');
   if (el) el.textContent = statuses[status] || status;

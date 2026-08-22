@@ -112,20 +112,30 @@
             <div class="relative">
               <input id="sec-current-pw" type="password" placeholder="••••••••••••"
                 class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md pr-12 text-on-surface outline-none focus:border-primary font-data-md">
-              <button type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+              <button id="toggle-sec-current-pw" type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
                 <span class="material-symbols-outlined">visibility</span>
               </button>
             </div>
           </div>
           <div>
             <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">New Password</label>
-            <input id="sec-new-pw" type="password" placeholder="••••••••••••"
-              class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-data-md">
+            <div class="relative">
+              <input id="sec-new-pw" type="password" placeholder="minimal 6 karakter"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md pr-12 text-on-surface outline-none focus:border-primary font-data-md">
+              <button id="toggle-sec-new-pw" type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
           </div>
           <div>
             <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px]">Confirm New Password</label>
-            <input id="sec-confirm-pw" type="password" placeholder="••••••••••••"
-              class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md text-on-surface outline-none focus:border-primary font-data-md">
+            <div class="relative">
+              <input id="sec-confirm-pw" type="password" placeholder="ulangi password baru"
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-md pr-12 text-on-surface outline-none focus:border-primary font-data-md">
+              <button id="toggle-sec-confirm-pw" type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
           </div>
           <div class="pt-md border-t border-outline-variant/30">
             <div class="flex items-center justify-between">
@@ -133,14 +143,15 @@
                 <span class="font-body-md text-on-surface font-bold">Two-Factor Authentication</span>
                 <p class="text-on-surface-variant text-[12px]">Add extra security to your admin account</p>
               </div>
-              <button id="sec-2fa-toggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-surface-variant transition-colors shrink-0">
+              <button id="sec-2fa-toggle" type="button" class="relative inline-flex h-6 w-11 items-center rounded-full bg-surface-variant transition-colors shrink-0">
                 <span class="inline-block h-5 w-5 translate-x-1 transform rounded-full bg-on-surface-variant transition"></span>
               </button>
             </div>
           </div>
           <div class="flex justify-end">
-            <button id="btn-sec-save" class="bg-secondary text-on-secondary font-bold px-xl py-sm rounded-lg hover:opacity-90 transition-all text-label-caps">
-              UPDATE PASSWORD
+            <button id="btn-sec-save" type="button" class="bg-secondary text-on-secondary font-bold px-xl py-sm rounded-lg hover:opacity-90 active:scale-95 transition-all text-label-caps flex items-center gap-xs">
+              <span class="material-symbols-outlined text-[18px]">key</span>
+              <span>UPDATE PASSWORD</span>
             </button>
           </div>
         </div>
@@ -161,7 +172,7 @@
               <h4 class="font-body-md text-on-surface font-bold">System Error Alerts</h4>
               <p class="text-xs text-on-surface-variant">Immediate notification for hardware malfunctions.</p>
             </div>
-            <button id="notif-system-errors" class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary shrink-0">
+            <button id="notif-system-errors" type="button" class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary shrink-0">
               <span class="inline-block h-5 w-5 translate-x-5 transform rounded-full bg-on-primary transition"></span>
             </button>
           </div>
@@ -170,7 +181,7 @@
               <h4 class="font-body-md text-on-surface font-bold">Efficiency Threshold Alert</h4>
               <p class="text-xs text-on-surface-variant">Alert when efficiency drops below 50% for >10 mins.</p>
             </div>
-            <button id="notif-efficiency" class="relative inline-flex h-6 w-11 items-center rounded-full bg-surface-variant shrink-0">
+            <button id="notif-efficiency" type="button" class="relative inline-flex h-6 w-11 items-center rounded-full bg-surface-variant shrink-0">
               <span class="inline-block h-5 w-5 translate-x-1 transform rounded-full bg-on-surface-variant transition"></span>
             </button>
           </div>
@@ -179,23 +190,24 @@
               <h4 class="font-body-md text-on-surface font-bold">New User Registrations</h4>
               <p class="text-xs text-on-surface-variant">Notify when new users request access.</p>
             </div>
-            <button id="notif-new-users" class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary shrink-0">
+            <button id="notif-new-users" type="button" class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary shrink-0">
               <span class="inline-block h-5 w-5 translate-x-5 transform rounded-full bg-on-primary transition"></span>
             </button>
           </div>
           <div class="p-md border border-outline-variant/30 rounded-lg">
             <h4 class="font-body-md text-on-surface font-bold mb-sm">Alert Recipient List</h4>
-            <div class="flex flex-wrap gap-xs" id="notif-recipients">
+            <div class="flex flex-wrap items-center gap-xs" id="notif-recipients">
               <span class="bg-primary/10 text-primary border border-primary/30 px-sm py-xs rounded text-[10px] font-bold">admin@microwat.io</span>
               <span class="bg-primary/10 text-primary border border-primary/30 px-sm py-xs rounded text-[10px] font-bold">ops@microwat.io</span>
-              <button class="text-on-surface-variant hover:text-primary transition-colors">
-                <span class="material-symbols-outlined text-[16px]">add_circle</span>
+              <button id="btn-add-recipient" type="button" class="text-on-surface-variant hover:text-primary transition-colors flex items-center p-1" title="Tambah Email Penerima">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
               </button>
             </div>
           </div>
           <div class="flex justify-end">
-            <button id="btn-notif-save" class="bg-tertiary text-on-tertiary font-bold px-xl py-sm rounded-lg hover:opacity-90 transition-all text-label-caps">
-              SAVE NOTIFICATIONS
+            <button id="btn-notif-save" type="button" class="bg-tertiary text-on-tertiary font-bold px-xl py-sm rounded-lg hover:opacity-90 active:scale-95 transition-all text-label-caps flex items-center gap-xs">
+              <span class="material-symbols-outlined text-[18px]">save</span>
+              <span>SAVE NOTIFICATIONS</span>
             </button>
           </div>
         </div>

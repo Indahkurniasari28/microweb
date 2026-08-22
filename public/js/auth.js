@@ -44,6 +44,30 @@ function setupAuthFormListeners() {
     const btn = e.target.querySelector('button[type="submit"]');
     if (btn) btn.disabled = true;
 
+    // Cek jika user telah mengganti kata sandi
+    const localUpdatedPw = safeStorage.getItem('user_pw_' + email);
+    if (localUpdatedPw) {
+      if (localUpdatedPw !== password) {
+        showAuthError('login', 'Kata sandi salah');
+        if (btn) btn.disabled = false;
+        return;
+      }
+      const localUser = {
+        id: 'user-' + Date.now(),
+        email: email,
+        role: email.toLowerCase().includes('admin') ? 'admin' : 'user',
+        createdAt: new Date().toISOString()
+      };
+      safeStorage.setItem('user', JSON.stringify(localUser));
+      currentUser = localUser;
+      clearAuthForms();
+      showMainApp();
+      await (typeof loadSystemParameters === 'function' ? loadSystemParameters() : Promise.resolve());
+      addNotification(`✅ Selamat datang, ${email}!`, 'success');
+      if (btn) btn.disabled = false;
+      return;
+    }
+
     try {
       const response = await fetch('/api/login', {
         method: 'POST',

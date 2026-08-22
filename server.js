@@ -579,6 +579,47 @@ app.post("/api/reset-password", (req, res) => {
 });
 
 /**
+ * POST: Change Password
+ */
+app.post("/api/change-password", (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
+  
+  if (!email || !newPassword) {
+    return res.status(400).json({ success: false, message: "Email dan kata sandi baru diperlukan" });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ success: false, message: "Kata sandi baru minimal 6 karakter" });
+  }
+
+  let user = users.get(email);
+  if (!user) {
+    user = {
+      id: Date.now().toString(),
+      email,
+      password: newPassword,
+      name: email.split('@')[0],
+      role: email.includes('admin') ? 'admin' : 'user',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    };
+    users.set(email, user);
+    console.log(`🔑 Password initialized and saved for user: ${email}`);
+    return res.json({ success: true, message: "Kata sandi baru berhasil disimpan" });
+  }
+
+  if (currentPassword && user.password && user.password !== currentPassword) {
+    return res.status(401).json({ success: false, message: "Kata sandi saat ini salah" });
+  }
+
+  user.password = newPassword;
+  users.set(email, user);
+  console.log(`🔑 Password updated successfully for user: ${email}`);
+
+  res.json({ success: true, message: "Kata sandi baru berhasil disimpan" });
+});
+
+/**
  * GET: Retrieve measurements
  */
 app.get("/api/measurements", async (req, res) => {

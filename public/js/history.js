@@ -21,9 +21,7 @@ function initHistoryPage() {
   histCurrentFilter = 'all';
   historyFiltered = [...measurementHistory];
 
-  if (typeof subscribeDashboardToWastewaterType === 'function') {
-    subscribeDashboardToWastewaterType(currentWastewaterType || 'rc');
-  }
+  loadAllExperimentsToHistory();
 
   document.getElementById('btn-export-csv')?.addEventListener('click', exportHistoryCSV);
   document.getElementById('btn-hist-filter')?.addEventListener('click', applyHistoryFilter);
@@ -220,4 +218,27 @@ function exportHistoryCSV() {
   link.download = `microwat-${new Date().toISOString().split('T')[0]}.csv`;
   link.click();
   addNotification('✅ Data diekspor', 'success');
+}
+
+async function loadAllExperimentsToHistory() {
+  if (typeof microwatDb === 'undefined' || !microwatDb) return;
+  try {
+    const experimentsSnap = await microwatDb.collection('experiments').get();
+    for (const expDoc of experimentsSnap.docs) {
+      const expId = expDoc.id;
+      const cyclesSnap = await microwatDb.collection('experiments').doc(expId).collection('cycles').orderBy('cycle').get();
+      if (!cyclesSnap.empty) {
+        const cycles = cyclesSnap.docs.map(d => normalizeCycleRecord(d.data(), d.id));
+        let wt = 'rc';
+        if (expId.toLowerCase().includes('mg')) wt = 'mg';
+        else if (expId.toLowerCase().includes('mb')) wt = 'mb';
+        syncMeasurementHistoryFromCycles(expId, wt, cycles);
+      }
+    }
+    populateSessionFilter();
+    historyFiltered = buildFilteredHistory();
+    renderHistoryCards();
+  } catch (err) {
+    console.warn('Gagal memuat semua riwayat eksperimen:', err);
+  }
 }
