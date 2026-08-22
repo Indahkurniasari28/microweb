@@ -17,16 +17,19 @@
               <span class="material-symbols-outlined text-on-surface-variant text-4xl">person</span>
             </div>
           </div>
-          <button class="absolute bottom-0 right-0 bg-primary text-on-primary p-1 rounded-full shadow-lg hover:scale-110 transition-transform">
+          <button
+            class="absolute bottom-0 right-0 bg-primary text-on-primary p-1 rounded-full shadow-lg hover:scale-110 transition-transform">
             <span class="material-symbols-outlined text-[18px]">edit</span>
           </button>
         </div>
-        <h3 class="font-headline-md text-headline-md text-on-surface w-full truncate px-2" id="profile-display-name">User</h3>
+        <h3 class="font-headline-md text-headline-md text-on-surface w-full truncate px-2" id="profile-display-name">
+          User</h3>
         <p class="font-data-md text-on-surface-variant mb-md w-full truncate px-2" id="settings-email">-</p>
         <div class="w-full pt-md border-t border-outline-variant flex flex-col gap-sm">
           <div class="flex justify-between items-center">
             <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">System Role</span>
-            <span class="px-sm py-px bg-primary/10 border border-primary text-primary rounded-lg text-[10px] font-bold uppercase">User</span>
+            <span
+              class="px-sm py-px bg-primary/10 border border-primary text-primary rounded-lg text-[10px] font-bold uppercase">User</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">Status</span>
@@ -47,24 +50,25 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
             <div class="space-y-sm">
               <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Full Name</label>
-              <input id="profile-name" type="text" placeholder="Nama lengkap"
+              <input id="profile-name" type="text" placeholder="Full name"
                 class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
             </div>
             <div class="space-y-sm">
               <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Email Address</label>
               <input id="profile-email-input" type="email" placeholder="email@example.com"
-                class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary transition-all font-body-md" disabled>
+                class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary transition-all font-body-md"
+                disabled>
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
             <div class="space-y-sm">
               <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Organization</label>
-              <input id="profile-org" type="text" placeholder="Nama institusi / lab"
+              <input id="profile-org" type="text" placeholder="Institution / lab name"
                 class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
             </div>
             <div class="space-y-sm">
               <label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Location</label>
-              <input id="profile-location" type="text" placeholder="Kota, Provinsi"
+              <input id="profile-location" type="text" placeholder="City, Province"
                 class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-body-md">
             </div>
           </div>
@@ -73,7 +77,8 @@
             <div class="relative">
               <input type="text" value="User" readonly
                 class="w-full bg-surface-container-highest/20 border border-outline-variant rounded-lg px-md py-sm text-on-surface-variant cursor-not-allowed font-body-md">
-              <span class="absolute right-md top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">lock</span>
+              <span
+                class="absolute right-md top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">lock</span>
             </div>
             <p class="text-[11px] text-on-surface-variant italic px-1">Role dikelola oleh administrator sistem.</p>
           </div>
@@ -103,32 +108,38 @@
         </div>
         <form id="user-password-form" class="space-y-md">
           <div>
-            <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px] uppercase">Current Password</label>
+            <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px] uppercase">Current
+              Password</label>
             <div class="relative">
               <input id="user-current-pw" type="password" placeholder="••••••••••••"
                 class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm pr-12 text-on-surface outline-none focus:border-primary font-data-md">
-              <button id="toggle-user-current-pw" type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+              <button id="toggle-user-current-pw" type="button"
+                class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
                 <span class="material-symbols-outlined">visibility</span>
               </button>
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
             <div>
-              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px] uppercase">New Password</label>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px] uppercase">New
+                Password</label>
               <div class="relative">
                 <input id="user-new-pw" type="password" placeholder="min. 6 karakter"
                   class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm pr-12 text-on-surface outline-none focus:border-primary font-data-md">
-                <button id="toggle-user-new-pw" type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+                <button id="toggle-user-new-pw" type="button"
+                  class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
                   <span class="material-symbols-outlined">visibility</span>
                 </button>
               </div>
             </div>
             <div>
-              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px] uppercase">Confirm New Password</label>
+              <label class="block text-label-caps text-on-surface-variant mb-xs text-[10px] uppercase">Confirm New
+                Password</label>
               <div class="relative">
                 <input id="user-confirm-pw" type="password" placeholder="ulangi kata sandi"
                   class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm pr-12 text-on-surface outline-none focus:border-primary font-data-md">
-                <button id="toggle-user-confirm-pw" type="button" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
+                <button id="toggle-user-confirm-pw" type="button"
+                  class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors">
                   <span class="material-symbols-outlined">visibility</span>
                 </button>
               </div>
