@@ -9,7 +9,7 @@
   // analytics gak pernah muncul padahal dashboard normal).
 
   const ANALYTICS_CYCLE_COLORS = {
-    0:  '#515151',
+    0: '#515151',
     15: '#B177DE',
     30: '#CC9900',
     45: '#00CBCC',
@@ -22,8 +22,8 @@
   const ANALYTICS_WASTE_LABELS = { rc: 'Congo Red', mg: 'Malachite Green', mb: 'Methylene Blue' };
   const ANALYTICS_WASTE_COLORS = {
     rc: { text: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.4)' },
-    mg: { text: '#34d399', bg: 'rgba(52,211,153,0.1)',  border: 'rgba(52,211,153,0.4)' },
-    mb: { text: '#60a5fa', bg: 'rgba(96,165,250,0.1)',  border: 'rgba(96,165,250,0.4)' }
+    mg: { text: '#34d399', bg: 'rgba(52,211,153,0.1)', border: 'rgba(52,211,153,0.4)' },
+    mb: { text: '#60a5fa', bg: 'rgba(96,165,250,0.1)', border: 'rgba(96,165,250,0.4)' }
   };
 
   function getAnalyticsFiltered() {
@@ -37,7 +37,7 @@
 
   function addSpectralPointToMonitoringChart(wavelength, absorbance, reactionTimeMin) {
     if (!chartInstance) return;
-    const tp    = reactionTimeMin ?? 0;
+    const tp = reactionTimeMin ?? 0;
     const dsIdx = ANALYTICS_TIME_POINTS.indexOf(tp);
     if (dsIdx < 0) return;
 
@@ -157,7 +157,7 @@
     currentAnalyticsPhase = 0;
 
     if (chartInstance) {
-      try { chartInstance.destroy(); } catch (e) {}
+      try { chartInstance.destroy(); } catch (e) { }
       chartInstance = null;
     }
     console.debug('analytics: initializing monitoring chart, canvas found:', !!ctx);
@@ -219,12 +219,12 @@
             max: 1340,
             ticks: { color: '#4a6070', font: { family: 'Poppins', size: 10 }, stepSize: 100 },
             grid: { color: 'rgba(74, 96, 112, 0.2)' },
-            title: { display: true, text: 'Panjang Gelombang (nm)', color: '#a0b4c4', font: { size: 11, family: 'Poppins' } }
+            title: { display: true, text: 'Wavelength (nm)', color: '#a0b4c4', font: { size: 11, family: 'Poppins' } }
           },
           y: {
             ticks: { color: '#7dd3fc', font: { family: 'Poppins', size: 10 } },
             grid: { color: 'rgba(74, 96, 112, 0.2)' },
-            title: { display: true, text: 'Absorbansi (a.u.)', color: '#7dd3fc', font: { size: 11, family: 'Poppins' } }
+            title: { display: true, text: 'Absorbance (a.u.)', color: '#7dd3fc', font: { size: 11, family: 'Poppins' } }
           }
         }
       }
