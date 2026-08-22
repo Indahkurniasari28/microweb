@@ -49,7 +49,7 @@ async function navigateToPage(pageName) {
     <div class="flex items-center justify-center h-64">
       <div class="flex flex-col items-center gap-md text-on-surface-variant">
         <span class="material-symbols-outlined text-[48px] animate-spin">refresh</span>
-        <span class="font-body-md">Memuat halaman...</span>
+        <span class="font-body-md">Loading page...</span>
       </div>
     </div>
   `;
@@ -68,7 +68,7 @@ async function navigateToPage(pageName) {
       <div class="flex items-center justify-center h-64">
         <div class="flex flex-col items-center gap-md text-error">
           <span class="material-symbols-outlined text-[48px]">error</span>
-          <span class="font-body-md">Gagal memuat halaman: ${pageName}</span>
+          <span class="font-body-md">Failed to load page: ${pageName}</span>
         </div>
       </div>
     `;
