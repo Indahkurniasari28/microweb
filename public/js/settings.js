@@ -55,7 +55,7 @@ function initSettingsPage() {
     const userEmailDisp = document.getElementById('user-email-display');
     if (userEmailDisp) userEmailDisp.textContent = name || email;
 
-    addNotification('✅ Profil pengguna berhasil disimpan', 'success');
+    addNotification('✅ User profile saved successfully', 'success');
   });
 
   // Password visibility toggles
@@ -71,15 +71,15 @@ function initSettingsPage() {
     const confirmPw = document.getElementById('user-confirm-pw')?.value;
 
     if (!curPw) {
-      addNotification('⚠️ Masukkan kata sandi saat ini', 'warning');
+      addNotification('⚠️ Please enter current password', 'warning');
       return;
     }
     if (!newPw || newPw.length < 6) {
-      addNotification('⚠️ Kata sandi baru minimal 6 karakter', 'warning');
+      addNotification('⚠️ New password must be at least 6 characters', 'warning');
       return;
     }
     if (newPw !== confirmPw) {
-      addNotification('❌ Konfirmasi kata sandi tidak cocok', 'error');
+      addNotification('❌ Password confirmation does not match', 'error');
       return;
     }
 
@@ -95,16 +95,16 @@ function initSettingsPage() {
         document.getElementById('user-new-pw').value = '';
         document.getElementById('user-confirm-pw').value = '';
         safeStorage.setItem('user_pw_' + email, newPw);
-        addNotification('✅ Kata sandi baru berhasil disimpan ke database', 'success');
+        addNotification('✅ New password updated successfully', 'success');
       } else {
-        addNotification(`❌ ${data.message || 'Gagal mengubah kata sandi'}`, 'error');
+        addNotification(`❌ ${data.message || 'Failed to change password'}`, 'error');
       }
     } catch (err) {
       safeStorage.setItem('user_pw_' + email, newPw);
       document.getElementById('user-current-pw').value = '';
       document.getElementById('user-new-pw').value = '';
       document.getElementById('user-confirm-pw').value = '';
-      addNotification('✅ Kata sandi baru disimpan (lokal)', 'success');
+      addNotification('✅ New password saved', 'success');
     }
   });
 }

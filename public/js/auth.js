@@ -63,7 +63,7 @@ function setupAuthFormListeners() {
       clearAuthForms();
       showMainApp();
       await (typeof loadSystemParameters === 'function' ? loadSystemParameters() : Promise.resolve());
-      addNotification(`✅ Selamat datang, ${email}!`, 'success');
+      addNotification(`✅ Welcome, ${email}!`, 'success');
       if (btn) btn.disabled = false;
       return;
     }
@@ -81,7 +81,7 @@ function setupAuthFormListeners() {
         clearAuthForms();
         showMainApp();
         await (typeof loadSystemParameters === 'function' ? loadSystemParameters() : Promise.resolve());
-        addNotification(`✅ Selamat datang, ${email}!`, 'success');
+        addNotification(`✅ Welcome, ${email}!`, 'success');
       } else {
         showAuthError('login', data.message);
       }
@@ -99,8 +99,8 @@ function setupAuthFormListeners() {
     const password = document.getElementById('register-password').value;
     const confirm = document.getElementById('register-confirm').value;
 
-    if (password !== confirm) { showAuthError('register', 'Kata sandi tidak cocok'); return; }
-    if (password.length < 6) { showAuthError('register', 'Kata sandi minimal 6 karakter'); return; }
+    if (password !== confirm) { showAuthError('register', 'Passwords do not match'); return; }
+    if (password.length < 6) { showAuthError('register', 'Password must be at least 6 characters'); return; }
 
     try {
       const response = await fetch('/api/register', {
@@ -110,7 +110,7 @@ function setupAuthFormListeners() {
       });
       const data = await response.json();
       if (data.success) {
-        alert('✅ Akun berhasil dibuat! Silakan login.');
+        alert('✅ Account created successfully! Please login.');
         toggleAuthSection('login-section');
         clearAuthForms();
       } else {
@@ -134,7 +134,7 @@ function setupAuthFormListeners() {
       });
       const data = await response.json();
       if (data.success) {
-        alert('✅ Email reset telah dikirim');
+        alert('✅ A reset email has been sent.');
         toggleAuthSection('login-section');
       } else {
         showAuthError('reset', data.message);

@@ -211,7 +211,7 @@ function setupNewSessionModal() {
     btnConfirm.onclick = () => {
       const rawVal = inputExp?.value?.trim();
       if (!rawVal) {
-        alert('Mohon masukkan Experiment ID / Nama Sesi');
+        alert('Please enter an Experiment ID / Session Name');
         return;
       }
       const safeId = rawVal.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -328,13 +328,13 @@ function subscribeDashboardToWastewaterType(wt) {
 
   if (!experimentId) {
     const phaseText = document.getElementById('dash-phase-text');
-    if (phaseText) phaseText.textContent = `Belum ada experimentId untuk jenis limbah ini`;
+    if (phaseText) phaseText.textContent = `No experimentId set for this wastewater type`;
     updateSystemStatus('hardware', 'offline');
     return;
   }
 
   const phaseText = document.getElementById('dash-phase-text');
-  if (phaseText) phaseText.textContent = `Menunggu data dari ${experimentId}…`;
+  if (phaseText) phaseText.textContent = `Waiting for data from ${experimentId}…`;
 
   cyclesUnsubscribe = microwatDb
     .collection('experiments').doc(experimentId).collection('cycles')
@@ -344,7 +344,7 @@ function subscribeDashboardToWastewaterType(wt) {
         if (snapshot.empty) {
           resetDashboardChart();
           resetDashboardKpis();
-          if (phaseText) phaseText.textContent = `Menunggu data dari ${experimentId}…`;
+          if (phaseText) phaseText.textContent = `Waiting for data from ${experimentId}…`;
           updateSystemStatus('hardware', 'online');
           return;
         }
@@ -394,7 +394,7 @@ function initDashboardChart() {
     tension: 0.1,
     fill: false,
     spanGaps: false,
-    parsing: false // data sudah dalam bentuk {x, y}
+    parsing: false // data already in {x, y}
   }));
 
   dashboardChartInstance = new Chart(ctx, {
@@ -423,18 +423,16 @@ function initDashboardChart() {
       scales: {
         x: {
           type: 'linear',
-          // Rentang data asli spektrometer kamu ~142-1332nm (lihat CSV),
-          // bukan 200-800 seperti versi simulasi lama. Sesuaikan lagi kalau perlu.
           min: 140,
           max: 1340,
           ticks: { color: '#4a6070', font: { family: 'Poppins', size: 10 }, stepSize: 100 },
           grid: { color: 'rgba(74, 96, 112, 0.2)' },
-          title: { display: true, text: 'Panjang Gelombang (nm)', color: '#a0b4c4', font: { size: 11, family: 'Poppins' } }
+          title: { display: true, text: 'Wavelength (nm)', color: '#a0b4c4', font: { size: 11, family: 'Poppins' } }
         },
         y: {
           ticks: { color: '#7dd3fc', font: { family: 'Poppins', size: 10 } },
           grid: { color: 'rgba(74, 96, 112, 0.2)' },
-          title: { display: true, text: 'Absorbansi (a.u.)', color: '#7dd3fc', font: { size: 11, family: 'Poppins' } }
+          title: { display: true, text: 'Absorbance (a.u.)', color: '#7dd3fc', font: { size: 11, family: 'Poppins' } }
         }
       }
     }
@@ -481,7 +479,7 @@ function updateDashPhaseUI() {
   const tp = currentDashPhase >= 0 ? DASH_TIME_POINTS[currentDashPhase] : null;
   const phaseText = document.getElementById('dash-phase-text');
   if (phaseText && tp !== null) {
-    phaseText.textContent = `Fase ${currentDashPhase + 1}/5 · ${tp} menit`;
+    phaseText.textContent = `Phase ${currentDashPhase + 1}/5 · ${tp} min`;
   }
 
   const dotsContainer = document.getElementById('dash-phase-dots');
@@ -547,12 +545,12 @@ function updateDashboardKpisFromCycles(experimentId, wt, cycles) {
     }
   }
   const safetyNote = document.getElementById('safety-concentration-note');
-  if (safetyNote) safetyNote.textContent = `${concentration.toFixed(2)} ppm · batas SAFE ≤${SAFE_THRESHOLD_PPM} ppm`;
+  if (safetyNote) safetyNote.textContent = `${concentration.toFixed(2)} ppm · SAFE limit ≤${SAFE_THRESHOLD_PPM} ppm`;
 
   // Reaction time badges
   if (reactionTimeMin !== null) {
     const currentRtEl = document.getElementById('current-reaction-time');
-    if (currentRtEl) currentRtEl.textContent = `Siklus: ${reactionTimeMin} menit`;
+    if (currentRtEl) currentRtEl.textContent = `Cycle: ${reactionTimeMin} min`;
 
     document.querySelectorAll('.reaction-time-dot').forEach(dot => {
       const min = parseInt(dot.dataset.min);
@@ -568,7 +566,7 @@ function updateDashboardKpisFromCycles(experimentId, wt, cycles) {
 
   // Timestamp
   if (latest.timestamp) {
-    const time = new Date(latest.timestamp).toLocaleTimeString('id-ID');
+    const time = new Date(latest.timestamp).toLocaleTimeString('en-US');
     const lastEl = document.getElementById('last-update-time');
     if (lastEl) lastEl.textContent = time;
     const analyticsEl = document.getElementById('analytics-last-update');
@@ -579,13 +577,13 @@ function updateDashboardKpisFromCycles(experimentId, wt, cycles) {
   let statusText = '■ IDLE';
   let statusClass = 'bg-surface-container-highest border border-outline-variant text-on-surface-variant';
   if (degradation >= 90) {
-    statusText = '✓ SELESAI';
+    statusText = '✓ COMPLETED';
     statusClass = 'bg-tertiary/10 border border-tertiary text-tertiary';
   } else if (degradation >= 50) {
-    statusText = '⟳ BERLANGSUNG';
+    statusText = '⟳ IN PROGRESS';
     statusClass = 'bg-primary/10 border border-primary text-primary';
   } else if (degradation > 0) {
-    statusText = '▶ DIMULAI';
+    statusText = '▶ STARTED';
     statusClass = 'bg-yellow-500/10 border border-yellow-500/30 text-yellow-400';
   }
   const badge = document.getElementById('status-badge');
@@ -624,7 +622,7 @@ function updateAnalyticsSessionSummary({ absorbance, concentration, degradation,
   }
 
   const rtEl = document.getElementById('analytics-reaction-time');
-  if (rtEl) rtEl.textContent = reactionTimeMin !== null ? `${reactionTimeMin} menit` : '-';
+  if (rtEl) rtEl.textContent = reactionTimeMin !== null ? `${reactionTimeMin} min` : '-';
 }
 
 // ============================================================================

@@ -64,10 +64,10 @@ function runSimTick() {
     };
     if (typeof updateMeasurementDisplay === 'function') updateMeasurementDisplay(measurement);
     if (typeof addMeasurementToHistory === 'function') addMeasurementToHistory(measurement);
-    addSimLog(`[DONE] t=${timeMin}min selesai | A_peak=${peakAbs.toFixed(3)} | C=${conc.toFixed(2)}ppm | D=${deg.toFixed(1)}%`);
+    addSimLog(`[DONE] t=${timeMin}min complete | A_peak=${peakAbs.toFixed(3)} | C=${conc.toFixed(2)}ppm | D=${deg.toFixed(1)}%`);
     updateSimProgress(spectralSimStep);
 
-    // Lanjut ke fase berikutnya
+    // Continue to next phase
     spectralSimStep++;
     spectralSimWlIdx = 0;
     if (spectralSimStep >= SIM_TIME_POINTS.length) {
@@ -79,7 +79,7 @@ function runSimTick() {
     spectralSimWlIdx++;
   }
 
-  // Jadwalkan titik berikutnya
+  // Schedule next point
   spectralSimTimer = setTimeout(runSimTick, spectralSimIntervalMs);
 }
 
@@ -105,8 +105,8 @@ function startSpectralSim() {
   window.simMode = true;
   document.querySelectorAll('#sim-mode-banner').forEach(el => el.classList.remove('hidden'));
   setSimButtons(true);
-  addSimLog(`[START] Simulasi dimulai — Session ${spectralSimSession} | ${spectralSimIntervalMs}ms/titik | ${SIM_WAVELENGTHS.length} λ/fase`);
-  addNotification('🧪 Mode Simulasi aktif', 'info');
+  addSimLog(`[START] Simulation started — Session ${spectralSimSession} | ${spectralSimIntervalMs}ms/pt | ${SIM_WAVELENGTHS.length} λ/phase`);
+  addNotification('🧪 Simulation Mode active', 'info');
 
   spectralSimTimer = setTimeout(runSimTick, 0);
 }
@@ -117,8 +117,8 @@ function stopSpectralSim(completed = false) {
   window.simMode = false;
   document.querySelectorAll('#sim-mode-banner').forEach(el => el.classList.add('hidden'));
   setSimButtons(false);
-  addSimLog(completed ? '[DONE] Simulasi selesai — 5/5 siklus.' : '[STOP] Simulasi dihentikan.');
-  if (completed) addNotification('✅ Simulasi selesai — 5 siklus selesai', 'success');
+  addSimLog(completed ? '[DONE] Simulation complete — 5/5 cycles.' : '[STOP] Simulation stopped.');
+  if (completed) addNotification('✅ Simulation complete — 5 cycles finished', 'success');
   updateSimProgress(-1);
 }
 
@@ -139,8 +139,8 @@ function resetSimData() {
   const badge = document.getElementById('safety-status-badge');
   if (badge) { badge.className = 'mt-xs inline-flex items-center gap-xs px-sm py-xs bg-surface-container-highest border border-outline text-on-surface-variant rounded-lg font-label-caps text-label-caps w-fit'; badge.innerHTML = '-'; }
   updateSimProgress(-1);
-  addSimLog('[RESET] Data simulasi dihapus.');
-  addNotification('🔄 Data simulasi direset', 'warning');
+  addSimLog('[RESET] Simulation data cleared.');
+  addNotification('🔄 Simulation data reset', 'warning');
 }
 
 function setSimButtons(running) {
@@ -168,7 +168,7 @@ function updateSimProgress(activeStep) {
 function addSimLog(msg) {
   const log = document.getElementById('sim-log');
   if (!log) return;
-  const time = new Date().toLocaleTimeString('id-ID');
+  const time = new Date().toLocaleTimeString('en-US');
   const p = document.createElement('p');
   p.className = 'text-[11px] font-data-md text-on-surface-variant leading-snug';
   p.textContent = `[${time}] ${msg}`;
@@ -198,13 +198,13 @@ function initSpectralSimPanel() {
 
   setSimButtons(false);
   updateSimProgress(-1);
-  addSimLog('[INIT] Panel simulasi siap.');
+  addSimLog('[INIT] Simulation panel ready.');
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
 let simulatorState = {
   ultrasonicDistance: 25.5,
-  rainStatus: 'BASAH',
+  rainStatus: 'WET',
   isAutoSimulating: false,
   autoSimulationInterval: null
 };
@@ -220,29 +220,29 @@ function initSimulatorSection() {
     slider.addEventListener('input', e => {
       simulatorState.ultrasonicDistance = parseFloat(e.target.value);
       updateSimulatorDisplay();
-      addSimulationLog(`[DISTANCE] Jarak: ${simulatorState.ultrasonicDistance.toFixed(1)} cm`);
+      addSimulationLog(`[DISTANCE] Distance: ${simulatorState.ultrasonicDistance.toFixed(1)} cm`);
     });
   }
 
   document.getElementById('btn-rain-dry')?.addEventListener('click', () => {
-    simulatorState.rainStatus = 'KERING';
+    simulatorState.rainStatus = 'DRY';
     updateRainButtonStates();
     updateSimulatorDisplay();
-    addSimulationLog('[RAIN] Sensor hujan: KERING');
+    addSimulationLog('[RAIN] Rain sensor: DRY');
   });
 
   document.getElementById('btn-rain-wet')?.addEventListener('click', () => {
-    simulatorState.rainStatus = 'BASAH';
+    simulatorState.rainStatus = 'WET';
     updateRainButtonStates();
     updateSimulatorDisplay();
-    addSimulationLog('[RAIN] Sensor hujan: BASAH');
+    addSimulationLog('[RAIN] Rain sensor: WET');
   });
 
   document.getElementById('btn-send-data')?.addEventListener('click', sendSimulatorData);
   document.getElementById('btn-auto-simulate')?.addEventListener('click', toggleAutoSimulation);
 
   updateRainButtonStates();
-  addSimulationLog('[INIT] Simulasi ESP32 siap dijalankan');
+  addSimulationLog('[INIT] ESP32 simulation ready to run');
 }
 
 function updateRainButtonStates() {
@@ -250,7 +250,7 @@ function updateRainButtonStates() {
   const wet = document.getElementById('btn-rain-wet');
   if (!dry || !wet) return;
 
-  if (simulatorState.rainStatus === 'KERING') {
+  if (simulatorState.rainStatus === 'DRY') {
     dry.className = dry.className.replace('bg-primary/20 border-primary/50 text-primary', 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400');
     dry.classList.add('bg-yellow-500/20', 'border-yellow-500/50', 'text-yellow-400');
     dry.classList.remove('bg-primary/20', 'border-primary/50', 'text-primary');
@@ -268,7 +268,7 @@ function updateSimulatorDisplay() {
   const val = document.getElementById('ultrasonic-value');
   if (val) val.textContent = simulatorState.ultrasonicDistance.toFixed(1);
 
-  const ultraStatus = simulatorState.ultrasonicDistance <= 50 ? 'DEKAT' : 'JAUH';
+  const ultraStatus = simulatorState.ultrasonicDistance <= 50 ? 'NEAR' : 'FAR';
   const statusEl = document.getElementById('ultrasonic-status');
   if (statusEl) statusEl.textContent = ultraStatus;
 
@@ -276,15 +276,15 @@ function updateSimulatorDisplay() {
   if (rainText) rainText.textContent = simulatorState.rainStatus;
 
   const rainIcon = document.getElementById('rain-icon');
-  if (rainIcon) rainIcon.textContent = simulatorState.rainStatus === 'BASAH' ? '💧' : '☀️';
+  if (rainIcon) rainIcon.textContent = simulatorState.rainStatus === 'WET' ? '💧' : '☀️';
 
   updateSimulatorJSON();
 }
 
 function updateSimulatorJSON() {
-  const ultraStatus = simulatorState.ultrasonicDistance <= 50 ? 'DEKAT' : 'JAUH';
+  const ultraStatus = simulatorState.ultrasonicDistance <= 50 ? 'NEAR' : 'FAR';
   const data = {
-    timestamp: new Date().toLocaleTimeString('id-ID'),
+    timestamp: new Date().toLocaleTimeString('en-US'),
     ultrasonic_distance: parseFloat(simulatorState.ultrasonicDistance.toFixed(1)),
     ultrasonic_status: ultraStatus,
     rain_sensor: simulatorState.rainStatus,
@@ -302,11 +302,11 @@ function sendSimulatorData() {
   const data = updateSimulatorJSON();
   if (socket?.connected) {
     socket.emit('simulatorData', data);
-    addNotification('[OK] Data simulator dikirim ke server', 'success');
-    addSimulationLog(`[SEND] Jarak=${data.ultrasonic_distance}cm, Hujan=${data.rain_sensor}`);
+    addNotification('[OK] Simulator data sent to server', 'success');
+    addSimulationLog(`[SEND] Distance=${data.ultrasonic_distance}cm, Rain=${data.rain_sensor}`);
   } else {
-    addNotification('[ERROR] WebSocket tidak terhubung', 'warning');
-    addSimulationLog('[ERROR] Gagal mengirim data: WebSocket offline');
+    addNotification('[ERROR] WebSocket not connected', 'warning');
+    addSimulationLog('[ERROR] Failed to send data: WebSocket offline');
   }
 }
 
@@ -320,21 +320,21 @@ function toggleAutoSimulation() {
       autoBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">play_circle</span> Auto Simulate';
       autoBtn.className = autoBtn.className.replace('bg-tertiary/10 border-tertiary text-tertiary', 'bg-primary-container text-on-primary-container');
     }
-    addSimulationLog('[STOP] Simulasi otomatis dihentikan');
+    addSimulationLog('[STOP] Auto simulation stopped');
   } else {
     simulatorState.isAutoSimulating = true;
     if (autoBtn) {
       autoBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-pulse">stop_circle</span> Stop Auto';
       autoBtn.className = autoBtn.className.replace('bg-primary-container text-on-primary-container', 'bg-tertiary/10 border border-tertiary text-tertiary');
     }
-    addSimulationLog('[START] Simulasi otomatis dimulai');
+    addSimulationLog('[START] Auto simulation started');
 
     simulatorState.autoSimulationInterval = setInterval(() => {
       const change = (Math.random() - 0.5) * 20;
       simulatorState.ultrasonicDistance = Math.max(5, Math.min(200, simulatorState.ultrasonicDistance + change));
 
       if (Math.random() < 0.1) {
-        simulatorState.rainStatus = Math.random() > 0.5 ? 'BASAH' : 'KERING';
+        simulatorState.rainStatus = Math.random() > 0.5 ? 'WET' : 'DRY';
         updateRainButtonStates();
       }
 
@@ -348,7 +348,7 @@ function addSimulationLog(message) {
   const container = document.getElementById('simulation-log');
   if (!container) return;
 
-  const timestamp = new Date().toLocaleTimeString('id-ID');
+  const timestamp = new Date().toLocaleTimeString('en-US');
   const entry = document.createElement('p');
   entry.className = 'font-data-md text-on-surface-variant text-[11px]';
   entry.textContent = `[${timestamp}] ${message}`;

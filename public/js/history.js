@@ -64,7 +64,7 @@ function populateSessionFilter() {
     sessions.sort((a, b) => a - b);
   }
 
-  sel.innerHTML = '<option value="all">Semua Session</option>';
+  sel.innerHTML = '<option value="all">All Session</option>';
   sessions.forEach(s => {
     sel.innerHTML += `<option value="${s}">Session ${s}</option>`;
   });

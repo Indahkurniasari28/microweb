@@ -21,7 +21,7 @@ async function initUserManagementPage() {
     const data = await res.json();
     umUsers = data.users || [];
   } catch (err) {
-    console.error('Gagal load users:', err);
+    console.error('Failed to load users:', err);
     umUsers = [];
   }
 
@@ -34,7 +34,7 @@ async function initUserManagementPage() {
   document.getElementById('um-status-filter')?.addEventListener('change', filterUmUsers);
 
   document.getElementById('btn-add-user')?.addEventListener('click', () => {
-    addNotification('ℹ️ Gunakan form register untuk menambah user baru', 'info');
+    addNotification('ℹ️ Use the registration form to add a new user', 'info');
   });
 
   document.getElementById('btn-review-all')?.addEventListener('click', async () => {
@@ -47,7 +47,7 @@ async function initUserManagementPage() {
     }).catch(() => null)));
     pending.forEach(u => { u.status = 'active'; });
     filterUmUsers();
-    addNotification(`✅ ${pending.length} user diaktifkan`, 'success');
+    addNotification(`✅ ${pending.length} user${pending.length > 1 ? 's' : ''} activated`, 'success');
   });
 
   // Modal controls
@@ -63,7 +63,7 @@ function renderUmLoading() {
     <tr><td colspan="6" class="px-lg py-xl text-center text-on-surface-variant">
       <div class="flex flex-col items-center gap-sm">
         <span class="material-symbols-outlined text-[40px] animate-spin text-primary/50">refresh</span>
-        <span class="font-body-md">Memuat data pengguna...</span>
+        <span class="font-body-md">Loading user data...</span>
       </div>
     </td></tr>`;
 }
@@ -99,7 +99,7 @@ function updateUmStats() {
   const pctEl = document.getElementById('um-capacity-pct');
   if (pctEl) pctEl.textContent = `${total}`;
   const textEl = document.getElementById('um-capacity-text');
-  if (textEl) textEl.textContent = `${total} pengguna aktif`;
+  if (textEl) textEl.textContent = `${total} active users`;
 
   const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setEl('um-stat-active', active);
@@ -240,9 +240,9 @@ async function saveUmRole() {
       });
       umEditTarget.role = newRole;
       filterUmUsers();
-      addNotification(`✅ Role ${umEditTarget.name} diperbarui ke ${newRole.toUpperCase()}`, 'success');
+      addNotification(`✅ ${umEditTarget.name}'s role updated to ${newRole.toUpperCase()}`, 'success');
     } catch {
-      addNotification('❌ Gagal memperbarui role', 'error');
+      addNotification('❌ Failed to update role', 'error');
     }
   }
   closeUmModal();
@@ -260,25 +260,25 @@ async function toggleUmBlock(userId) {
     });
     user.status = newStatus;
     filterUmUsers();
-    addNotification(`${newStatus === 'blocked' ? '🔒 User diblokir' : '🔓 User diaktifkan'}: ${user.name}`, newStatus === 'blocked' ? 'warning' : 'success');
+    addNotification(`${newStatus === 'blocked' ? '🔒 User blocked' : '🔓 User activated'}: ${user.name}`, newStatus === 'blocked' ? 'warning' : 'success');
   } catch {
-    addNotification('❌ Gagal memperbarui status', 'error');
+    addNotification('❌ Failed to update status', 'error');
   }
 }
 
 async function deleteUmUser(userId) {
   const user = umUsers.find(u => String(u.id) === String(userId));
   if (!user) return;
-  if (!confirm(`Hapus user ${user.name}?`)) return;
+  if (!confirm(`Delete user ${user.name}?`)) return;
   try {
     await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
     umUsers = umUsers.filter(u => String(u.id) !== String(userId));
     umFiltered = umFiltered.filter(u => String(u.id) !== String(userId));
     renderUmTable();
     updateUmStats();
-    addNotification(`🗑️ User ${user.name} dihapus`, 'warning');
+    addNotification(`🗑️ User ${user.name} deleted`, 'warning');
   } catch {
-    addNotification('❌ Gagal menghapus user', 'error');
+    addNotification('❌ Failed to delete user', 'error');
   }
 }
 
@@ -294,7 +294,7 @@ function buildLogEntries() {
     const isSafe = (m.concentration || 0) <= 5;
     return {
       id: i + 1,
-      timestamp: new Date(m.timestamp).toLocaleString('id-ID'),
+      timestamp: new Date(m.timestamp).toLocaleString('en-US'),
       rawTs: new Date(m.timestamp).getTime(),
       event: 'Measurement',
       typeKey: 'measurement',
@@ -338,7 +338,7 @@ function initLogDetailPage() {
   // Live time ticker
   setInterval(() => {
     const el = document.getElementById('log-live-time');
-    if (el) el.textContent = new Date().toLocaleTimeString('id-ID');
+    if (el) el.textContent = new Date().toLocaleTimeString('en-US');
   }, 1000);
 }
 
@@ -458,7 +458,7 @@ function closeLogDrawer() {
 function saveDrawerNotes() {
   if (!logDrawerEntry) return;
   logDrawerEntry.notes = document.getElementById('drawer-notes')?.value || '';
-  addNotification('✅ Catatan disimpan', 'success');
+  addNotification('✅ Note saved successfully', 'success');
   closeLogDrawer();
 }
 
@@ -467,7 +467,7 @@ function flagDrawerEntry() {
   logDrawerEntry.status = 'ANOMALY';
   logDrawerEntry.statusColor = 'error';
   renderLogTable();
-  addNotification('🚩 Entry ditandai sebagai anomali', 'warning');
+  addNotification('🚩 Entry flagged as anomaly', 'warning');
   closeLogDrawer();
 }
 
@@ -481,7 +481,7 @@ function exportLogCSV() {
   link.href = URL.createObjectURL(blob);
   link.download = `microwat-log-${new Date().toISOString().split('T')[0]}.csv`;
   link.click();
-  addNotification('✅ Log diekspor', 'success');
+  addNotification('✅ Log exported successfully', 'success');
 }
 
 // ─── Instrument Config ────────────────────────────────────────────────────────
@@ -505,7 +505,7 @@ function initInstrumentConfigPage() {
   setupToggleButton('safety-estop-toggle');
 
   const lastBackup = document.getElementById('ic-last-backup');
-  if (lastBackup) lastBackup.textContent = new Date(Date.now() - 3600000 * 4).toLocaleString('id-ID');
+  if (lastBackup) lastBackup.textContent = new Date(Date.now() - 3600000 * 4).toLocaleString('en-US');
 }
 
 function setupToggleButton(id, initialVal = null, onChange = null) {
@@ -559,18 +559,18 @@ function saveInstrumentConfig() {
   }).then(r => r.json()).then(data => {
     if (data.success) {
       systemParameters = params;
-      addNotification('✅ Konfigurasi instrumen disimpan', 'success');
+      addNotification('✅ Instrument configuration saved', 'success');
     } else {
-      addNotification('❌ Gagal menyimpan konfigurasi', 'error');
+      addNotification('❌ Failed to save configuration', 'error');
     }
   }).catch(() => {
-    addNotification('✅ Konfigurasi disimpan (lokal)', 'success');
+    addNotification('✅ Configuration saved (local)', 'success');
     systemParameters = params;
   });
 }
 
 function applyCalibration() {
-  addNotification('🔬 Kalibrasi diterapkan ke sistem', 'success');
+  addNotification('🔬 Calibration applied to system', 'success');
 }
 
 // ─── Admin Settings ───────────────────────────────────────────────────────────
@@ -623,7 +623,7 @@ function initAdminSettingsPage() {
     const userEmailDisp = document.getElementById('user-email-display');
     if (userEmailDisp) userEmailDisp.textContent = name || email;
 
-    addNotification('✅ Profil administrator berhasil disimpan', 'success');
+    addNotification('✅ Administrator profile saved successfully', 'success');
   });
 
   // Password visibility toggles
@@ -638,15 +638,15 @@ function initAdminSettingsPage() {
     const p2 = document.getElementById('sec-confirm-pw')?.value;
 
     if (!curPw) {
-      addNotification('⚠️ Masukkan kata sandi saat ini', 'warning');
+      addNotification('⚠️ Please enter current password', 'warning');
       return;
     }
     if (!p1 || p1.length < 6) {
-      addNotification('⚠️ Password baru minimal 6 karakter', 'warning');
+      addNotification('⚠️ New password must be at least 6 characters', 'warning');
       return;
     }
     if (p1 !== p2) {
-      addNotification('❌ Konfirmasi password tidak cocok', 'error');
+      addNotification('❌ Password confirmation does not match', 'error');
       return;
     }
 
@@ -662,16 +662,16 @@ function initAdminSettingsPage() {
         document.getElementById('sec-new-pw').value = '';
         document.getElementById('sec-confirm-pw').value = '';
         safeStorage.setItem('user_pw_' + email, p1);
-        addNotification('✅ Kata sandi baru admin berhasil disimpan ke database', 'success');
+        addNotification('✅ Administrator password updated successfully', 'success');
       } else {
-        addNotification(`❌ ${data.message || 'Gagal memperbarui kata sandi'}`, 'error');
+        addNotification(`❌ ${data.message || 'Failed to update password'}`, 'error');
       }
     } catch (err) {
       safeStorage.setItem('user_pw_' + email, p1);
       document.getElementById('sec-current-pw').value = '';
       document.getElementById('sec-new-pw').value = '';
       document.getElementById('sec-confirm-pw').value = '';
-      addNotification('✅ Kata sandi baru admin disimpan (lokal)', 'success');
+      addNotification('✅ Administrator password saved', 'success');
     }
   });
 
@@ -679,7 +679,7 @@ function initAdminSettingsPage() {
   const saved2fa = safeStorage.getItem('sec_2fa_' + email) === 'true';
   setupToggleButton('sec-2fa-toggle', saved2fa, (state) => {
     safeStorage.setItem('sec_2fa_' + email, String(state));
-    addNotification(state ? '🔒 Two-Factor Authentication diaktifkan' : '🔓 Two-Factor Authentication dinonaktifkan', 'info');
+    addNotification(state ? '🔒 Two-Factor Authentication enabled' : '🔓 Two-Factor Authentication disabled', 'info');
   });
 
   // Notifications toggles with storage persistence
@@ -695,16 +695,16 @@ function initAdminSettingsPage() {
 
   // Add Recipient button
   document.getElementById('btn-add-recipient')?.addEventListener('click', () => {
-    const newEmail = prompt('Masukkan alamat email penerima notifikasi:');
+    const newEmail = prompt('Enter notification recipient email address:');
     if (newEmail && newEmail.includes('@')) {
       const container = document.getElementById('notif-recipients');
       const addBtn = document.getElementById('btn-add-recipient');
       if (container && addBtn) {
         const badge = document.createElement('span');
         badge.className = 'bg-primary/10 text-primary border border-primary/30 px-sm py-xs rounded text-[10px] font-bold flex items-center gap-xs';
-        badge.innerHTML = `<span>${newEmail.trim()}</span><button type="button" class="hover:text-error transition-colors text-[14px] leading-none" onclick="this.parentElement.remove(); addNotification('🗑️ Penerima dihapus dari daftar', 'info');">&times;</button>`;
+        badge.innerHTML = `<span>${newEmail.trim()}</span><button type="button" class="hover:text-error transition-colors text-[14px] leading-none" onclick="this.parentElement.remove(); addNotification('🗑️ Recipient removed from list', 'info');">&times;</button>`;
         container.insertBefore(badge, addBtn);
-        addNotification(`📧 ${newEmail.trim()} ditambahkan ke daftar penerima`, 'info');
+        addNotification(`📧 ${newEmail.trim()} added to recipient list`, 'info');
       }
     }
   });
@@ -712,7 +712,7 @@ function initAdminSettingsPage() {
   // Notifications save button
   document.getElementById('btn-notif-save')?.addEventListener('click', () => {
     safeStorage.setItem('notif_prefs_' + email, JSON.stringify(notifPrefs));
-    addNotification('✅ Pengaturan notifikasi berhasil disimpan', 'success');
+    addNotification('✅ Notification settings saved successfully', 'success');
   });
 
   // System params form
@@ -736,12 +736,12 @@ function initAdminSettingsPage() {
       });
       const data = await response.json();
       if (data.success) {
-        addNotification('✅ Parameter sistem berhasil disimpan ke server', 'success');
+        addNotification('✅ System parameters saved to server', 'success');
       } else {
-        addNotification('✅ Parameter sistem disimpan (lokal)', 'success');
+        addNotification('✅ System parameters saved (local)', 'success');
       }
     } catch {
-      addNotification('✅ Parameter sistem disimpan (lokal)', 'success');
+      addNotification('✅ System parameters saved (local)', 'success');
     }
   });
 
@@ -749,7 +749,7 @@ function initAdminSettingsPage() {
   loadAndPopulateSystemParams();
 
   const sysLastSync = document.getElementById('admin-sys-lastsync');
-  if (sysLastSync) sysLastSync.textContent = new Date().toLocaleTimeString('id-ID');
+  if (sysLastSync) sysLastSync.textContent = new Date().toLocaleTimeString('en-US');
 }
 
 function setupPasswordVisibilityToggle(btnId, inputId) {

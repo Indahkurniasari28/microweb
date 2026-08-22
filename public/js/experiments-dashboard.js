@@ -93,7 +93,7 @@ function renderTable(rows) {
       <td>${row.lambdaMax ?? ''}</td>
       <td>${row.absorbanceMax ?? ''}</td>
       <td>${row.timestamp ?? ''}</td>
-      <td><button data-cycle-id="${row.id}">Lihat detail</button></td>
+      <td><button data-cycle-id="${row.id}">View details</button></td>
     `;
     // attach the data for later retrieval
     tr.querySelector('button').dataset.row = JSON.stringify(row);
@@ -107,11 +107,11 @@ document.addEventListener('click', async (event) => {
 
   const cycleId = button.dataset.cycleId;
   const experimentId = $('experimentId').value.trim();
-  if (!experimentId) return alert('Masukkan Experiment ID terlebih dulu');
+  if (!experimentId) return alert('Enter the Experiment ID first.');
 
   const cycleDocRef = doc(db, 'experiments', experimentId, 'cycles', cycleId);
   const cycleSnap = await getDoc(cycleDocRef);
-  if (!cycleSnap.exists()) return alert('Dokumen siklus tidak ditemukan');
+  if (!cycleSnap.exists()) return alert('Cycle document not found');
 
   const cycle = cycleSnap.data();
   const files = await getFileUrls(cycle);
@@ -134,13 +134,13 @@ document.addEventListener('click', async (event) => {
 // Controls
 $('btnLoad').addEventListener('click', async () => {
   const experimentId = $('experimentId').value.trim();
-  if (!experimentId) return alert('Masukkan Experiment ID');
+  if (!experimentId) return alert('Please enter Experiment ID');
   await loadCycles(experimentId);
 });
 
 $('btnSubscribe').addEventListener('click', () => {
   const experimentId = $('experimentId').value.trim();
-  if (!experimentId) return alert('Masukkan Experiment ID');
+  if (!experimentId) return alert('Please enter Experiment ID');
   if (unsubscribeFn) unsubscribeFn();
   unsubscribeFn = subscribeCycles(experimentId, (rows) => {
     renderTable(rows);
