@@ -12,7 +12,8 @@
         <span class="w-2 h-2 rounded-full bg-tertiary status-pulse"></span>
         <span class="font-label-caps text-label-caps text-tertiary" id="log-system-state">SYSTEM RUNNING</span>
       </div>
-      <button id="btn-export-log" class="flex items-center gap-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary px-md py-sm rounded-lg text-label-caps transition-all">
+      <button id="btn-export-log"
+        class="flex items-center gap-sm border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary px-md py-sm rounded-lg text-label-caps transition-all">
         <span class="material-symbols-outlined text-[18px]">download</span>
         EXPORT CSV
       </button>
@@ -44,7 +45,7 @@
     </div>
     <div class="glass-panel p-md rounded-xl flex flex-col gap-sm">
       <span class="font-label-caps text-label-caps text-on-surface-variant">Microwave Power</span>
-      <span class="font-data-lg text-data-lg text-secondary" id="log-power">450 W</span>
+      <span class="font-data-lg text-data-lg text-secondary" id="log-power">100 W</span>
       <div class="flex items-center gap-xs mt-auto">
         <span class="w-2 h-2 rounded-full bg-tertiary status-pulse"></span>
         <span class="font-label-caps text-label-caps text-tertiary text-[10px]">ACTIVE</span>
@@ -71,15 +72,18 @@
               class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-sm py-sm text-body-md text-on-surface outline-none focus:border-primary">
           </div>
           <div class="relative">
-            <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">filter_list</span>
-            <select id="log-type-filter" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-xl pr-sm py-sm text-body-md outline-none appearance-none focus:border-primary">
+            <span
+              class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">filter_list</span>
+            <select id="log-type-filter"
+              class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-xl pr-sm py-sm text-body-md outline-none appearance-none focus:border-primary">
               <option value="all">All Events</option>
               <option value="measurement">Measurements</option>
               <option value="system">System Events</option>
               <option value="error">Errors</option>
             </select>
           </div>
-          <button id="btn-log-filter" class="w-full bg-primary text-on-primary font-bold py-sm rounded-lg text-label-caps hover:opacity-90 transition-all">
+          <button id="btn-log-filter"
+            class="w-full bg-primary text-on-primary font-bold py-sm rounded-lg text-label-caps hover:opacity-90 transition-all">
             APPLY FILTER
           </button>
         </div>
@@ -109,7 +113,8 @@
 
     <!-- Right: Event Log Table -->
     <div class="lg:col-span-9 glass-panel rounded-xl overflow-hidden">
-      <div class="px-lg py-md border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-low">
+      <div
+        class="px-lg py-md border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-low">
         <span class="font-label-caps text-label-caps text-on-surface">Live Event Log</span>
         <span class="font-data-md text-on-surface-variant text-[12px]" id="log-live-time">—</span>
       </div>
@@ -130,14 +135,17 @@
         </table>
       </div>
       <!-- Pagination -->
-      <div class="p-md bg-surface-container-high/30 border-t border-outline-variant/30 flex items-center justify-between">
+      <div
+        class="p-md bg-surface-container-high/30 border-t border-outline-variant/30 flex items-center justify-between">
         <span class="text-body-md text-on-surface-variant" id="log-count-label">0 events</span>
         <div class="flex gap-sm">
-          <button id="log-prev" class="p-xs glass-panel rounded-lg text-on-surface-variant hover:text-primary disabled:opacity-30" disabled>
+          <button id="log-prev"
+            class="p-xs glass-panel rounded-lg text-on-surface-variant hover:text-primary disabled:opacity-30" disabled>
             <span class="material-symbols-outlined">chevron_left</span>
           </button>
           <span id="log-page-info" class="px-md py-xs glass-panel rounded-lg text-primary font-bold">1</span>
-          <button id="log-next" class="p-xs glass-panel rounded-lg text-on-surface-variant hover:text-primary disabled:opacity-30">
+          <button id="log-next"
+            class="p-xs glass-panel rounded-lg text-on-surface-variant hover:text-primary disabled:opacity-30">
             <span class="material-symbols-outlined">chevron_right</span>
           </button>
         </div>
@@ -155,7 +163,8 @@
         <h2 class="font-headline-md text-headline-md text-primary" id="drawer-title">Log Entry Details</h2>
         <p class="font-body-md text-on-surface-variant" id="drawer-subtitle">—</p>
       </div>
-      <button id="log-drawer-close" class="p-sm hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors">
+      <button id="log-drawer-close"
+        class="p-sm hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
@@ -167,12 +176,14 @@
             <span class="font-label-caps text-label-caps text-on-surface-variant block mb-xs">Full Timestamp</span>
             <span class="font-body-lg text-body-lg text-on-surface" id="drawer-timestamp">—</span>
           </div>
-          <span id="drawer-status-badge" class="px-sm py-xs bg-tertiary/10 border border-tertiary text-tertiary rounded-lg font-label-caps text-label-caps">NOMINAL</span>
+          <span id="drawer-status-badge"
+            class="px-sm py-xs bg-tertiary/10 border border-tertiary text-tertiary rounded-lg font-label-caps text-label-caps">NOMINAL</span>
         </div>
         <div class="grid grid-cols-2 gap-md pt-md border-t border-outline-variant/30">
           <div>
             <span class="font-label-caps text-label-caps text-on-surface-variant block mb-xs">Absorbance</span>
-            <span class="font-data-md text-data-md text-primary bg-primary/10 px-sm py-xs rounded" id="drawer-absorbance">—</span>
+            <span class="font-data-md text-data-md text-primary bg-primary/10 px-sm py-xs rounded"
+              id="drawer-absorbance">—</span>
           </div>
           <div>
             <span class="font-label-caps text-label-caps text-on-surface-variant block mb-xs">Concentration</span>
@@ -191,12 +202,16 @@
       <!-- Admin Actions -->
       <div class="space-y-md">
         <div class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Admin Notes</div>
-        <textarea id="drawer-notes" class="w-full h-32 bg-surface-container-lowest border border-outline-variant rounded-lg p-md font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Add resolution notes here..."></textarea>
+        <textarea id="drawer-notes"
+          class="w-full h-32 bg-surface-container-lowest border border-outline-variant rounded-lg p-md font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none"
+          placeholder="Add resolution notes here..."></textarea>
         <div class="flex flex-col gap-sm pt-sm">
-          <button id="btn-drawer-save" class="w-full bg-primary text-on-primary py-md rounded-lg font-label-caps text-label-caps hover:brightness-110 active:scale-95 transition-all">
+          <button id="btn-drawer-save"
+            class="w-full bg-primary text-on-primary py-md rounded-lg font-label-caps text-label-caps hover:brightness-110 active:scale-95 transition-all">
             SAVE NOTES
           </button>
-          <button id="btn-drawer-flag" class="w-full border border-error text-error py-sm rounded-lg font-label-caps text-label-caps hover:bg-error/10 transition-all">
+          <button id="btn-drawer-flag"
+            class="w-full border border-error text-error py-sm rounded-lg font-label-caps text-label-caps hover:bg-error/10 transition-all">
             FLAG AS ANOMALY
           </button>
         </div>
