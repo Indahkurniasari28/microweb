@@ -54,7 +54,7 @@ function addNotification(message, type = 'info') {
     setTimeout(() => {
       if (item.parentNode) item.parentNode.removeChild(item);
       if (list.children.length === 0) {
-        list.innerHTML = '<p class="text-on-surface-variant text-body-md text-center py-lg">Tidak ada notifikasi</p>';
+        list.innerHTML = '<p class="text-on-surface-variant text-body-md text-center py-lg">No notifications</p>';
       }
     }, 8000);
   }

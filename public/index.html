@@ -1628,35 +1628,35 @@
                         menu di sidebar kiri untuk berpindah halaman. Halaman aktif ditandai warna biru dengan font
                         tebal.</span></li>
                     <li class="flex items-start gap-sm"><span
-                        class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>Tombol
-                        <strong>Export Data</strong> di sidebar selalu tersedia untuk mengunduh data history kapan
-                        saja.</span></li>
+                        class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>The
+                        <strong>Export Data</strong> button in the sidebar is always available to download history data
+                        anytime.</span></li>
                     <li class="flex items-start gap-sm"><span
-                        class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>Status
-                        koneksi (Online/Offline) terlihat di header kanan atas — hijau = terhubung ke server.</span>
+                        class="material-symbols-outlined text-primary text-[16px] mt-[2px]">chevron_right</span><span>Connection
+                        status (Online/Offline) is visible in the top-right header — green = connected to server.</span>
                     </li>
                   </ul>
                 </div>
                 <div class="glass-panel rounded-xl p-lg">
-                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔔 Notifikasi</h3>
-                  <p class="text-on-surface-variant mb-md">Klik ikon lonceng 🔔 di header untuk membuka panel
-                    notifikasi. Notifikasi muncul otomatis saat:</p>
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🔔 Notifications</h3>
+                  <p class="text-on-surface-variant mb-md">Click the bell icon 🔔 in the header to open the
+                    notification panel. Notifications appear automatically when:</p>
                   <ul class="space-y-xs text-on-surface-variant list-disc list-inside">
-                    <li>Data baru masuk dari spektrometer</li>
-                    <li>Koneksi ke server terputus atau terhubung kembali</li>
-                    <li>Pengukuran dimulai, dihentikan, atau direset</li>
-                    <li>Data berhasil disimpan atau terjadi error</li>
-                    <li>Data simulator berhasil dikirim</li>
+                    <li>New data received from the spectrometer</li>
+                    <li>Server connection is lost or reconnected</li>
+                    <li>Measurement started, stopped, or reset</li>
+                    <li>Data successfully saved or an error occurred</li>
+                    <li>Simulator data successfully sent</li>
                   </ul>
                 </div>
                 <div class="glass-panel rounded-xl p-lg">
-                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🌓 Mode Tampilan</h3>
-                  <p class="text-on-surface-variant">Klik ikon <span
+                  <h3 class="font-body-lg font-bold text-on-surface mb-md">🌓 Display Mode</h3>
+                  <p class="text-on-surface-variant">Click the <span
                       class="material-symbols-outlined text-[16px] align-middle">light_mode</span> / <span
-                      class="material-symbols-outlined text-[16px] align-middle">dark_mode</span> di header kanan atas
-                    untuk beralih antara <strong class="text-on-surface">Dark Mode</strong> (gelap, cocok di lab redup)
-                    dan <strong class="text-on-surface">Light Mode</strong> (terang, cocok di lingkungan cerah). Pilihan
-                    tersimpan otomatis.</p>
+                      class="material-symbols-outlined text-[16px] align-middle">dark_mode</span> icon in the top-right
+                    header to switch between <strong class="text-on-surface">Dark Mode</strong> (ideal for dimly-lit labs)
+                    and <strong class="text-on-surface">Light Mode</strong> (ideal for bright environments). Your
+                    preference is saved automatically.</p>
                 </div>
                 <div class="glass-panel rounded-xl p-lg">
                   <h3 class="font-body-lg font-bold text-on-surface mb-md">📱 Progressive Web App (PWA)</h3>
@@ -1712,13 +1712,13 @@
     <div id="notification-panel"
       class="hidden fixed right-0 top-16 w-80 max-h-[calc(100vh-64px)] z-50 flex flex-col glass-panel border-outline-variant rounded-l-xl overflow-hidden shadow-2xl">
       <div class="px-lg py-md border-b border-outline-variant flex items-center justify-between">
-        <h3 class="font-headline-md text-body-md font-bold text-on-surface">Notifikasi</h3>
+        <h3 class="font-headline-md text-body-md font-bold text-on-surface">Notifications</h3>
         <button id="close-notification-panel" class="text-on-surface-variant hover:text-primary transition-colors">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
       <div id="notification-list" class="flex-1 overflow-y-auto p-md flex flex-col gap-sm">
-        <p class="text-on-surface-variant text-body-md text-center py-lg">Tidak ada notifikasi</p>
+        <p class="text-on-surface-variant text-body-md text-center py-lg">No notifications</p>
       </div>
     </div>
 

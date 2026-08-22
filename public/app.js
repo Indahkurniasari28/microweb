@@ -325,15 +325,15 @@ function navigateToPage(pageName) {
 
   // Update title
   const titles = {
-    dashboard: '📊 Dashboard Monitoring',
-    monitoring: '📈 Monitoring Real-Time',
-    history: '📋 Riwayat Data',
-    controls: '⚙️ Kontrol Sistem',
-    simulator: '📡 Simulasi ESP32 IoT',
-    'esp32-real': '📡 Sensor Real ESP32',
-    parameters: '🔧 Parameter Sistem',
-    notifications: '🔔 Notifikasi',
-    settings: '⚙️ Pengaturan'
+    dashboard: '📊 Monitoring Dashboard',
+    monitoring: '📈 Real-Time Monitoring',
+    history: '📋 Data History',
+    controls: '⚙️ System Controls',
+    simulator: '📡 ESP32 IoT Simulation',
+    'esp32-real': '📡 ESP32 Real Sensor',
+    parameters: '🔧 System Parameters',
+    notifications: '🔔 Notifications',
+    settings: '⚙️ Settings'
   };
   const titleEl = document.getElementById('page-title');
   if (titleEl) titleEl.textContent = titles[pageName] || 'MICROWAT';
