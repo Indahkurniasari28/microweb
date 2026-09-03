@@ -155,6 +155,78 @@
 
   </div>
 
+  <!-- ===============================================================
+       MICROWAT EXPERIMENT CONTROL
+       Website → Node.js → MQTT → Raspberry Pi
+       =============================================================== -->
+  <section class="glass-panel p-lg rounded-2xl border border-primary/20">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-lg">
+      <div>
+        <h2 class="font-headline-md text-headline-md text-on-surface">Hardware Control</h2>
+        <p class="text-xs text-on-surface-variant mt-xs">
+          Kontrol proses MICROWAT dikirim ke Raspberry Pi melalui MQTT.
+        </p>
+      </div>
+      <span id="control-status-badge" class="inline-flex items-center gap-xs px-sm py-xs rounded-full bg-surface-container-highest border border-outline text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">STANDBY</span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-md">
+      <button id="btn-isi" type="button" class="glass-panel p-md rounded-xl border border-primary/20 hover:border-primary hover:bg-primary/5 transition-all text-left">
+        <div class="flex items-center gap-sm">
+          <span class="material-symbols-outlined text-primary">water_pump</span>
+          <div>
+            <h3 class="font-body-md font-bold text-on-surface">FILL</h3>
+            <p class="text-[10px] text-on-surface-variant">Pompa A + solenoid tutup</p>
+          </div>
+        </div>
+        <span id="status-isi" class="inline-flex mt-md font-label-caps text-[10px] font-bold uppercase px-sm py-xs rounded-lg text-on-surface-variant bg-surface-container border border-outline-variant/30">READY</span>
+      </button>
+
+      <button id="btn-ukur" type="button" class="glass-panel p-md rounded-xl border border-secondary/20 hover:border-secondary hover:bg-secondary/5 transition-all text-left">
+        <div class="flex items-center gap-sm">
+          <span class="material-symbols-outlined text-secondary">biotech</span>
+          <div>
+            <h3 class="font-body-md font-bold text-on-surface">MEASURE</h3>
+            <p class="text-[10px] text-on-surface-variant">Avantes spectrometer</p>
+          </div>
+        </div>
+        <span id="status-ukur" class="inline-flex mt-md font-label-caps text-[10px] font-bold uppercase px-sm py-xs rounded-lg text-on-surface-variant bg-surface-container border border-outline-variant/30">READY</span>
+      </button>
+
+      <button id="btn-kosong" type="button" class="glass-panel p-md rounded-xl border border-tertiary/20 hover:border-tertiary hover:bg-tertiary/5 transition-all text-left">
+        <div class="flex items-center gap-sm">
+          <span class="material-symbols-outlined text-tertiary">output_circle</span>
+          <div>
+            <h3 class="font-body-md font-bold text-on-surface">EMPTY</h3>
+            <p class="text-[10px] text-on-surface-variant">Pompa B + solenoid buka</p>
+          </div>
+        </div>
+        <span id="status-kosong" class="inline-flex mt-md font-label-caps text-[10px] font-bold uppercase px-sm py-xs rounded-lg text-on-surface-variant bg-surface-container border border-outline-variant/30">READY</span>
+      </button>
+
+      <button id="btn-stop-control" type="button" class="glass-panel p-md rounded-xl border border-error/20 hover:border-error hover:bg-error/5 transition-all text-left">
+        <div class="flex items-center gap-sm">
+          <span class="material-symbols-outlined text-error">stop_circle</span>
+          <div>
+            <h3 class="font-body-md font-bold text-on-surface">STOP</h3>
+            <p class="text-[10px] text-on-surface-variant">Hentikan aktuator aktif</p>
+          </div>
+        </div>
+        <span class="inline-flex mt-md font-label-caps text-[10px] font-bold uppercase px-sm py-xs rounded-lg text-error bg-error/10 border border-error/30">STOP ALL</span>
+      </button>
+    </div>
+
+    <div class="mt-lg p-md bg-surface-container-lowest/50 rounded-xl border border-outline-variant/30">
+      <div class="flex items-center justify-between mb-sm">
+        <span class="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-widest">Control Log</span>
+        <span id="rpi-control-connection" class="text-[10px] font-bold text-on-surface-variant">MQTT: -</span>
+      </div>
+      <div id="control-log" class="space-y-xs max-h-40 overflow-auto">
+        <p class="text-[11px] text-on-surface-variant font-data-md">Menunggu perintah kontrol...</p>
+      </div>
+    </div>
+  </section>
+
   <!-- Motor Driver + Waterpumps -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
 

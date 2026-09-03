@@ -267,7 +267,22 @@ mqttClient.on("connect", () => {
 });
 
 mqttClient.on("message", (topic, message) => {
-  console.log(`📨 Cloud MQTT: ${topic} = ${message.toString()}`);
+  const raw = message.toString();
+  console.log(`📨 Cloud MQTT: ${topic} = ${raw}`);
+
+  // Teruskan telemetry/status dari Raspberry Pi ke halaman Device
+  if (topic === "microwat/status" || topic.startsWith("microwat/status/")) {
+    let payload = { status: raw };
+    try { payload = JSON.parse(raw); } catch (_) {}
+    io.emit("deviceStatus", { topic, ...payload });
+  }
+
+  // Hasil pengukuran dari Raspberry Pi
+  if (topic === "microwat/measurement" || topic.startsWith("microwat/measurement/")) {
+    let payload = { raw };
+    try { payload = JSON.parse(raw); } catch (_) {}
+    io.emit("deviceMeasurement", { topic, ...payload });
+  }
 });
 
 mqttClient.on("error", (error) => {
@@ -424,40 +439,55 @@ io.on("connection", (socket) => {
     console.log("📤 Reset measurement command received");
   });
 
-  // ── Motor / Pump Control (delegasi ke Flask di RPi) ──
-  socket.on("deviceControl", async (data) => {
-    const FLASK_URL = process.env.FLASK_URL || "http://localhost:5000";
+  // ── Hardware Control → Raspberry Pi via MQTT ──
+  socket.on("deviceControl", (data = {}) => {
     const actionMap = {
-      fill:    { motor: "motor1", action: "start" },
-      measure: null, // handled by spectrometer, no GPIO
-      empty:   { motor: "motor2", action: "start" },
+      fill: "FILL",
+      measure: "MEASURE",
+      empty: "EMPTY",
+      stop: "STOP",
     };
 
-    const cmd = actionMap[data.action];
-    if (!cmd) {
-      // "measure" hanya trigger spektrometer, bukan motor
-      socket.emit("deviceControlResult", { action: data.action, status: "ok" });
+    const action = String(data.action || "").toLowerCase();
+    const command = actionMap[action];
+    const requestId = data.requestId || `web-${Date.now()}`;
+
+    if (!command) {
+      socket.emit("deviceControlResult", {
+        action, requestId, status: "error",
+        message: "Perintah tidak dikenal"
+      });
       return;
     }
 
-    try {
-      const res = await fetch(`${FLASK_URL}/${cmd.motor}/${cmd.action}`, { method: "GET" });
-      if (!res.ok) throw new Error(`Flask returned ${res.status}`);
-
-      console.log(`🔧 Motor control: ${data.action} → ${cmd.motor}/${cmd.action}`);
-      socket.emit("deviceControlResult", { action: data.action, status: "ok" });
-
-      // Auto-stop motor setelah 5 detik
-      setTimeout(async () => {
-        await fetch(`${FLASK_URL}/${cmd.motor}/stop`).catch(() => {});
-        socket.emit("deviceControlResult", { action: data.action, status: "done" });
-        console.log(`🛑 Motor auto-stop: ${cmd.motor}`);
-      }, 5000);
-
-    } catch (err) {
-      console.error(`❌ Flask motor error: ${err.message}`);
-      socket.emit("deviceControlResult", { action: data.action, status: "error", message: err.message });
+    if (!mqttClient.connected) {
+      socket.emit("deviceControlResult", {
+        action, requestId, status: "error",
+        message: "MQTT cloud belum terhubung"
+      });
+      return;
     }
+
+    const payload = JSON.stringify({
+      command, requestId,
+      timestamp: new Date().toISOString(),
+      source: "microwat-web"
+    });
+
+    mqttClient.publish("microwat/control", payload, { qos: 1 }, (err) => {
+      if (err) {
+        console.error(`❌ MQTT control error: ${err.message}`);
+        socket.emit("deviceControlResult", {
+          action, command, requestId, status: "error", message: err.message
+        });
+        return;
+      }
+      console.log(`🔧 Device control → ${command} (${requestId})`);
+      socket.emit("deviceControlResult", {
+        action, command, requestId, status: "sent",
+        message: `Perintah ${command} dikirim ke Raspberry Pi`
+      });
+    });
   });
 
   socket.on("publish", (data) => {

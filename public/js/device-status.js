@@ -7,7 +7,7 @@ let deviceClockSeconds = 0;
 let currentDeviceId = null;
 var esp32RealData = null;
 
-function initDeviceStatusPage() {
+function initDevicePage() {
   console.log('🔧 Init Device Page');
 
   // Stop any previous clock
@@ -162,68 +162,80 @@ function setButtonStatus(id, statusText, color) {
 }
 
 function initControlButtons() {
-  document.getElementById('btn-isi')?.addEventListener('click', () => {
+  const send = (action) => {
     if (!socket?.connected) {
-      addControlLog('ERROR: Not connected to the server.');
+      addControlLog('ERROR: Not connected to Node.js server.');
       addNotification('❌ Not connected to the server', 'error');
       return;
     }
-    setControlBadge('FILLING');
-    setButtonStatus('status-isi', 'RUNNING', 'primary');
-    addControlLog('Fill: Pump active — pumping waste water into the cuvette.');
-    addNotification('💧 Fill: Active pump', 'info');
-    socket.emit('deviceControl', { action: 'fill' });
 
-    // Reset status after a moment (server will confirm via event)
-    setTimeout(() => {
-      setButtonStatus('status-fill', 'DONE', 'primary');
-      addControlLog('Fill: Done — filled cuvette.');
-    }, 3000);
+    const requestId = `web-${Date.now()}`;
+    socket.emit('deviceControl', { action, requestId });
+    addControlLog(`${action.toUpperCase()}: command sent to Raspberry Pi.`);
+  };
+
+  document.getElementById('btn-isi')?.addEventListener('click', () => {
+    setControlBadge('FILLING');
+    setButtonStatus('status-isi', 'SENDING', 'primary');
+    send('fill');
   });
 
   document.getElementById('btn-ukur')?.addEventListener('click', () => {
-    if (!socket?.connected) {
-      addControlLog('ERROR: Not connected to the server.');
-      addNotification('❌ Not connected to the server', 'error');
-      return;
-    }
     setControlBadge('MEASURING');
-    setButtonStatus('status-ukur', 'RUNNING', 'secondary');
-    addControlLog('Measure: Spectrophotometer active — measuring wavelength...');
-    addNotification('🔬 Measure: Active spectrophotometer', 'info');
-    socket.emit('deviceControl', { action: 'measure' });
-
-    setTimeout(() => {
-      setButtonStatus('status-ukur', 'DONE', 'secondary');
-      addControlLog('Measure: Measurement complete — data sent to the server.');
-    }, 3000);
+    setButtonStatus('status-ukur', 'SENDING', 'secondary');
+    send('measure');
   });
 
   document.getElementById('btn-kosong')?.addEventListener('click', () => {
-    if (!socket?.connected) {
-      addControlLog('ERROR: Not connected to the server.');
-      addNotification('❌ Not connected to the server', 'error');
+    setControlBadge('EMPTYING');
+    setButtonStatus('status-kosong', 'SENDING', 'tertiary');
+    send('empty');
+  });
+
+  document.getElementById('btn-stop-control')?.addEventListener('click', () => {
+    setControlBadge('STANDBY');
+    send('stop');
+  });
+
+  // Konfirmasi bahwa Node.js sudah menerima perintah.
+  socket?.on('deviceControlResult', (data = {}) => {
+    if (data.status === 'error') {
+      addControlLog(`ERROR ${String(data.action || '').toUpperCase()}: ${data.message || 'failed'}`);
+      addNotification(`❌ ${data.message || 'Control failed'}`, 'error');
+      setControlBadge('STANDBY');
       return;
     }
-    setControlBadge('EMPTYING');
-    setButtonStatus('status-kosong', 'RUNNING', 'tertiary');
-    addControlLog('Empty: Emptying the cuvette...');
-    addNotification('🪣 Empty: Cuvette emptied', 'info');
-    socket.emit('deviceControl', { action: 'empty' });
+    addControlLog(`${String(data.command || data.action || '').toUpperCase()}: accepted by server.`);
+  });
 
-    setTimeout(() => {
-      setControlBadge('DONE');
-      setButtonStatus('status-kosong', 'DONE', 'tertiary');
-      // Reset all statuses back to READY after emptying
-      setTimeout(() => {
-        setControlBadge('STANDBY');
-        setButtonStatus('status-isi', 'READY', 'default');
-        setButtonStatus('status-ukur', 'READY', 'default');
-        setButtonStatus('status-kosong', 'READY', 'default');
-        addControlLog('Cycle complete. System back to STANDBY.');
-      }, 2000);
-      addControlLog('Empty: Cuvette emptied — cycle complete.');
-    }, 3000);
+  // Status aktual yang datang dari Raspberry Pi melalui MQTT.
+  socket?.on('deviceStatus', (data = {}) => {
+    const status = String(data.status || data.state || '').toUpperCase();
+    if (!status) return;
+
+    setControlBadge(status);
+    const connection = document.getElementById('rpi-control-connection');
+    if (connection) connection.textContent = 'MQTT: ONLINE';
+
+    if (status.includes('FILL')) setButtonStatus('status-isi', status, 'primary');
+    if (status.includes('MEASURE')) setButtonStatus('status-ukur', status, 'secondary');
+    if (status.includes('EMPTY')) setButtonStatus('status-kosong', status, 'tertiary');
+    if (status.includes('STOP') || status === 'IDLE' || status === 'STANDBY') {
+      setButtonStatus('status-isi', 'READY', 'default');
+      setButtonStatus('status-ukur', 'READY', 'default');
+      setButtonStatus('status-kosong', 'READY', 'default');
+    }
+
+    addControlLog(`Raspberry Pi: ${status}${data.message ? ' — ' + data.message : ''}`);
+  });
+
+  socket?.on('deviceMeasurement', (data = {}) => {
+    const value = Number(data.absorbance_max ?? data.absorbance);
+    if (Number.isFinite(value)) {
+      const el = document.getElementById('spec-absorbance');
+      if (el) el.textContent = `${value.toFixed(4)} a.u.`;
+    }
+    addControlLog('Avantes: hasil pengukuran diterima dari Raspberry Pi.');
   });
 }
 

@@ -5,7 +5,7 @@
 const PAGE_TITLES = {
   dashboard:          'Dashboard',
   analytics:          'Analytics',
-  'device-status':    'Device',
+  device:              'Device',
   'device-detail':    'Device Detail',
   history:            'History',
   settings:           'Settings',
@@ -18,6 +18,9 @@ const PAGE_TITLES = {
 };
 
 async function navigateToPage(pageName) {
+  // Device dan Device Status sekarang menjadi satu halaman.
+  if (pageName === 'device-status') pageName = 'device';
+
   // Admin settings redirect for settings nav link
   if (pageName === 'settings' && currentUserRole === 'admin') {
     pageName = 'admin-settings';
@@ -79,7 +82,7 @@ function initPage(pageName) {
   switch (pageName) {
     case 'dashboard':           initDashboardPage(); break;
     case 'analytics':           initAnalyticsPage(); break;
-    case 'device-status':       initDeviceStatusPage(); break;
+    case 'device':              initDevicePage(); break;
     case 'device-detail':       initDeviceDetailPage(); break;
     case 'history':             initHistoryPage(); break;
     case 'settings':            initSettingsPage(); break;
@@ -153,7 +156,7 @@ function closeMobileDrawer() {
 
 function updateMobileBottomNav(pageName) {
   document.querySelectorAll('.mobile-bottom-btn').forEach(btn => {
-    const isActive = btn.dataset.page === pageName || (pageName === 'device-detail' && btn.dataset.page === 'device-status');
+    const isActive = btn.dataset.page === pageName || (pageName === 'device-detail' && btn.dataset.page === 'device');
     btn.classList.toggle('text-primary', isActive);
     btn.classList.toggle('font-bold', isActive);
     btn.classList.toggle('text-on-surface-variant', !isActive);
