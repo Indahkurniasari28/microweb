@@ -446,6 +446,7 @@ io.on("connection", (socket) => {
       measure: "MEASURE",
       empty: "EMPTY",
       stop: "STOP",
+      spectrumAwal: "PRE_EXPERIMENT_SPECTRUM",
     };
 
     const action = String(data.action || "").toLowerCase();
