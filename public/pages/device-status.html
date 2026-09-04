@@ -61,7 +61,7 @@
           </div>
           <div>
             <h3 class="font-headline-md text-headline-md text-on-surface">Raspberry Pi 5</h3>
-            <p class="text-xs text-on-surface-variant font-data-md">Cortex-A76 · 8 GB RAM · Controller Utama</p>
+            <p class="text-xs text-on-surface-variant font-data-md">Cortex-A76 · 8 GB RAM · Main Controller</p>
           </div>
         </div>
         <span id="rpi-online-badge"
@@ -97,7 +97,7 @@
         </div>
       </div>
       <div class="flex items-center gap-xs text-[10px] text-primary/60 font-label-caps uppercase mt-xs">
-        <span class="material-symbols-outlined text-[14px]">open_in_new</span><span>Tap untuk detail</span>
+        <span class="material-symbols-outlined text-[14px]">open_in_new</span><span>Tap for details</span>
       </div>
     </div>
 
@@ -149,7 +149,7 @@
         </div>
       </div>
       <div class="flex items-center gap-xs text-[10px] text-primary/60 font-label-caps uppercase mt-xs">
-        <span class="material-symbols-outlined text-[14px]">open_in_new</span><span>Tap untuk detail</span>
+        <span class="material-symbols-outlined text-[14px]">open_in_new</span><span>Tap for details</span>
       </div>
     </div>
 
@@ -164,10 +164,30 @@
       <div>
         <h2 class="font-headline-md text-headline-md text-on-surface">Hardware Control</h2>
         <p class="text-xs text-on-surface-variant mt-xs">
-          Kontrol proses MICROWAT dikirim ke Raspberry Pi melalui MQTT.
+          MICROWAT process controls are sent to the Raspberry Pi via MQTT.
         </p>
       </div>
       <span id="control-status-badge" class="inline-flex items-center gap-xs px-sm py-xs rounded-full bg-surface-container-highest border border-outline text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">STANDBY</span>
+    </div>
+
+    <!-- Avantes pre-experiment baseline -->
+    <div class="mb-lg p-md rounded-xl border border-secondary/20 bg-secondary/5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div>
+          <h3 class="font-body-md font-bold text-on-surface">Avantes — Pre-Experiment Spectrum</h3>
+          <p class="text-[11px] text-on-surface-variant mt-xs">
+            Capture the initial spectrum as a baseline before the degradation process begins.
+          </p>
+        </div>
+        <button id="btn-spectrum-awal" type="button" class="px-md py-sm rounded-xl bg-secondary/10 border border-secondary/30 text-secondary font-label-caps text-[10px] font-bold uppercase tracking-wider hover:bg-secondary/20 transition-all">
+          <span class="material-symbols-outlined text-[16px] align-middle mr-xs">ssid_chart</span>
+          INITIAL SPECTRUM
+        </button>
+      </div>
+      <div class="flex flex-wrap items-center gap-sm mt-md">
+        <span id="status-spectrum-awal" class="inline-flex font-label-caps text-[10px] font-bold uppercase px-sm py-xs rounded-lg text-on-surface-variant bg-surface-container border border-outline-variant/30">NOT CAPTURED</span>
+        <span id="spectrum-awal-time" class="text-[10px] text-on-surface-variant font-data-md">-</span>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-md">
@@ -176,7 +196,7 @@
           <span class="material-symbols-outlined text-primary">water_pump</span>
           <div>
             <h3 class="font-body-md font-bold text-on-surface">FILL</h3>
-            <p class="text-[10px] text-on-surface-variant">Pompa A + solenoid tutup</p>
+            <p class="text-[10px] text-on-surface-variant">Pump A + solenoid closed</p>
           </div>
         </div>
         <span id="status-isi" class="inline-flex mt-md font-label-caps text-[10px] font-bold uppercase px-sm py-xs rounded-lg text-on-surface-variant bg-surface-container border border-outline-variant/30">READY</span>
@@ -198,7 +218,7 @@
           <span class="material-symbols-outlined text-tertiary">output_circle</span>
           <div>
             <h3 class="font-body-md font-bold text-on-surface">EMPTY</h3>
-            <p class="text-[10px] text-on-surface-variant">Pompa B + solenoid buka</p>
+            <p class="text-[10px] text-on-surface-variant">Pump B + solenoid open</p>
           </div>
         </div>
         <span id="status-kosong" class="inline-flex mt-md font-label-caps text-[10px] font-bold uppercase px-sm py-xs rounded-lg text-on-surface-variant bg-surface-container border border-outline-variant/30">READY</span>
@@ -209,7 +229,7 @@
           <span class="material-symbols-outlined text-error">stop_circle</span>
           <div>
             <h3 class="font-body-md font-bold text-on-surface">STOP</h3>
-            <p class="text-[10px] text-on-surface-variant">Hentikan aktuator aktif</p>
+            <p class="text-[10px] text-on-surface-variant">Stop active actuators</p>
           </div>
         </div>
         <span class="inline-flex mt-md font-label-caps text-[10px] font-bold uppercase px-sm py-xs rounded-lg text-error bg-error/10 border border-error/30">STOP ALL</span>
@@ -222,7 +242,7 @@
         <span id="rpi-control-connection" class="text-[10px] font-bold text-on-surface-variant">MQTT: -</span>
       </div>
       <div id="control-log" class="space-y-xs max-h-40 overflow-auto">
-        <p class="text-[11px] text-on-surface-variant font-data-md">Menunggu perintah kontrol...</p>
+        <p class="text-[11px] text-on-surface-variant font-data-md">Waiting for control commands...</p>
       </div>
     </div>
   </section>
@@ -248,14 +268,14 @@
       </div>
     </div>
 
-    <!-- Waterpump 1 (Fill) -->
+    <!-- Water Pump 1 (Fill) -->
     <div class="glass-panel p-lg rounded-2xl flex flex-col gap-md">
       <div class="flex gap-md items-center">
         <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
           <span class="material-symbols-outlined text-2xl">water_pump</span>
         </div>
         <div>
-          <h3 class="font-body-md font-bold text-on-surface">Waterpump 1</h3>
+          <h3 class="font-body-md font-bold text-on-surface">Water Pump 1</h3>
           <p class="text-xs text-on-surface-variant">Fill</p>
         </div>
       </div>
@@ -274,14 +294,14 @@
       </div>
     </div>
 
-    <!-- Waterpump 2 (Empty) -->
+    <!-- Water Pump 2 (Empty) -->
     <div class="glass-panel p-lg rounded-2xl flex flex-col gap-md">
       <div class="flex gap-md items-center">
         <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary shrink-0">
           <span class="material-symbols-outlined text-2xl">output_circle</span>
         </div>
         <div>
-          <h3 class="font-body-md font-bold text-on-surface">Waterpump 2</h3>
+          <h3 class="font-body-md font-bold text-on-surface">Water Pump 2</h3>
           <p class="text-xs text-on-surface-variant">Empty</p>
         </div>
       </div>
