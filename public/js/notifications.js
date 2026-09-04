@@ -1,150 +1,166 @@
 // ============================================================================
-// MICROWAT - Notification System (with Floating Toasts)
+// MICROWAT - Page Navigation (Dynamic Page Loading)
 // ============================================================================
 
-function addNotification(message, type = 'info') {
-  // 1. Show high-visibility floating toast notification directly on viewport
-  showFloatingToast(message, type);
+const PAGE_TITLES = {
+  dashboard:          'Dashboard',
+  analytics:          'Analytics',
+  device:              'Device',
+  'device-detail':    'Device Detail',
+  history:            'History',
+  settings:           'Settings',
+  info:               'Info',
+  help:               'Help',
+  'user-management':  'User Management',
+  'log-detail':       'Log Detail',
+  'instrument-config':'Instrument Config',
+  'admin-settings':   'Admin Settings'
+};
 
-  // 2. Add to header notification panel list
-  const list = document.getElementById('notification-list');
-  if (!list) {
-    console.log(`[${type.toUpperCase()}] ${message}`);
-    return;
+async function navigateToPage(pageName) {
+  // Device dan Device Status sekarang menjadi satu halaman.
+  if (pageName === 'device-status') pageName = 'device';
+
+  // Admin settings redirect for settings nav link
+  if (pageName === 'settings' && currentUserRole === 'admin') {
+    pageName = 'admin-settings';
   }
 
-  // Remove empty state message
-  const empty = list.querySelector('p');
-  if (empty && empty.textContent.includes('Tidak ada')) empty.remove();
+  console.log('🔄 Navigating to:', pageName);
 
-  const timestamp = new Date().toLocaleTimeString('id-ID');
+  // Simpan halaman aktif agar bisa di-restore setelah refresh
+  safeStorage.setItem('lastPage', pageName);
 
-  const colorMap = {
-    success: 'border-tertiary/30 bg-tertiary/5 text-tertiary',
-    error:   'border-error/30 bg-error/5 text-error',
-    warning: 'border-yellow-500/30 bg-yellow-500/5 text-yellow-400',
-    info:    'border-primary/30 bg-primary/5 text-primary'
-  };
-  const iconMap = {
-    success: 'check_circle',
-    error: 'error',
-    warning: 'warning',
-    info: 'info'
-  };
-
-  const item = document.createElement('div');
-  item.className = `flex items-start gap-sm p-sm border rounded-lg ${colorMap[type] || colorMap.info}`;
-  item.innerHTML = `
-    <span class="material-symbols-outlined text-[16px] mt-xs shrink-0">${iconMap[type] || 'info'}</span>
-    <div class="min-w-0 flex-1">
-      <p class="text-[12px] font-body-md break-words">${message}</p>
-      <p class="text-[10px] opacity-70 mt-xs">${timestamp}</p>
-    </div>
-  `;
-  list.insertBefore(item, list.firstChild);
-
-  while (list.children.length > 50) list.removeChild(list.lastChild);
-
-  const badge = document.getElementById('notification-badge');
-  if (badge) {
-    badge.classList.remove('hidden');
-  }
-
-  if (type !== 'error') {
-    setTimeout(() => {
-      if (item.parentNode) item.parentNode.removeChild(item);
-      if (list.children.length === 0) {
-        list.innerHTML = '<p class="text-on-surface-variant text-body-md text-center py-lg">No notifications</p>';
-      }
-    }, 8000);
-  }
-
-  console.log(`[${type.toUpperCase()}] ${message}`);
-}
-
-function showFloatingToast(message, type = 'info') {
-  let container = document.getElementById('floating-toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'floating-toast-container';
-    container.className = 'fixed bottom-6 right-6 z-[99999] flex flex-col gap-sm max-w-sm pointer-events-none';
-    document.body.appendChild(container);
-  }
-
-  const toast = document.createElement('div');
-  const styles = {
-    success: 'bg-surface-container-high/95 text-tertiary border border-tertiary/40 shadow-xl',
-    error:   'bg-surface-container-high/95 text-error border border-error/40 shadow-xl',
-    warning: 'bg-surface-container-high/95 text-yellow-400 border border-yellow-500/40 shadow-xl',
-    info:    'bg-surface-container-high/95 text-primary border border-primary/40 shadow-xl'
-  };
-  const iconMap = {
-    success: 'check_circle',
-    error: 'error',
-    warning: 'warning',
-    info: 'info'
-  };
-
-  toast.className = `pointer-events-auto flex items-center gap-sm px-md py-sm rounded-xl backdrop-blur-md transition-all transform duration-300 translate-y-3 opacity-0 ${styles[type] || styles.info}`;
-  toast.innerHTML = `
-    <span class="material-symbols-outlined text-[20px] shrink-0">${iconMap[type] || 'info'}</span>
-    <span class="font-bold flex-1 text-[13px] leading-tight">${message}</span>
-    <button type="button" class="opacity-60 hover:opacity-100 ml-1 text-on-surface p-0.5 rounded transition-opacity">
-      <span class="material-symbols-outlined text-[16px]">close</span>
-    </button>
-  `;
-
-  const closeBtn = toast.querySelector('button');
-  if (closeBtn) {
-    closeBtn.onclick = () => {
-      toast.classList.add('opacity-0', 'translate-y-2');
-      setTimeout(() => toast.remove(), 250);
-    };
-  }
-
-  container.appendChild(toast);
-
-  // Trigger smooth entrance
-  requestAnimationFrame(() => {
-    toast.classList.remove('translate-y-3', 'opacity-0');
+  // Update nav active states
+  document.querySelectorAll('.nav-link').forEach(link => {
+    const isActive = link.dataset.page === pageName;
+    link.classList.toggle('active', isActive);
   });
 
-  // Auto dismiss
-  setTimeout(() => {
-    if (toast.parentNode) {
-      toast.classList.add('opacity-0', 'translate-y-2');
-      setTimeout(() => toast.remove(), 250);
-    }
-  }, 4500);
+  // Update mobile bottom nav active state
+  updateMobileBottomNav(pageName);
+
+  // Update page title
+  const titleEl = document.getElementById('page-title');
+  if (titleEl) titleEl.textContent = PAGE_TITLES[pageName] || 'MICROWAT';
+
+  // Load page HTML
+  const pageContent = document.getElementById('page-content');
+  if (!pageContent) return;
+
+  pageContent.innerHTML = `
+    <div class="flex items-center justify-center h-64">
+      <div class="flex flex-col items-center gap-md text-on-surface-variant">
+        <span class="material-symbols-outlined text-[48px] animate-spin">refresh</span>
+        <span class="font-body-md">Loading page...</span>
+      </div>
+    </div>
+  `;
+
+  try {
+    const response = await fetch(`/pages/${pageName}.html`);
+    if (!response.ok) throw new Error(`Page not found: ${pageName}`);
+    const html = await response.text();
+    pageContent.innerHTML = html;
+
+    // Call page-specific init
+    initPage(pageName);
+  } catch (err) {
+    console.error('Page load error:', err);
+    pageContent.innerHTML = `
+      <div class="flex items-center justify-center h-64">
+        <div class="flex flex-col items-center gap-md text-error">
+          <span class="material-symbols-outlined text-[48px]">error</span>
+          <span class="font-body-md">Failed to load page: ${pageName}</span>
+        </div>
+      </div>
+    `;
+  }
 }
 
+function initPage(pageName) {
+  switch (pageName) {
+    case 'dashboard':           initDashboardPage(); break;
+    case 'analytics':           initAnalyticsPage(); break;
+    case 'device':              initDevicePage(); break;
+    case 'device-detail':       initDeviceDetailPage(); break;
+    case 'history':             initHistoryPage(); break;
+    case 'settings':            initSettingsPage(); break;
+    case 'info':                /* static page, no init needed */ break;
+    case 'help':                /* static page, no init needed */ break;
+    case 'admin-settings':      initAdminSettingsPage(); break;
+    case 'user-management':     initUserManagementPage(); break;
+    case 'log-detail':          initLogDetailPage(); break;
+    case 'instrument-config':   initInstrumentConfigPage(); break;
+  }
+}
 
-function setupNotificationPanel() {
-  const btn = document.getElementById('notification-btn');
-  const panel = document.getElementById('notification-panel');
-  const closeBtn = document.getElementById('close-notification-panel');
-
-  if (btn && panel) {
-    btn.addEventListener('click', () => {
-      panel.classList.toggle('hidden');
-      // Clear badge when opening
-      const badge = document.getElementById('notification-badge');
-      if (badge && !panel.classList.contains('hidden')) {
-        badge.classList.add('hidden');
-      }
+function setupPageNavigation() {
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      navigateToPage(link.dataset.page);
     });
-  }
+  });
 
-  if (closeBtn && panel) {
-    closeBtn.addEventListener('click', () => panel.classList.add('hidden'));
-  }
+  // Mobile drawer nav links
+  document.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      closeMobileDrawer();
+      navigateToPage(link.dataset.page);
+    });
+  });
 
-  // Close on outside click
-  document.addEventListener('click', (e) => {
-    if (panel && !panel.classList.contains('hidden')) {
-      if (!panel.contains(e.target) && !btn?.contains(e.target)) {
-        panel.classList.add('hidden');
-      }
-    }
+  // Mobile bottom nav buttons
+  document.querySelectorAll('.mobile-bottom-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      navigateToPage(btn.dataset.page);
+    });
+  });
+
+  // Mobile menu toggle
+  document.getElementById('mobile-menu-btn')?.addEventListener('click', openMobileDrawer);
+
+  // Mobile export / logout
+  document.getElementById('mobile-export-btn')?.addEventListener('click', () => { exportHistoryCSV(); closeMobileDrawer(); });
+  document.getElementById('mobile-logout-btn')?.addEventListener('click', () => { closeMobileDrawer(); logout(); });
+
+  // Export Data button → trigger CSV export
+  document.getElementById('export-data-btn')?.addEventListener('click', () => {
+    exportHistoryCSV();
+  });
+}
+
+function openMobileDrawer() {
+  const overlay = document.getElementById('mobile-drawer-overlay');
+  const drawer = document.getElementById('mobile-drawer');
+  if (!overlay || !drawer) return;
+  overlay.classList.remove('hidden');
+  drawer.classList.remove('hidden');
+  drawer.classList.add('flex');
+  // Sync user display
+  const mainDisplay = document.getElementById('user-email-display');
+  const mobileDisplay = document.getElementById('mobile-user-display');
+  if (mainDisplay && mobileDisplay) mobileDisplay.textContent = mainDisplay.textContent;
+}
+
+function closeMobileDrawer() {
+  const overlay = document.getElementById('mobile-drawer-overlay');
+  const drawer = document.getElementById('mobile-drawer');
+  if (!overlay || !drawer) return;
+  overlay.classList.add('hidden');
+  drawer.classList.add('hidden');
+  drawer.classList.remove('flex');
+}
+
+function updateMobileBottomNav(pageName) {
+  document.querySelectorAll('.mobile-bottom-btn').forEach(btn => {
+    const isActive = btn.dataset.page === pageName || (pageName === 'device-detail' && btn.dataset.page === 'device');
+    btn.classList.toggle('text-primary', isActive);
+    btn.classList.toggle('font-bold', isActive);
+    btn.classList.toggle('text-on-surface-variant', !isActive);
+    const icon = btn.querySelector('.material-symbols-outlined');
+    if (icon) icon.style.fontVariationSettings = isActive ? "'FILL' 1" : "'FILL' 0";
   });
 }
