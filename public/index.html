@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="en" class="dark">
 
 <head>
   <meta charset="UTF-8">
@@ -7,7 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0a0e1a">
-  <meta name="description" content="MICROWAT - Sistem Monitoring Degradasi Limbah">
+  <meta name="description" content="MICROWAT - Wastewater Degradation Monitoring System">
   <title>MICROWAT - Precision Lab Monitor</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
@@ -402,10 +402,10 @@
     <div id="auth-left-panel"
       class="hidden lg:flex flex-1 flex-col relative overflow-hidden bg-gradient-to-br from-[rgb(var(--background))] to-[rgb(var(--surface-container))] border-r border-outline-variant">
 
-      <!-- Background image layer (diisi JS jika ada latarbelakang1/2/dst) -->
+      <!-- Background image layer (loaded by JS if latarbelakang1/2/etc. are available) -->
       <div id="auth-bg-img" class="absolute inset-0 bg-cover bg-center"
         style="opacity:0; transition:opacity 0.8s ease;"></div>
-      <!-- Overlay gelap 20% supaya teks tetap terbaca -->
+      <!-- 20% dark overlay to keep the text readable -->
       <div id="auth-bg-overlay" class="absolute inset-0 hidden" style="background:rgba(0,0,0,0.6)"></div>
 
       <!-- Slides -->
@@ -736,8 +736,8 @@
       }, 5000);
 
       // ── Background image loader ──
-      // Coba load latarbelakang1 → latarbelakang2 → ... (jpg, png, webp, jpeg)
-      // Foto ditaruh di /uploads/backgrounds/
+      // Try loading latarbelakang1 → latarbelakang2 → ... (jpg, png, webp, jpeg)
+      // Images are stored in /uploads/backgrounds/
       const BG_DIR = '/uploads/backgrounds/';
       const bgList = [
         BG_DIR + 'latarbelakang1.jpg',
