@@ -119,13 +119,13 @@ function updateDeviceKPIs() {
 }
 
 // ============================================================================
-// KONTROL PENGUKURAN (Isi / Ukur / Kosong)
+// MEASUREMENT CONTROL (Fill / Measure / Empty)
 // ============================================================================
 
 function addControlLog(message) {
   const log = document.getElementById('control-log');
   if (!log) return;
-  const time = new Date().toLocaleTimeString('id-ID');
+  const time = new Date().toLocaleTimeString('en-US');
   const p = document.createElement('p');
   p.className = 'text-[11px] text-on-surface-variant font-data-md';
   p.textContent = `[${time}] ${message}`;
@@ -174,6 +174,14 @@ function initControlButtons() {
     addControlLog(`${action.toUpperCase()}: command sent to Raspberry Pi.`);
   };
 
+  document.getElementById('btn-spectrum-awal')?.addEventListener('click', () => {
+    setButtonStatus('status-spectrum-awal', 'SENDING', 'secondary');
+    const timeEl = document.getElementById('spectrum-awal-time');
+    if (timeEl) timeEl.textContent = 'Sending command to Avantes...';
+    addControlLog('INITIAL SPECTRUM: requesting baseline acquisition before the experiment.');
+    send('spectrumAwal');
+  });
+
   document.getElementById('btn-isi')?.addEventListener('click', () => {
     setControlBadge('FILLING');
     setButtonStatus('status-isi', 'SENDING', 'primary');
@@ -197,7 +205,7 @@ function initControlButtons() {
     send('stop');
   });
 
-  // Konfirmasi bahwa Node.js sudah menerima perintah.
+  // Confirm that Node.js has received the command.
   socket?.on('deviceControlResult', (data = {}) => {
     if (data.status === 'error') {
       addControlLog(`ERROR ${String(data.action || '').toUpperCase()}: ${data.message || 'failed'}`);
@@ -206,9 +214,12 @@ function initControlButtons() {
       return;
     }
     addControlLog(`${String(data.command || data.action || '').toUpperCase()}: accepted by server.`);
+    if (String(data.command || '').toUpperCase() === 'PRE_EXPERIMENT_SPECTRUM') {
+      setButtonStatus('status-spectrum-awal', 'SENT', 'secondary');
+    }
   });
 
-  // Status aktual yang datang dari Raspberry Pi melalui MQTT.
+  // Actual status received from Raspberry Pi via MQTT.
   socket?.on('deviceStatus', (data = {}) => {
     const status = String(data.status || data.state || '').toUpperCase();
     if (!status) return;
@@ -230,17 +241,23 @@ function initControlButtons() {
   });
 
   socket?.on('deviceMeasurement', (data = {}) => {
+    if (data.measurementType === 'pre_experiment_spectrum' || data.spectrumType === 'baseline') {
+      setButtonStatus('status-spectrum-awal', 'SAVED', 'secondary');
+      const timeEl = document.getElementById('spectrum-awal-time');
+      if (timeEl) timeEl.textContent = data.timestamp ? new Date(data.timestamp).toLocaleString('en-US') : new Date().toLocaleString('en-US');
+      addControlLog('Avantes: pre-experiment spectrum successfully received and marked as baseline.');
+    }
     const value = Number(data.absorbance_max ?? data.absorbance);
     if (Number.isFinite(value)) {
       const el = document.getElementById('spec-absorbance');
       if (el) el.textContent = `${value.toFixed(4)} a.u.`;
     }
-    addControlLog('Avantes: hasil pengukuran diterima dari Raspberry Pi.');
+    addControlLog('Avantes: measurement result received from Raspberry Pi.');
   });
 }
 
 // ============================================================================
-// DYE TYPE DETECTION (from peak wavelength → limbah type)
+// DYE TYPE DETECTION (from peak wavelength → waste type)
 // ============================================================================
 
 function getDyeInfo() {
