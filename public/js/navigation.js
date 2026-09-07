@@ -58,8 +58,14 @@ async function navigateToPage(pageName) {
   `;
 
   try {
-    const response = await fetch(`/pages/${pageName}.html`);
-    if (!response.ok) throw new Error(`Page not found: ${pageName}`);
+    const pageFiles = {
+    device: 'device-status.html'
+    };
+
+    const pageFile = pageFiles[pageName] || `${pageName}.html`;
+
+    const response = await fetch(`/pages/${pageFile}`);
+    if (!response.ok) throw new Error(`Page not found: ${pageFile}`);
     const html = await response.text();
     pageContent.innerHTML = html;
 
@@ -82,7 +88,7 @@ function initPage(pageName) {
   switch (pageName) {
     case 'dashboard':           initDashboardPage(); break;
     case 'analytics':           initAnalyticsPage(); break;
-    case 'device':              initDevicePage(); break;
+    case 'device':              initDeviceStatusPage(); break;
     case 'device-detail':       initDeviceDetailPage(); break;
     case 'history':             initHistoryPage(); break;
     case 'settings':            initSettingsPage(); break;
