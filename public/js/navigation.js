@@ -88,7 +88,7 @@ function initPage(pageName) {
   switch (pageName) {
     case 'dashboard':           initDashboardPage(); break;
     case 'analytics':           initAnalyticsPage(); break;
-    case 'device':              initDeviceStatusPage(); break;
+    case 'device':              initDevicePage(); break;
     case 'device-detail':       initDeviceDetailPage(); break;
     case 'history':             initHistoryPage(); break;
     case 'settings':            initSettingsPage(); break;
