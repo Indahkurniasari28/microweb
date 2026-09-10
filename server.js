@@ -228,11 +228,11 @@ const mqttServer = net.createServer((socket) => {
   });
 });
 
-const MQTT_PORT = Number(process.env.MQTT_PORT || 1883);
+const MQTT_PORT = Number(process.env.MQTT_PORT || 8883);
 const ENABLE_LOCAL_MQTT = process.env.ENABLE_LOCAL_MQTT !== "false";
 
 if (ENABLE_LOCAL_MQTT) {
-  // Start built-in MQTT server on port 1883 (or env override)
+  // Start built-in MQTT server on port 8883 (or env override)
   mqttServer.listen(MQTT_PORT, '0.0.0.0', () => {
     console.log(`🟢 Built-in MQTT Broker running on 0.0.0.0:${MQTT_PORT}`);
   });
@@ -253,10 +253,10 @@ if (ENABLE_LOCAL_MQTT) {
 // ============================================================================
 // LEGACY MQTT - Cloud Broker (opsional, untuk compatibility)
 // ============================================================================
-const mqttBroker = process.env.MQTT_BROKER || "wss://d089792bed824fa48635d8ef188c6799.s1.eu.hivemq.cloud:8884/mqtt";
+const mqttBroker = process.env.MQTT_BROKER || "wss://aa197673f711476f83d323b765d57234.s1.eu.hivemq.cloud:8884/mqtt";
 const mqttClient = mqtt.connect(mqttBroker, {
-  username: process.env.MQTT_USER || "pomclear",
-  password: process.env.MQTT_PASSWORD || "Pomclear123",
+  username: process.env.MQTT_USER || "microwat",
+  password: process.env.MQTT_PASSWORD || "microwat123",
   protocol: "wss",
   rejectUnauthorized: false,
 });
